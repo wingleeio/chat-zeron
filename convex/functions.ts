@@ -22,7 +22,7 @@ triggers.register("messages", async (ctx, change) => {
         lastMessageTimestamp: change.newDoc._creationTime,
       });
     })
-    .otherwise((event) => {
+    .otherwise((_) => {
       // ignore other operations
     });
 });
