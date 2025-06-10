@@ -75,6 +75,7 @@ function useAuthFromProvider() {
     queryKey: ["accessToken"],
     queryFn: () => getAccessToken(),
   });
+
   const fetchAccessToken = useCallback(async () => {
     return await getAccessToken();
   }, []);
