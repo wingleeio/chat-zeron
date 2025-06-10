@@ -129,10 +129,15 @@ export const history = internalQuery({
       };
       const agentMessage = {
         role: "assistant",
-        content: JSON.parse(message.agentMessage.text || "[]"),
+        content: [
+          {
+            type: "text",
+            text: message.agentMessage.text,
+          },
+        ],
       };
 
-      if (agentMessage.content.length === 0) return [userMessage];
+      if (agentMessage.content[0].text === "") return [userMessage];
 
       return [userMessage, agentMessage];
     });
@@ -144,9 +149,42 @@ export const list = query({
     chatId: v.id("chats"),
   },
   handler: async (ctx, args) => {
+    const user = await ctx.runQuery(internal.auth.authenticate, {});
+
+    if (!user) {
+      throw new Error("Unauthorized");
+    }
+
+    const chat = await ctx.runQuery(internal.chats.read, {
+      id: args.chatId,
+    });
+
+    if (!chat) {
+      throw new Error("Chat not found");
+    }
+
+    if (chat.userId !== user._id && !chat.isPublic) {
+      throw new Error("Unauthorized");
+    }
+
     return await ctx.db
       .query("messages")
       .withIndex("by_chat", (q) => q.eq("chatId", args.chatId))
-      .collect();
+      .collect()
+      .then(async (messages) => {
+        return await Promise.all(
+          messages.map(async (message) => {
+            return {
+              ...message,
+              response: (
+                await streamingComponent.getStreamBody(
+                  ctx,
+                  message.responseStreamId as StreamId
+                )
+              ).text,
+            };
+          })
+        );
+      });
   },
 });

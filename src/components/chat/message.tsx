@@ -127,7 +127,11 @@ const MessageAction = ({
   );
 };
 
-function ServerMessage({ message }: { message: Doc<"messages"> }) {
+function ServerMessage({
+  message,
+}: {
+  message: Doc<"messages"> & { response: string };
+}) {
   const drivenIds = useDrivenIds();
   const isDriven = drivenIds.includes(message.chatId);
   const { accessToken } = useAuth();
@@ -143,14 +147,14 @@ function ServerMessage({ message }: { message: Doc<"messages"> }) {
 
   return (
     <Message className="flex-col">
-      {status === "pending" && <Loader variant="typing" />}
+      {status === "pending" && !message.response && <Loader variant="typing" />}
       <MessageContent
         markdown
         className="bg-transparent py-0 prose dark:prose-invert"
       >
-        {text}
+        {text || message.response}
       </MessageContent>
-      {status === "done" && (
+      {status !== "streaming" && (status !== "pending" || message.response) && (
         <MessageActions>
           <MessageAction tooltip="Copy" side="bottom">
             <Button variant="ghost" size="icon">
@@ -178,4 +182,12 @@ function UserMessage({ message }: { message: Doc<"messages"> }) {
   );
 }
 
-export { ServerMessage, UserMessage };
+export {
+  ServerMessage,
+  UserMessage,
+  Message,
+  MessageAvatar,
+  MessageContent,
+  MessageActions,
+  MessageAction,
+};

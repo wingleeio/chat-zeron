@@ -4,19 +4,13 @@ import {
   Scripts,
   createRootRouteWithContext,
 } from "@tanstack/react-router";
-import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import appCss from "../styles.css?url";
 import { ConvexProviderWithAuth, ConvexReactClient } from "convex/react";
 import { convexQuery, ConvexQueryClient } from "@convex-dev/react-query";
-import {
-  QueryClient,
-  QueryClientProvider,
-  useSuspenseQuery,
-} from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { api } from "convex/_generated/api";
 import { getAccessToken } from "@/lib/auth";
-import { useCallback, useMemo } from "react";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+
 import { useAuth } from "@/hooks/use-auth";
 
 export const Route = createRootRouteWithContext<{
@@ -64,8 +58,6 @@ export const Route = createRootRouteWithContext<{
     <RootDocument>
       <AppProvider>
         <Outlet />
-        {/* <TanStackRouterDevtools /> */}
-        {/* <ReactQueryDevtools /> */}
       </AppProvider>
     </RootDocument>
   ),
@@ -88,7 +80,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       <head>
         <HeadContent />
       </head>
-      <body className="dark">
+      <body className="dark flex flex-col fixed inset-0">
         {children}
         <Scripts />
       </body>

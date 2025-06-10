@@ -2,13 +2,16 @@ import type { StreamId } from "@convex-dev/persistent-text-streaming";
 import { generateText, smoothStream, streamText } from "ai";
 import { crud } from "convex-helpers/server/crud";
 import { api, internal } from "convex/_generated/api";
+import type { Doc } from "convex/_generated/dataModel";
 import {
   httpAction,
   internalAction,
   internalMutation,
   internalQuery,
+  query,
 } from "convex/_generated/server";
 import { provider } from "convex/ai/provider";
+import { mutation } from "convex/functions";
 import schema from "convex/schema";
 import { streamingComponent } from "convex/streaming";
 import { v } from "convex/values";
@@ -61,8 +64,21 @@ export const streamChat = httpAction(async (ctx, request) => {
         },
       });
 
+      let iterationCount = 0;
+
       for await (const chunk of result.textStream) {
         await append(chunk);
+
+        iterationCount++;
+        if (iterationCount % 15 === 0) {
+          const chat = await ctx.runQuery(internal.chats.read, {
+            id: message.chatId,
+          });
+          if (chat?.status === "ready") {
+            abortController.abort();
+            break;
+          }
+        }
       }
 
       await ctx.runMutation(internal.chats.update, {
@@ -111,3 +127,34 @@ export const { create, read, update } = crud(
   internalQuery,
   internalMutation as any
 );
+
+export const getById = query({
+  args: {
+    id: v.id("chats"),
+  },
+  handler: async (ctx, args): Promise<Doc<"chats">> => {
+    const chat = await ctx.runQuery(internal.chats.read, {
+      id: args.id,
+    });
+
+    if (!chat) {
+      throw new Error("Chat not found");
+    }
+
+    return chat;
+  },
+});
+
+export const stop = mutation({
+  args: {
+    chatId: v.id("chats"),
+  },
+  handler: async (ctx, args) => {
+    await ctx.runMutation(internal.chats.update, {
+      id: args.chatId,
+      patch: {
+        status: "ready",
+      },
+    });
+  },
+});
