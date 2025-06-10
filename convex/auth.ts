@@ -1,5 +1,7 @@
 import { internal } from "convex/_generated/api";
-import { httpAction } from "convex/_generated/server";
+import type { Doc } from "convex/_generated/dataModel";
+import { httpAction, internalQuery } from "convex/_generated/server";
+import { v } from "convex/values";
 import { match } from "ts-pattern";
 
 export const workosWebhook = httpAction(async (ctx, request) => {
@@ -67,4 +69,24 @@ export const jwks = httpAction(async () => {
   );
   const jwks = await response.json();
   return Response.json(jwks);
+});
+
+export const authenticate = internalQuery({
+  handler: async (ctx): Promise<Doc<"users"> | null> => {
+    const identity = await ctx.auth.getUserIdentity();
+
+    if (!identity) {
+      return null;
+    }
+
+    const user = await ctx.runQuery(internal.users.getByAuthId, {
+      authId: identity.subject,
+    });
+
+    if (!user) {
+      return null;
+    }
+
+    return user;
+  },
 });

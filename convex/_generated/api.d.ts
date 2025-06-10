@@ -8,8 +8,10 @@
  * @module
  */
 
+import type * as ai_provider from "../ai/provider.js";
 import type * as auth from "../auth.js";
 import type * as chats from "../chats.js";
+import type * as cors from "../cors.js";
 import type * as functions from "../functions.js";
 import type * as http from "../http.js";
 import type * as messages from "../messages.js";
@@ -33,8 +35,10 @@ import type {
  * ```
  */
 declare const fullApi: ApiFromModules<{
+  "ai/provider": typeof ai_provider;
   auth: typeof auth;
   chats: typeof chats;
+  cors: typeof cors;
   functions: typeof functions;
   http: typeof http;
   messages: typeof messages;

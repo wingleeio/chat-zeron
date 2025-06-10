@@ -17,6 +17,7 @@ import { api } from "convex/_generated/api";
 import { getAccessToken } from "@/lib/auth";
 import { useCallback, useMemo } from "react";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { useAuth } from "@/hooks/use-auth";
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient;
@@ -63,40 +64,18 @@ export const Route = createRootRouteWithContext<{
     <RootDocument>
       <AppProvider>
         <Outlet />
-        <TanStackRouterDevtools />
-        <ReactQueryDevtools />
+        {/* <TanStackRouterDevtools /> */}
+        {/* <ReactQueryDevtools /> */}
       </AppProvider>
     </RootDocument>
   ),
 });
 
-function useAuthFromProvider() {
-  const data = useSuspenseQuery({
-    queryKey: ["accessToken"],
-    queryFn: () => getAccessToken(),
-  });
-
-  const fetchAccessToken = useCallback(async () => {
-    return await getAccessToken();
-  }, []);
-
-  return useMemo(() => {
-    return {
-      isLoading: false,
-      isAuthenticated: !!data.data,
-      fetchAccessToken,
-    };
-  }, [data.data, fetchAccessToken]);
-}
-
 function AppProvider({ children }: { children: React.ReactNode }) {
   const context = Route.useRouteContext();
   return (
     <QueryClientProvider client={context.queryClient}>
-      <ConvexProviderWithAuth
-        client={context.convexClient}
-        useAuth={useAuthFromProvider}
-      >
+      <ConvexProviderWithAuth client={context.convexClient} useAuth={useAuth}>
         {children}
       </ConvexProviderWithAuth>
     </QueryClientProvider>

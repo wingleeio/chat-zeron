@@ -19,5 +19,7 @@ export default defineSchema({
     userId: v.id("users"),
     chatId: v.id("chats"),
     responseStreamId: StreamIdValidator,
-  }).index("by_chat", ["chatId"]),
+  })
+    .index("by_chat", ["chatId"])
+    .index("by_stream", ["responseStreamId"]),
 });
