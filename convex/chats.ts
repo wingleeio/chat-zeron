@@ -70,7 +70,7 @@ export const streamChat = httpAction(async (ctx, request) => {
         await append(chunk);
 
         iterationCount++;
-        if (iterationCount % 15 === 0) {
+        if (iterationCount % 50 === 0) {
           const chat = await ctx.runQuery(internal.chats.read, {
             id: message.chatId,
           });

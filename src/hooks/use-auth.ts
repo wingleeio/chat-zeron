@@ -7,6 +7,7 @@ export function useAuth() {
   const data = useSuspenseQuery({
     queryKey: ["accessToken"],
     queryFn: () => getAccessToken(),
+    refetchInterval: 1000 * 60 * 2.5,
   });
 
   const fetchAccessToken = useCallback(async () => {
