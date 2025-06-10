@@ -4,7 +4,7 @@ import { v } from "convex/values";
 export default defineSchema({
   users: defineTable({
     authId: v.string(),
-  }),
+  }).index("by_auth_id", ["authId"]),
   chats: defineTable({
     title: v.string(),
     isPublic: v.boolean(),
