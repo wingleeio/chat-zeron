@@ -2,15 +2,27 @@ import {
   Outlet,
   HeadContent,
   Scripts,
-  createRootRoute,
+  createRootRouteWithContext,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
-
-import ConvexProvider from "@/integrations/convex/provider";
-
 import appCss from "../styles.css?url";
+import { ConvexProviderWithAuth, ConvexReactClient } from "convex/react";
+import { convexQuery, ConvexQueryClient } from "@convex-dev/react-query";
+import {
+  QueryClient,
+  QueryClientProvider,
+  useSuspenseQuery,
+} from "@tanstack/react-query";
+import { api } from "convex/_generated/api";
+import { getAccessToken } from "@/lib/auth";
+import { useCallback, useMemo } from "react";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
-export const Route = createRootRoute({
+export const Route = createRootRouteWithContext<{
+  queryClient: QueryClient;
+  convexQueryClient: ConvexQueryClient;
+  convexClient: ConvexReactClient;
+}>()({
   head: () => ({
     meta: [
       {
@@ -35,16 +47,60 @@ export const Route = createRootRoute({
       },
     ],
   }),
-
+  beforeLoad: async ({ context }) => {
+    const accessToken = await context.queryClient.fetchQuery({
+      queryKey: ["accessToken"],
+      queryFn: () => getAccessToken(),
+    });
+    if (accessToken) {
+      context.convexQueryClient.serverHttpClient?.setAuth(accessToken);
+      await context.queryClient.ensureQueryData(
+        convexQuery(api.users.getCurrent, {})
+      );
+    }
+  },
   component: () => (
     <RootDocument>
-      <ConvexProvider>
+      <AppProvider>
         <Outlet />
         <TanStackRouterDevtools />
-      </ConvexProvider>
+        <ReactQueryDevtools />
+      </AppProvider>
     </RootDocument>
   ),
 });
+
+function useAuthFromProvider() {
+  const data = useSuspenseQuery({
+    queryKey: ["accessToken"],
+    queryFn: () => getAccessToken(),
+  });
+  const fetchAccessToken = useCallback(async () => {
+    return await getAccessToken();
+  }, []);
+
+  return useMemo(() => {
+    return {
+      isLoading: false,
+      isAuthenticated: !!data.data,
+      fetchAccessToken,
+    };
+  }, [data.data, fetchAccessToken]);
+}
+
+function AppProvider({ children }: { children: React.ReactNode }) {
+  const context = Route.useRouteContext();
+  return (
+    <QueryClientProvider client={context.queryClient}>
+      <ConvexProviderWithAuth
+        client={context.convexClient}
+        useAuth={useAuthFromProvider}
+      >
+        {children}
+      </ConvexProviderWithAuth>
+    </QueryClientProvider>
+  );
+}
 
 function RootDocument({ children }: { children: React.ReactNode }) {
   return (

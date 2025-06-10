@@ -6,6 +6,7 @@ export const env = createEnv({
   client: {
     VITE_CONVEX_URL: z.string().url(),
     VITE_CONVEX_SITE_URL: z.string().url(),
+    VITE_WORKOS_CLIENT_ID: z.string(),
   },
   runtimeEnv: import.meta.env,
   emptyStringAsUndefined: true,
