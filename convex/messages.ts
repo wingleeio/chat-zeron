@@ -244,12 +244,15 @@ export const list = query({
       .then(async (messages) => {
         return await Promise.all(
           messages.map(async (message) => {
+            const stream = await streamingComponent.getStreamBody(
+              ctx,
+              message.responseStreamId as StreamId
+            );
+            const content = stream.status === "done" ? stream.text : "";
             return {
               ...message,
-              responseStream: await streamingComponent.getStreamBody(
-                ctx,
-                message.responseStreamId as StreamId
-              ),
+              responseStreamStatus: stream.status,
+              responseStreamContent: content,
             };
           })
         );

@@ -55,15 +55,16 @@ function RouteComponent() {
               {match(message)
                 .with(
                   {
-                    responseStream: {
-                      text: P.string,
-                      status: P.union("done", "error", "timeout"),
-                    },
+                    responseStreamStatus: P.union("done", "error", "timeout"),
+                    responseStreamContent: P.string,
                   },
                   () => <CompletedServerMessage message={message} />
                 )
                 .with(
-                  { responseStreamId: P.string, responseStream: P.nonNullable },
+                  {
+                    responseStreamId: P.string,
+                    responseStreamStatus: P.union("streaming", "pending"),
+                  },
                   () => <StreamingServerMessage message={message} />
                 )
                 .otherwise(() => (

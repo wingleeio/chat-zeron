@@ -150,7 +150,7 @@ function PendingServerMessage() {
 
 type StreamingServerMessageProps = {
   message: Doc<"messages"> & {
-    responseStream: StreamBody;
+    responseStreamStatus: StreamBody["status"];
   };
 };
 
@@ -170,14 +170,12 @@ function StreamingServerMessage({ message }: StreamingServerMessageProps) {
 
   return (
     <Message className="flex-col w-full">
-      {status === "pending" && !message.responseStream.text && (
-        <Loader variant="typing" />
-      )}
+      {status === "pending" && <Loader variant="typing" />}
       <MessageContent
         markdown
         className="bg-transparent py-0 w-full max-w-full!"
       >
-        {text || message.responseStream.text}
+        {text}
       </MessageContent>
     </Message>
   );
@@ -185,7 +183,8 @@ function StreamingServerMessage({ message }: StreamingServerMessageProps) {
 
 type CompletedServerMessageProps = {
   message: Doc<"messages"> & {
-    responseStream: StreamBody;
+    responseStreamStatus: StreamBody["status"];
+    responseStreamContent: string;
   };
 };
 
@@ -215,7 +214,7 @@ function CompletedServerMessage({ message }: CompletedServerMessageProps) {
         markdown
         className="bg-transparent py-0 w-full max-w-full!"
       >
-        {message.responseStream.text}
+        {message.responseStreamContent}
       </MessageContent>
       <MessageActions>
         <MessageAction tooltip="Copy" side="bottom">
@@ -223,7 +222,7 @@ function CompletedServerMessage({ message }: CompletedServerMessageProps) {
             variant="ghost"
             size="icon"
             onClick={() => {
-              navigator.clipboard.writeText(message.responseStream.text);
+              navigator.clipboard.writeText(message.responseStreamContent);
               toast.success("Copied to clipboard");
             }}
           >
@@ -252,7 +251,7 @@ function CompletedServerMessage({ message }: CompletedServerMessageProps) {
 function UserMessage({ message }: { message: Doc<"messages"> }) {
   return (
     <Message className="justify-end">
-      <MessageContent markdown className="rounded-xl">
+      <MessageContent markdown className="rounded-xl px-4">
         {message.prompt}
       </MessageContent>
     </Message>
