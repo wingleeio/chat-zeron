@@ -36,7 +36,7 @@ function App() {
         disabled={sendMessage.isPending}
         onClick={() =>
           sendMessage.mutate({
-            prompt: "Write a 50 word story about unicorns",
+            prompt: "Write a 1000 word story about unicorns",
           })
         }
       >

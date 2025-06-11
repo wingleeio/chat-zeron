@@ -18,6 +18,7 @@ export default defineSchema({
     prompt: v.string(),
     userId: v.id("users"),
     chatId: v.id("chats"),
+    uiMessages: v.optional(v.string()),
     responseStreamId: StreamIdValidator,
   })
     .index("by_chat", ["chatId"])
