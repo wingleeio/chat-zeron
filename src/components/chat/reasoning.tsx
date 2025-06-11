@@ -1,11 +1,21 @@
 "use client";
 
+import { Markdown } from "@/components/chat/markdown";
 import { cn } from "@/lib/utils";
+import {
+  closeReasoning,
+  openReasoning,
+  setReasoningDuration,
+  useIsOpenReasoning,
+  useReasoningDuration,
+} from "@/stores/chat";
+import type { ReasoningUIPart } from "@ai-sdk/ui-utils";
 import { ChevronDownIcon } from "lucide-react";
 import React, {
   createContext,
   useContext,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -42,7 +52,7 @@ function Reasoning({
   open,
   onOpenChange,
 }: ReasoningProps) {
-  const [internalOpen, setInternalOpen] = useState(true);
+  const [internalOpen, setInternalOpen] = useState(false);
   const isControlled = open !== undefined;
   const isOpen = isControlled ? open : internalOpen;
 
@@ -145,4 +155,84 @@ function ReasoningContent({
   );
 }
 
-export { Reasoning, ReasoningTrigger, ReasoningContent };
+function ReasoningPart({ id, part }: { id: string; part: ReasoningUIPart }) {
+  const isOpen = useIsOpenReasoning(id);
+  const [isManuallyToggled, setIsManuallyToggled] = useState(false);
+  const initialTextRef = useRef<string | null>(null);
+  const closeTimeoutRef = useRef<NodeJS.Timeout>(null);
+  const thinkingTime = useReasoningDuration(id);
+
+  const thinkingStartRef = useRef<number | null>(null);
+
+  const text = useMemo(() => {
+    return part.details
+      .filter((detail) => detail.type === "text")
+      .map((detail) => detail.text)
+      .join("\n");
+  }, [part.details]);
+
+  // Track thinking time and auto-open
+  useEffect(() => {
+    if (initialTextRef.current === null) {
+      initialTextRef.current = text;
+      return;
+    }
+
+    if (text !== initialTextRef.current) {
+      if (!thinkingStartRef.current) {
+        thinkingStartRef.current = Date.now();
+      }
+      setReasoningDuration(
+        id,
+        Math.floor((Date.now() - (thinkingStartRef.current || 0)) / 1000)
+      );
+
+      if (!isManuallyToggled) {
+        openReasoning(id);
+      }
+    }
+  }, [text, isManuallyToggled, id]);
+
+  useEffect(() => {
+    if (isOpen && !isManuallyToggled) {
+      if (closeTimeoutRef.current) {
+        clearTimeout(closeTimeoutRef.current);
+      }
+
+      closeTimeoutRef.current = setTimeout(() => {
+        console.log("closing");
+        closeReasoning(id);
+      }, 1000);
+    }
+
+    return () => {
+      if (closeTimeoutRef.current) {
+        clearTimeout(closeTimeoutRef.current);
+      }
+    };
+  }, [text, isOpen, isManuallyToggled, id]);
+
+  const handleOpenChange = (newOpen: boolean) => {
+    if (newOpen) {
+      openReasoning(id);
+    } else {
+      closeReasoning(id);
+    }
+    setIsManuallyToggled(true);
+  };
+
+  return (
+    <Reasoning className="px-2" open={isOpen} onOpenChange={handleOpenChange}>
+      <ReasoningTrigger>
+        <span className="text-sm">
+          Reasoning{thinkingTime > 0 ? ` (${thinkingTime}s)` : ""}
+        </span>
+      </ReasoningTrigger>
+      <ReasoningContent className="ml-2 border-l-1 pb-1 pl-2">
+        <Markdown className="text-sm text-muted-foreground">{text}</Markdown>
+      </ReasoningContent>
+    </Reasoning>
+  );
+}
+
+export { ReasoningPart };

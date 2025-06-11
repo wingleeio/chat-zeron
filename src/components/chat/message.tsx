@@ -1,4 +1,3 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Tooltip,
   TooltipContent,
@@ -16,12 +15,7 @@ import type {
 import type { Doc, Id } from "convex/_generated/dataModel";
 import { api } from "convex/_generated/api";
 import { useAuth } from "@/hooks/use-auth";
-import {
-  ChevronDownIcon,
-  CopyIcon,
-  Loader2Icon,
-  RefreshCcwIcon,
-} from "lucide-react";
+import { CopyIcon, Loader2Icon, RefreshCcwIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Loader } from "@/components/chat/loaders";
 import { setDrivenIds, useDrivenIds } from "@/stores/chat";
@@ -33,9 +27,7 @@ import { useParseMessage } from "@/hooks/use-parse-message";
 import type { UIMessage } from "ai";
 import { Fragment } from "react/jsx-runtime";
 import { match } from "ts-pattern";
-import { Reasoning } from "@/components/chat/reasoning";
-import { ReasoningContent } from "@/components/chat/reasoning";
-import { ReasoningTrigger } from "@/components/chat/reasoning";
+import { ReasoningPart } from "@/components/chat/reasoning";
 
 export type MessageProps = {
   children: React.ReactNode;
@@ -47,31 +39,6 @@ const Message = ({ children, className, ...props }: MessageProps) => (
     {children}
   </div>
 );
-
-export type MessageAvatarProps = {
-  src: string;
-  alt: string;
-  fallback?: string;
-  delayMs?: number;
-  className?: string;
-};
-
-const MessageAvatar = ({
-  src,
-  alt,
-  fallback,
-  delayMs,
-  className,
-}: MessageAvatarProps) => {
-  return (
-    <Avatar className={cn("h-8 w-8 shrink-0", className)}>
-      <AvatarImage src={src} alt={alt} />
-      {fallback && (
-        <AvatarFallback delayMs={delayMs}>{fallback}</AvatarFallback>
-      )}
-    </Avatar>
-  );
-};
 
 export type MessageContentProps = {
   children: React.ReactNode;
@@ -168,33 +135,23 @@ function PendingServerMessage() {
 function UIMessage({ message }: { message: UIMessage }) {
   return (
     <Fragment>
-      {message.parts.map((part) =>
-        match(part)
-          .with({ type: "reasoning" }, (part) => (
-            <Reasoning className="px-2">
-              <ReasoningTrigger>
-                <span className="text-sm">Reasoning</span>
-              </ReasoningTrigger>
-              <ReasoningContent className="ml-2 border-l-1 pb-1 pl-2">
-                <Markdown className="text-sm text-muted-foreground">
-                  {part.details
-                    .filter((detail) => detail.type === "text")
-                    .map((detail) => detail.text)
-                    .join("\n")}
-                </Markdown>
-              </ReasoningContent>
-            </Reasoning>
-          ))
-          .with({ type: "text" }, (part) => (
-            <MessageContent
-              markdown
-              className="bg-transparent py-0 w-full max-w-full!"
-            >
-              {part.text}
-            </MessageContent>
-          ))
-          .otherwise(() => null)
-      )}
+      {message.parts.map((part, index) => (
+        <Fragment key={index}>
+          {match(part)
+            .with({ type: "reasoning" }, (part) => (
+              <ReasoningPart id={message.id} part={part} />
+            ))
+            .with({ type: "text" }, (part) => (
+              <MessageContent
+                markdown
+                className="bg-transparent py-0 w-full max-w-full!"
+              >
+                {part.text}
+              </MessageContent>
+            ))
+            .otherwise(() => null)}
+        </Fragment>
+      ))}
     </Fragment>
   );
 }
@@ -316,9 +273,4 @@ export {
   StreamingServerMessage,
   CompletedServerMessage,
   UserMessage,
-  Message,
-  MessageAvatar,
-  MessageContent,
-  MessageActions,
-  MessageAction,
 };
