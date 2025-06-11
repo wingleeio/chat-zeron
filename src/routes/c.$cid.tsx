@@ -2,7 +2,12 @@ import {
   ChatContainerContent,
   ChatContainerRoot,
 } from "@/components/chat/container";
-import { ServerMessage, UserMessage } from "@/components/chat/message";
+import {
+  CompletedServerMessage,
+  PendingServerMessage,
+  StreamingServerMessage,
+  UserMessage,
+} from "@/components/chat/message";
 import { PromptInputWithActions } from "@/components/chat/prompt-input";
 import { convexQuery } from "@convex-dev/react-query";
 import { useSuspenseQuery } from "@tanstack/react-query";
@@ -10,6 +15,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { api } from "convex/_generated/api";
 import type { Id } from "convex/_generated/dataModel";
 import { Fragment } from "react/jsx-runtime";
+import { match, P } from "ts-pattern";
 
 export const Route = createFileRoute("/c/$cid")({
   component: RouteComponent,
@@ -45,7 +51,23 @@ function RouteComponent() {
           {messages.map((message) => (
             <Fragment key={message._id}>
               <UserMessage message={message} />
-              {message.responseStreamId && <ServerMessage message={message} />}
+              {match(message)
+                .with(
+                  {
+                    responseStream: {
+                      text: P.string,
+                      status: P.union("done", "error", "timeout"),
+                    },
+                  },
+                  () => <CompletedServerMessage message={message} />
+                )
+                .with(
+                  { responseStreamId: P.string, responseStream: P.nonNullable },
+                  () => <StreamingServerMessage message={message} />
+                )
+                .otherwise(() => (
+                  <PendingServerMessage />
+                ))}
             </Fragment>
           ))}
         </ChatContainerContent>

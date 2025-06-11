@@ -176,12 +176,10 @@ export const list = query({
           messages.map(async (message) => {
             return {
               ...message,
-              response: (
-                await streamingComponent.getStreamBody(
-                  ctx,
-                  message.responseStreamId as StreamId
-                )
-              ).text,
+              responseStream: await streamingComponent.getStreamBody(
+                ctx,
+                message.responseStreamId as StreamId
+              ),
             };
           })
         );

@@ -9,7 +9,10 @@ import { cn } from "@/lib/utils";
 import { Markdown } from "./markdown";
 import { useStream } from "@convex-dev/persistent-text-streaming/react";
 import { env } from "@/env.client";
-import type { StreamId } from "@convex-dev/persistent-text-streaming";
+import type {
+  StreamBody,
+  StreamId,
+} from "@convex-dev/persistent-text-streaming";
 import type { Doc } from "convex/_generated/dataModel";
 import { api } from "convex/_generated/api";
 import { useAuth } from "@/hooks/use-auth";
@@ -127,11 +130,27 @@ const MessageAction = ({
   );
 };
 
-function ServerMessage({
-  message,
-}: {
-  message: Doc<"messages"> & { response: string };
-}) {
+function PendingServerMessage() {
+  return (
+    <Message className="flex-col w-full">
+      <Loader variant="typing" />
+      <MessageContent
+        markdown
+        className="bg-transparent py-0 w-full max-w-full!"
+      >
+        {"   "}
+      </MessageContent>
+    </Message>
+  );
+}
+
+type StreamingServerMessageProps = {
+  message: Doc<"messages"> & {
+    responseStream: StreamBody;
+  };
+};
+
+function StreamingServerMessage({ message }: StreamingServerMessageProps) {
   const drivenIds = useDrivenIds();
   const isDriven = drivenIds.includes(message.chatId);
   const { accessToken } = useAuth();
@@ -147,27 +166,46 @@ function ServerMessage({
 
   return (
     <Message className="flex-col w-full">
-      {status === "pending" && !message.response && <Loader variant="typing" />}
+      {status === "pending" && !message.responseStream.text && (
+        <Loader variant="typing" />
+      )}
       <MessageContent
         markdown
         className="bg-transparent py-0 w-full max-w-full!"
       >
-        {text || message.response}
+        {text || message.responseStream.text}
       </MessageContent>
-      {status !== "streaming" && (status !== "pending" || message.response) && (
-        <MessageActions>
-          <MessageAction tooltip="Copy" side="bottom">
-            <Button variant="ghost" size="icon">
-              <CopyIcon className="size-3" />
-            </Button>
-          </MessageAction>
-          <MessageAction tooltip="Regenerate" side="bottom">
-            <Button variant="ghost" size="icon">
-              <RefreshCcwIcon className="size-3" />
-            </Button>
-          </MessageAction>
-        </MessageActions>
-      )}
+    </Message>
+  );
+}
+
+type CompletedServerMessageProps = {
+  message: Doc<"messages"> & {
+    responseStream: StreamBody;
+  };
+};
+
+function CompletedServerMessage({ message }: CompletedServerMessageProps) {
+  return (
+    <Message className="flex-col w-full">
+      <MessageContent
+        markdown
+        className="bg-transparent py-0 w-full max-w-full!"
+      >
+        {message.responseStream.text}
+      </MessageContent>
+      <MessageActions>
+        <MessageAction tooltip="Copy" side="bottom">
+          <Button variant="ghost" size="icon">
+            <CopyIcon className="size-3" />
+          </Button>
+        </MessageAction>
+        <MessageAction tooltip="Regenerate" side="bottom">
+          <Button variant="ghost" size="icon">
+            <RefreshCcwIcon className="size-3" />
+          </Button>
+        </MessageAction>
+      </MessageActions>
     </Message>
   );
 }
@@ -183,7 +221,9 @@ function UserMessage({ message }: { message: Doc<"messages"> }) {
 }
 
 export {
-  ServerMessage,
+  PendingServerMessage,
+  StreamingServerMessage,
+  CompletedServerMessage,
   UserMessage,
   Message,
   MessageAvatar,
