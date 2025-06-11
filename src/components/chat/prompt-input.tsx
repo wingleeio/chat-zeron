@@ -216,7 +216,7 @@ function PromptInputWithActions() {
   const sendMessage = useMutation({
     mutationFn: useConvexAction(api.messages.send),
     onSuccess: (message: Doc<"messages">) => {
-      setDrivenIds((prev) => [...prev, message.chatId]);
+      setDrivenIds((prev) => [...prev, message._id]);
     },
   });
 

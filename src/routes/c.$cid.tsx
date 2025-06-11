@@ -40,6 +40,7 @@ function RouteComponent() {
       chatId: cid as Id<"chats">,
     })
   );
+
   return (
     <Fragment>
       <ChatContainerRoot

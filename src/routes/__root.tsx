@@ -12,6 +12,7 @@ import { api } from "convex/_generated/api";
 import { getAccessToken } from "@/lib/auth";
 
 import { useAuth } from "@/hooks/use-auth";
+import { Toaster } from "@/components/ui/sonner";
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient;
@@ -58,6 +59,7 @@ export const Route = createRootRouteWithContext<{
     <RootDocument>
       <AppProvider>
         <Outlet />
+        <Toaster position="top-center" />
       </AppProvider>
     </RootDocument>
   ),

@@ -11,6 +11,6 @@ export function useDrivenIds() {
 export function setDrivenIds(fn: (prev: string[]) => string[]) {
   store.setState((prev) => ({
     ...prev,
-    drivenIds: fn(prev.drivenIds),
+    drivenIds: [...new Set(fn(prev.drivenIds))],
   }));
 }

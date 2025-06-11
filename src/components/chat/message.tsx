@@ -13,13 +13,17 @@ import type {
   StreamBody,
   StreamId,
 } from "@convex-dev/persistent-text-streaming";
-import type { Doc } from "convex/_generated/dataModel";
+import type { Doc, Id } from "convex/_generated/dataModel";
 import { api } from "convex/_generated/api";
 import { useAuth } from "@/hooks/use-auth";
-import { CopyIcon, RefreshCcwIcon } from "lucide-react";
+import { CopyIcon, Loader2Icon, RefreshCcwIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Loader } from "@/components/chat/loaders";
-import { useDrivenIds } from "@/stores/chat";
+import { setDrivenIds, useDrivenIds } from "@/stores/chat";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { convexQuery, useConvexAction } from "@convex-dev/react-query";
+import { useParams } from "@tanstack/react-router";
+import { toast } from "sonner";
 
 export type MessageProps = {
   children: React.ReactNode;
@@ -152,7 +156,7 @@ type StreamingServerMessageProps = {
 
 function StreamingServerMessage({ message }: StreamingServerMessageProps) {
   const drivenIds = useDrivenIds();
-  const isDriven = drivenIds.includes(message.chatId);
+  const isDriven = drivenIds.includes(message._id);
   const { accessToken } = useAuth();
   const { text, status } = useStream(
     api.streaming.getStreamBody,
@@ -186,6 +190,25 @@ type CompletedServerMessageProps = {
 };
 
 function CompletedServerMessage({ message }: CompletedServerMessageProps) {
+  const params = useParams({ from: "/c/$cid" });
+  const chatQuery = convexQuery(api.chats.getById, {
+    id: params.cid as Id<"chats">,
+  });
+  const queryClient = useQueryClient();
+
+  const regenerate = useMutation({
+    mutationFn: useConvexAction(api.messages.regenerate),
+    onMutate: () => {
+      setDrivenIds((prev) => [...prev, message._id]);
+      queryClient.setQueryData(chatQuery.queryKey, (old: Doc<"chats">) => {
+        return {
+          ...old,
+          status: "submitted",
+        };
+      });
+    },
+  });
+
   return (
     <Message className="flex-col w-full">
       <MessageContent
@@ -196,13 +219,29 @@ function CompletedServerMessage({ message }: CompletedServerMessageProps) {
       </MessageContent>
       <MessageActions>
         <MessageAction tooltip="Copy" side="bottom">
-          <Button variant="ghost" size="icon">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => {
+              navigator.clipboard.writeText(message.responseStream.text);
+              toast.success("Copied to clipboard");
+            }}
+          >
             <CopyIcon className="size-3" />
           </Button>
         </MessageAction>
         <MessageAction tooltip="Regenerate" side="bottom">
-          <Button variant="ghost" size="icon">
-            <RefreshCcwIcon className="size-3" />
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => regenerate.mutate({ messageId: message._id })}
+            disabled={regenerate.isPending}
+          >
+            {regenerate.isPending ? (
+              <Loader2Icon className="size-3 animate-spin" />
+            ) : (
+              <RefreshCcwIcon className="size-3" />
+            )}
           </Button>
         </MessageAction>
       </MessageActions>

@@ -54,6 +54,15 @@ export const send = action({
         const existingChat = await ctx.runQuery(internal.chats.read, {
           id: chatId,
         });
+
+        if (!existingChat) {
+          throw new Error("Chat not found");
+        }
+
+        if (existingChat.status !== "ready") {
+          throw new Error("Chat is not ready");
+        }
+
         return existingChat;
       })
       .exhaustive();
@@ -63,17 +72,78 @@ export const send = action({
     const message = await ctx.runMutation(internal.messages.create, {
       prompt: args.prompt,
       userId: user._id,
-      chatId: match(chat)
-        .with(P.nullish, () => {
-          throw new Error("Chat not found");
-        })
-        .with(P.shape({ _id: P.string }), (chat) => chat._id)
-        .with(P.nonNullable, (id) => id)
-        .exhaustive(),
+      chatId: chat._id,
       responseStreamId: streamId,
     });
 
     return message;
+  },
+});
+
+export const regenerate = action({
+  args: {
+    messageId: v.id("messages"),
+  },
+  handler: async (ctx, args) => {
+    const user = await ctx.runQuery(internal.auth.authenticate, {});
+
+    if (!user) {
+      throw new Error("Unauthorized");
+    }
+
+    const messageToRegenerate = await ctx.runQuery(internal.messages.read, {
+      id: args.messageId,
+    });
+
+    if (!messageToRegenerate) {
+      throw new Error("Message not found");
+    }
+
+    if (messageToRegenerate.userId !== user._id) {
+      throw new Error("Unauthorized");
+    }
+
+    const chat = await ctx.runQuery(internal.chats.read, {
+      id: messageToRegenerate.chatId,
+    });
+
+    if (!chat) {
+      throw new Error("Chat not found");
+    }
+
+    if (chat.status !== "ready") {
+      throw new Error("Chat is not ready");
+    }
+
+    const streamId = await streamingComponent.createStream(ctx);
+
+    await ctx.runMutation(internal.messages.update, {
+      id: args.messageId,
+      patch: {
+        responseStreamId: streamId,
+      },
+    });
+    await ctx.runMutation(internal.messages.deleteMessagesAfterCreationTime, {
+      chatId: messageToRegenerate.chatId,
+      creationTime: messageToRegenerate._creationTime,
+    });
+  },
+});
+
+export const deleteMessagesAfterCreationTime = internalMutation({
+  args: {
+    chatId: v.id("chats"),
+    creationTime: v.number(),
+  },
+  handler: async (ctx, args) => {
+    for await (const message of await ctx.db
+      .query("messages")
+      .withIndex("by_chat", (q) =>
+        q.eq("chatId", args.chatId).gt("_creationTime", args.creationTime)
+      )
+      .collect()) {
+      await ctx.db.delete(message._id);
+    }
   },
 });
 
