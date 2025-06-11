@@ -243,10 +243,25 @@ function PromptInputWithActions() {
       });
     } else {
       if (input.trim() || files.length > 0) {
+        queryClient.setQueryData(
+          convexQuery(api.messages.list, {
+            chatId: chat._id,
+          }).queryKey,
+          (old: Doc<"messages">[]) => {
+            return [
+              ...old,
+              {
+                id: "temp-message",
+                prompt: input,
+              },
+            ];
+          }
+        );
         sendMessage.mutate({
           chatId: chat._id,
           prompt: input,
         });
+
         queryClient.setQueryData(chatQuery.queryKey, (old: Doc<"chats">) => {
           return {
             ...old,

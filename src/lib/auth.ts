@@ -42,7 +42,14 @@ export const getAuth = createServerFn({ method: "GET" }).handler(async () => {
     sameSite: "lax",
   });
 
-  return session.authenticate();
+  const finalAuth = await session.authenticate();
+
+  if (!finalAuth.authenticated) {
+    deleteCookie(env.WORKOS_COOKIE_NAME);
+    return null;
+  }
+
+  return finalAuth;
 });
 
 export const getAccessToken = createServerFn({ method: "GET" }).handler(
@@ -50,10 +57,6 @@ export const getAccessToken = createServerFn({ method: "GET" }).handler(
     const auth = await getAuth();
 
     if (!auth) {
-      return null;
-    }
-
-    if (!auth.authenticated) {
       return null;
     }
 

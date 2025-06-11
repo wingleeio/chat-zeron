@@ -68,7 +68,7 @@ const MessageContent = ({
   ...props
 }: MessageContentProps) => {
   const classNames = cn(
-    "rounded-lg p-2 text-foreground bg-secondary prose break-words whitespace-normal",
+    "rounded-lg p-2 text-foreground bg-secondary prose dark:prose-invert break-words whitespace-normal",
     className
   );
 
@@ -146,11 +146,11 @@ function ServerMessage({
   );
 
   return (
-    <Message className="flex-col">
+    <Message className="flex-col w-full">
       {status === "pending" && !message.response && <Loader variant="typing" />}
       <MessageContent
         markdown
-        className="bg-transparent py-0 prose dark:prose-invert"
+        className="bg-transparent py-0 w-full max-w-full!"
       >
         {text || message.response}
       </MessageContent>

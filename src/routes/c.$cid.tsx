@@ -41,11 +41,11 @@ function RouteComponent() {
         initial="instant"
         resize="smooth"
       >
-        <ChatContainerContent className="gap-4 px-4 pt-32 pb-16 mx-auto max-w-2xl">
+        <ChatContainerContent className="gap-4 px-4 pt-32 pb-16 mx-auto max-w-3xl">
           {messages.map((message) => (
             <Fragment key={message._id}>
               <UserMessage message={message} />
-              <ServerMessage message={message} />
+              {message.responseStreamId && <ServerMessage message={message} />}
             </Fragment>
           ))}
         </ChatContainerContent>

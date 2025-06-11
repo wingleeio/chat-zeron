@@ -45,7 +45,7 @@ export const Route = createRootRouteWithContext<{
   beforeLoad: async ({ context }) => {
     const accessToken = await context.queryClient.fetchQuery({
       queryKey: ["accessToken"],
-      queryFn: () => getAccessToken(),
+      queryFn: getAccessToken,
     });
     if (accessToken) {
       context.convexQueryClient.serverHttpClient?.setAuth(accessToken);
