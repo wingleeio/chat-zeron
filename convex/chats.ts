@@ -91,21 +91,13 @@ export const streamChat = httpAction(async (ctx, request) => {
           });
           if (chat?.status === "ready") {
             abortController.abort();
-            const uiMessages = parseRawTextIntoUIMessages(text);
-
-            await ctx.runMutation(internal.messages.update, {
-              id: message._id,
-              patch: {
-                uiMessages: JSON.stringify(uiMessages),
-              },
-            });
             break;
           }
         }
       }
-      console.log(text);
+
       const uiMessages = parseRawTextIntoUIMessages(text);
-      console.log(uiMessages);
+
       await ctx.runMutation(internal.messages.update, {
         id: message._id,
         patch: {
