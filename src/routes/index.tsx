@@ -5,9 +5,7 @@ import { useConvexAction } from "@convex-dev/react-query";
 import { api } from "convex/_generated/api";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "@tanstack/react-router";
-import type { Doc } from "convex/_generated/dataModel";
 import { Loader2Icon } from "lucide-react";
-import { setDrivenIds } from "@/stores/chat";
 
 export const Route = createFileRoute("/")({
   component: App,
@@ -17,13 +15,12 @@ function App() {
   const user = useCurrentUser();
   const navigate = useNavigate();
   const sendMessage = useMutation({
-    mutationFn: useConvexAction(api.messages.send),
-    onSuccess: (message: Doc<"messages">) => {
-      setDrivenIds((prev) => [...prev, message._id]);
+    mutationFn: useConvexAction(api.threads.sendMessage),
+    onSuccess: (id: string) => {
       navigate({
-        to: "/c/$cid",
+        to: "/t/$tid",
         params: {
-          cid: message.chatId,
+          tid: id,
         },
       });
     },

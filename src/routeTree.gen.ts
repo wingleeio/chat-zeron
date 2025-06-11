@@ -12,6 +12,7 @@
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as IndexImport } from './routes/index'
+import { Route as TTidImport } from './routes/t.$tid'
 import { Route as CCidImport } from './routes/c.$cid'
 
 // Create/Update Routes
@@ -19,6 +20,12 @@ import { Route as CCidImport } from './routes/c.$cid'
 const IndexRoute = IndexImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const TTidRoute = TTidImport.update({
+  id: '/t/$tid',
+  path: '/t/$tid',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -46,6 +53,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CCidImport
       parentRoute: typeof rootRoute
     }
+    '/t/$tid': {
+      id: '/t/$tid'
+      path: '/t/$tid'
+      fullPath: '/t/$tid'
+      preLoaderRoute: typeof TTidImport
+      parentRoute: typeof rootRoute
+    }
   }
 }
 
@@ -54,36 +68,41 @@ declare module '@tanstack/react-router' {
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/c/$cid': typeof CCidRoute
+  '/t/$tid': typeof TTidRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/c/$cid': typeof CCidRoute
+  '/t/$tid': typeof TTidRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
   '/c/$cid': typeof CCidRoute
+  '/t/$tid': typeof TTidRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/c/$cid'
+  fullPaths: '/' | '/c/$cid' | '/t/$tid'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/c/$cid'
-  id: '__root__' | '/' | '/c/$cid'
+  to: '/' | '/c/$cid' | '/t/$tid'
+  id: '__root__' | '/' | '/c/$cid' | '/t/$tid'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CCidRoute: typeof CCidRoute
+  TTidRoute: typeof TTidRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CCidRoute: CCidRoute,
+  TTidRoute: TTidRoute,
 }
 
 export const routeTree = rootRoute
@@ -97,7 +116,8 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
-        "/c/$cid"
+        "/c/$cid",
+        "/t/$tid"
       ]
     },
     "/": {
@@ -105,6 +125,9 @@ export const routeTree = rootRoute
     },
     "/c/$cid": {
       "filePath": "c.$cid.tsx"
+    },
+    "/t/$tid": {
+      "filePath": "t.$tid.tsx"
     }
   }
 }

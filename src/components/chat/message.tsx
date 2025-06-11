@@ -24,6 +24,9 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { convexQuery, useConvexAction } from "@convex-dev/react-query";
 import { useParams } from "@tanstack/react-router";
 import { toast } from "sonner";
+import type { UIMessage } from "@convex-dev/agent/react";
+import { Fragment } from "react/jsx-runtime";
+import { match } from "ts-pattern";
 
 export type MessageProps = {
   children: React.ReactNode;
@@ -258,12 +261,33 @@ function CompletedServerMessage({ message }: CompletedServerMessageProps) {
   );
 }
 
-function UserMessage({ message }: { message: Doc<"messages"> }) {
+function UserMessage({ message }: { message: UIMessage }) {
   return (
     <Message className="justify-end">
       <MessageContent markdown className="rounded-xl px-4">
-        {message.prompt}
+        {message.content}
       </MessageContent>
+    </Message>
+  );
+}
+
+function AssistantMessage({ message }: { message: UIMessage }) {
+  return (
+    <Message className="flex-col w-full">
+      {message.parts.map((part, i) => (
+        <Fragment key={i}>
+          {match(part)
+            .with({ type: "text" }, (part) => (
+              <MessageContent
+                markdown
+                className="bg-transparent py-0 w-full max-w-full!"
+              >
+                {part.text}
+              </MessageContent>
+            ))
+            .otherwise(() => null)}
+        </Fragment>
+      ))}
     </Message>
   );
 }
@@ -273,6 +297,7 @@ export {
   StreamingServerMessage,
   CompletedServerMessage,
   UserMessage,
+  AssistantMessage,
   Message,
   MessageAvatar,
   MessageContent,

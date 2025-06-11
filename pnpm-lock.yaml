@@ -14,6 +14,9 @@ importers:
       '@ai-sdk/google-vertex':
         specifier: ^2.2.24
         version: 2.2.24(zod@3.25.56)
+      '@convex-dev/agent':
+        specifier: ^0.1.7
+        version: 0.1.7(ai@4.3.16(react@19.1.0)(zod@3.25.56))(convex-helpers@0.1.92(convex@1.24.8(react@19.1.0))(react@19.1.0)(typescript@5.8.3)(zod@3.25.56))(convex@1.24.8(react@19.1.0))(react@19.1.0)
       '@convex-dev/persistent-text-streaming':
         specifier: ^0.2.3
         version: 0.2.3(convex@1.24.8(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -78,7 +81,7 @@ importers:
         specifier: ^2.1.1
         version: 2.1.1
       convex:
-        specifier: ^1.19.2
+        specifier: ^1.24.8
         version: 1.24.8(react@19.1.0)
       convex-helpers:
         specifier: ^0.1.92
@@ -343,6 +346,17 @@ packages:
   '@colors/colors@1.6.0':
     resolution: {integrity: sha512-Ir+AOibqzrIsL6ajt3Rz3LskB7OiMVHqltZmspbW/TJuTVuyOMirVqAkjfY6JISiLHgyNqicAC8AyHHGzNd/dA==}
     engines: {node: '>=0.1.90'}
+
+  '@convex-dev/agent@0.1.7':
+    resolution: {integrity: sha512-XuPWfi0Ykbkt3fxSIZrjsmz7W0mXulQq3Vvoy1/8ATbXPsN36QmQMm207bXqZrGsYlsQU28OR47NxCzJlGxICg==}
+    peerDependencies:
+      ai: ^4.3.16
+      convex: ^1.23.0
+      convex-helpers: ^0.1.91
+      react: ^18.3.1 || ^19.0.0
+    peerDependenciesMeta:
+      react:
+        optional: true
 
   '@convex-dev/persistent-text-streaming@0.2.3':
     resolution: {integrity: sha512-v6by8JB2lXyd+ZBH0I5TOsd98zk+tvmfPt6ofRuxC2GtNkqUpy6F7CdijRaXiGW+ozlUiQyRsBzhvhTUwVUAHg==}
@@ -5520,6 +5534,14 @@ snapshots:
       mime: 3.0.0
 
   '@colors/colors@1.6.0': {}
+
+  '@convex-dev/agent@0.1.7(ai@4.3.16(react@19.1.0)(zod@3.25.56))(convex-helpers@0.1.92(convex@1.24.8(react@19.1.0))(react@19.1.0)(typescript@5.8.3)(zod@3.25.56))(convex@1.24.8(react@19.1.0))(react@19.1.0)':
+    dependencies:
+      ai: 4.3.16(react@19.1.0)(zod@3.25.56)
+      convex: 1.24.8(react@19.1.0)
+      convex-helpers: 0.1.92(convex@1.24.8(react@19.1.0))(react@19.1.0)(typescript@5.8.3)(zod@3.25.56)
+    optionalDependencies:
+      react: 19.1.0
 
   '@convex-dev/persistent-text-streaming@0.2.3(convex@1.24.8(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
