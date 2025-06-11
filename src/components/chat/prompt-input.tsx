@@ -237,39 +237,34 @@ function PromptInputWithActions() {
   }, [chat.status]);
 
   const handleSubmit = () => {
-    if (isLoading) {
-      stop.mutate({
-        chatId: chat._id,
-      });
-    } else {
-      if (input.trim() || files.length > 0) {
-        queryClient.setQueryData(
-          convexQuery(api.messages.list, {
-            chatId: chat._id,
-          }).queryKey,
-          (old: Doc<"messages">[]) => {
-            return [
-              ...old,
-              {
-                id: "temp-message",
-                prompt: input,
-              },
-            ];
-          }
-        );
-        sendMessage.mutate({
+    if (isLoading) return;
+    if (input.trim() || files.length > 0) {
+      queryClient.setQueryData(
+        convexQuery(api.messages.list, {
           chatId: chat._id,
-          prompt: input,
-        });
-
-        queryClient.setQueryData(chatQuery.queryKey, (old: Doc<"chats">) => {
-          return {
+        }).queryKey,
+        (old: Doc<"messages">[]) => {
+          return [
             ...old,
-            status: "submitted",
-          };
-        });
-        setInput("");
-      }
+            {
+              id: "temp-message",
+              prompt: input,
+            },
+          ];
+        }
+      );
+      sendMessage.mutate({
+        chatId: chat._id,
+        prompt: input,
+      });
+
+      queryClient.setQueryData(chatQuery.queryKey, (old: Doc<"chats">) => {
+        return {
+          ...old,
+          status: "submitted",
+        };
+      });
+      setInput("");
     }
   };
 
@@ -344,7 +339,15 @@ function PromptInputWithActions() {
             variant="default"
             size="icon"
             className="h-8 w-8 rounded-full"
-            onClick={handleSubmit}
+            onClick={() => {
+              if (isLoading) {
+                stop.mutate({
+                  chatId: chat._id,
+                });
+              } else {
+                handleSubmit();
+              }
+            }}
           >
             {isLoading ? (
               <Square className="size-4 fill-current" />

@@ -144,6 +144,11 @@ function PendingServerMessage() {
       >
         {"   "}
       </MessageContent>
+      <MessageActions className="opacity-0">
+        <Button variant="ghost" size="icon">
+          <CopyIcon className="size-3" />
+        </Button>
+      </MessageActions>
     </Message>
   );
 }
@@ -177,6 +182,11 @@ function StreamingServerMessage({ message }: StreamingServerMessageProps) {
       >
         {text}
       </MessageContent>
+      <MessageActions className="opacity-0">
+        <Button variant="ghost" size="icon">
+          <CopyIcon className="size-3" />
+        </Button>
+      </MessageActions>
     </Message>
   );
 }
