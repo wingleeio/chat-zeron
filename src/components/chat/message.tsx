@@ -173,6 +173,16 @@ function StreamingServerMessage({ message }: StreamingServerMessageProps) {
     }
   );
 
+  console.log(
+    text.split("\n").map((line) => {
+      try {
+        return JSON.parse(line);
+      } catch (e) {
+        return null;
+      }
+    })
+  );
+
   return (
     <Message className="flex-col w-full">
       {status === "pending" && <Loader variant="typing" />}

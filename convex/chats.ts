@@ -1,5 +1,5 @@
 import type { StreamId } from "@convex-dev/persistent-text-streaming";
-import { generateText, smoothStream, streamText } from "ai";
+import { createDataStream, generateText, smoothStream, streamText } from "ai";
 import { crud } from "convex-helpers/server/crud";
 import { api, internal } from "convex/_generated/api";
 import type { Doc } from "convex/_generated/dataModel";
@@ -43,17 +43,20 @@ export const streamChat = httpAction(async (ctx, request) => {
       });
 
       const abortController = new AbortController();
+      const stream = createDataStream({
+        execute: async (writer) => {
+          const result = streamText({
+            model: provider.languageModel("gpt-4o"),
+            experimental_transform: smoothStream({
+              chunking: "word",
+            }),
+            temperature: 0.8,
+            messages,
+            abortSignal: abortController.signal,
+          });
 
-      const result = streamText({
-        model: provider.languageModel("gpt-4o"),
-        experimental_transform: smoothStream({
-          chunking: "word",
-        }),
-        temperature: 0.8,
-        messages,
-        abortSignal: abortController.signal,
-        onError: (error) => {
-          console.error(error);
+          result.consumeStream();
+          result.mergeIntoDataStream(writer);
         },
       });
 
@@ -66,9 +69,14 @@ export const streamChat = httpAction(async (ctx, request) => {
 
       let iterationCount = 0;
 
-      for await (const chunk of result.textStream) {
-        await append(chunk);
+      const reader = stream.getReader();
 
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) {
+          break;
+        }
+        await append(value);
         iterationCount++;
         if (iterationCount % 50 === 0) {
           const chat = await ctx.runQuery(internal.chats.read, {
