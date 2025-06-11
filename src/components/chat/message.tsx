@@ -16,7 +16,12 @@ import type {
 import type { Doc, Id } from "convex/_generated/dataModel";
 import { api } from "convex/_generated/api";
 import { useAuth } from "@/hooks/use-auth";
-import { CopyIcon, Loader2Icon, RefreshCcwIcon } from "lucide-react";
+import {
+  ChevronDownIcon,
+  CopyIcon,
+  Loader2Icon,
+  RefreshCcwIcon,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Loader } from "@/components/chat/loaders";
 import { setDrivenIds, useDrivenIds } from "@/stores/chat";
@@ -24,8 +29,14 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { convexQuery, useConvexAction } from "@convex-dev/react-query";
 import { useParams } from "@tanstack/react-router";
 import { toast } from "sonner";
-
 import { useParseMessage } from "@/hooks/use-parse-message";
+import type { UIMessage } from "ai";
+import { Fragment } from "react/jsx-runtime";
+import { match } from "ts-pattern";
+import { Reasoning } from "@/components/chat/reasoning";
+import { ReasoningContent } from "@/components/chat/reasoning";
+import { ReasoningTrigger } from "@/components/chat/reasoning";
+
 export type MessageProps = {
   children: React.ReactNode;
   className?: string;
@@ -154,6 +165,40 @@ function PendingServerMessage() {
   );
 }
 
+function UIMessage({ message }: { message: UIMessage }) {
+  return (
+    <Fragment>
+      {message.parts.map((part) =>
+        match(part)
+          .with({ type: "reasoning" }, (part) => (
+            <Reasoning className="px-2">
+              <ReasoningTrigger>
+                <span className="text-sm">Reasoning</span>
+              </ReasoningTrigger>
+              <ReasoningContent className="ml-2 border-l-1 pb-1 pl-2">
+                <Markdown className="text-sm text-muted-foreground">
+                  {part.details
+                    .filter((detail) => detail.type === "text")
+                    .map((detail) => detail.text)
+                    .join("\n")}
+                </Markdown>
+              </ReasoningContent>
+            </Reasoning>
+          ))
+          .with({ type: "text" }, (part) => (
+            <MessageContent
+              markdown
+              className="bg-transparent py-0 w-full max-w-full!"
+            >
+              {part.text}
+            </MessageContent>
+          ))
+          .otherwise(() => null)
+      )}
+    </Fragment>
+  );
+}
+
 type StreamingServerMessageProps = {
   message: Doc<"messages"> & {
     responseStreamStatus: StreamBody["status"];
@@ -174,19 +219,14 @@ function StreamingServerMessage({ message }: StreamingServerMessageProps) {
     }
   );
 
-  const parts = useParseMessage(text);
-
-  console.log(parts);
+  const uiMessages = useParseMessage(text);
 
   return (
     <Message className="flex-col w-full">
       {status === "pending" && <Loader variant="typing" />}
-      <MessageContent
-        markdown
-        className="bg-transparent py-0 w-full max-w-full!"
-      >
-        {text}
-      </MessageContent>
+      {uiMessages.map((message) => (
+        <UIMessage key={message.id} message={message} />
+      ))}
       <MessageActions className="opacity-0">
         <Button variant="ghost" size="icon">
           <CopyIcon className="size-3" />
@@ -223,21 +263,19 @@ function CompletedServerMessage({ message }: CompletedServerMessageProps) {
     },
   });
 
+  const uiMessages: UIMessage[] = JSON.parse(message.uiMessages ?? "[]");
+
   return (
     <Message className="flex-col w-full">
-      <MessageContent
-        markdown
-        className="bg-transparent py-0 w-full max-w-full!"
-      >
-        {message.responseStreamContent}
-      </MessageContent>
+      {uiMessages.map((message) => (
+        <UIMessage key={message.id} message={message} />
+      ))}
       <MessageActions>
         <MessageAction tooltip="Copy" side="bottom">
           <Button
             variant="ghost"
             size="icon"
             onClick={() => {
-              navigator.clipboard.writeText(message.responseStreamContent);
               toast.success("Copied to clipboard");
             }}
           >

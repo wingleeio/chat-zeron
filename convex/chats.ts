@@ -1,3 +1,4 @@
+import { parseRawTextIntoUIMessages } from "@/lib/utils";
 import type { StreamId } from "@convex-dev/persistent-text-streaming";
 import { createDataStream, generateText, smoothStream, streamText } from "ai";
 import { crud } from "convex-helpers/server/crud";
@@ -47,7 +48,7 @@ export const streamChat = httpAction(async (ctx, request) => {
       const stream = createDataStream({
         execute: async (writer) => {
           const result = streamText({
-            model: provider.languageModel("gpt-4o"),
+            model: provider.languageModel("deepseek-r1"),
             experimental_transform: smoothStream({
               chunking: "word",
             }),
@@ -57,7 +58,9 @@ export const streamChat = httpAction(async (ctx, request) => {
           });
 
           result.consumeStream();
-          result.mergeIntoDataStream(writer);
+          result.mergeIntoDataStream(writer, {
+            sendReasoning: true,
+          });
         },
       });
 
@@ -72,12 +75,15 @@ export const streamChat = httpAction(async (ctx, request) => {
 
       const reader = stream.getReader();
 
+      let text = "";
+
       while (true) {
         const { done, value } = await reader.read();
         if (done) {
           break;
         }
         await append(value);
+        text += value;
         iterationCount++;
         if (iterationCount % 50 === 0) {
           const chat = await ctx.runQuery(internal.chats.read, {
@@ -85,10 +91,27 @@ export const streamChat = httpAction(async (ctx, request) => {
           });
           if (chat?.status === "ready") {
             abortController.abort();
+            const uiMessages = parseRawTextIntoUIMessages(text);
+
+            await ctx.runMutation(internal.messages.update, {
+              id: message._id,
+              patch: {
+                uiMessages: JSON.stringify(uiMessages),
+              },
+            });
             break;
           }
         }
       }
+      console.log(text);
+      const uiMessages = parseRawTextIntoUIMessages(text);
+      console.log(uiMessages);
+      await ctx.runMutation(internal.messages.update, {
+        id: message._id,
+        patch: {
+          uiMessages: JSON.stringify(uiMessages),
+        },
+      });
 
       await ctx.runMutation(internal.chats.update, {
         id: message.chatId,
