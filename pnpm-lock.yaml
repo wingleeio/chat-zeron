@@ -14,6 +14,9 @@ importers:
       '@ai-sdk/google-vertex':
         specifier: ^2.2.24
         version: 2.2.24(zod@3.25.56)
+      '@ai-sdk/ui-utils':
+        specifier: ^1.2.11
+        version: 1.2.11(zod@3.25.56)
       '@convex-dev/persistent-text-streaming':
         specifier: ^0.2.3
         version: 0.2.3(convex@1.24.8(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)

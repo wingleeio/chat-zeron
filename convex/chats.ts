@@ -13,6 +13,7 @@ import {
 import { provider } from "convex/ai/provider";
 import { mutation } from "convex/functions";
 import schema from "convex/schema";
+import { paginationOptsValidator, type PaginationResult } from "convex/server";
 import { streamingComponent } from "convex/streaming";
 import { v } from "convex/values";
 
@@ -164,5 +165,24 @@ export const stop = mutation({
         status: "ready",
       },
     });
+  },
+});
+
+export const getPaginated = query({
+  args: {
+    paginationOpts: paginationOptsValidator,
+  },
+  handler: async (ctx, args): Promise<PaginationResult<Doc<"chats">>> => {
+    const user = await ctx.runQuery(internal.auth.authenticate, {});
+
+    if (!user) {
+      throw new Error("Unauthorized");
+    }
+
+    return await ctx.db
+      .query("chats")
+      .withIndex("by_user", (q) => q.eq("userId", user._id))
+      .order("desc")
+      .paginate(args.paginationOpts);
   },
 });

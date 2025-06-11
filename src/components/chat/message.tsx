@@ -25,6 +25,7 @@ import { convexQuery, useConvexAction } from "@convex-dev/react-query";
 import { useParams } from "@tanstack/react-router";
 import { toast } from "sonner";
 
+import { useParseMessage } from "@/hooks/use-parse-message";
 export type MessageProps = {
   children: React.ReactNode;
   className?: string;
@@ -173,15 +174,9 @@ function StreamingServerMessage({ message }: StreamingServerMessageProps) {
     }
   );
 
-  console.log(
-    text.split("\n").map((line) => {
-      try {
-        return JSON.parse(line);
-      } catch (e) {
-        return null;
-      }
-    })
-  );
+  const parts = useParseMessage(text);
+
+  console.log(parts);
 
   return (
     <Message className="flex-col w-full">

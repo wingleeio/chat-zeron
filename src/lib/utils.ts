@@ -1,3 +1,4 @@
+import { parseDataStreamPart } from "ai";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -15,4 +16,16 @@ export function lazy<T>(fn: () => T): () => T {
     }
     return result;
   };
+}
+
+export function parseDataStream(text: string) {
+  return text
+    .split("\n")
+    .filter((line) => line.trim() !== "")
+    .map((line) => {
+      if (line.split(":")[1] !== "undefined") {
+        return parseDataStreamPart(line);
+      }
+    })
+    .filter((part) => part != null);
 }
