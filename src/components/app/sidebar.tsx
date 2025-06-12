@@ -12,7 +12,7 @@ import {
 
 import { Link } from "@tanstack/react-router";
 import { api } from "convex/_generated/api";
-import { usePaginatedQuery } from "convex/react";
+import { Authenticated, usePaginatedQuery } from "convex/react";
 import { Loader2Icon, PlusIcon } from "lucide-react";
 import { match } from "ts-pattern";
 import type { Doc } from "convex/_generated/dataModel";
@@ -55,7 +55,9 @@ export function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-        <SidebarChats />
+        <Authenticated>
+          <SidebarChats />
+        </Authenticated>
       </SidebarContent>
     </Sidebar>
   );

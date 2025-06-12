@@ -1,35 +1,31 @@
 import { internal } from "convex/_generated/api";
 import type { Doc } from "convex/_generated/dataModel";
 import { httpAction, internalQuery } from "convex/_generated/server";
-import { v } from "convex/values";
 import { match } from "ts-pattern";
+import { Webhook } from "svix";
+import type { WebhookEvent } from "@clerk/tanstack-start/server";
 
-export const workosWebhook = httpAction(async (ctx, request) => {
+export const clerkWebhook = httpAction(async (ctx, request) => {
   const bodyText = await request.text();
-  const sigHeader = String(request.headers.get("workos-signature"));
+  const svixId = String(request.headers.get("svix-id"));
+  const svixTimestamp = String(request.headers.get("svix-timestamp"));
+  const svixSignature = String(request.headers.get("svix-signature"));
 
-  const results = await ctx.runAction(internal.workos.verifyWebhook, {
-    payload: bodyText,
-    signature: sigHeader,
-  });
+  const wh = new Webhook(process.env.CLERK_WEBHOOK_SECRET_KEY!);
+  const msg = wh.verify(bodyText, {
+    "svix-id": svixId,
+    "svix-timestamp": svixTimestamp,
+    "svix-signature": svixSignature,
+  }) as WebhookEvent;
 
-  return match(results)
-    .with({ event: "user.created" }, async ({ data }) => {
+  return await match(msg)
+    .with({ type: "user.created" }, async ({ data }) => {
       const user = await ctx.runQuery(internal.users.getByAuthId, {
         authId: data.id,
       });
 
       if (user) {
-        return Response.json(
-          {
-            status: "error",
-            message: "User already exists",
-            metadata: {
-              id: user._id,
-            },
-          },
-          { status: 400 }
-        );
+        return Response.json({ status: "success" });
       }
 
       await ctx.runMutation(internal.users.create, {
@@ -38,20 +34,17 @@ export const workosWebhook = httpAction(async (ctx, request) => {
 
       return Response.json({ status: "success" });
     })
-    .with({ event: "user.deleted" }, async ({ data }) => {
+    .with({ type: "user.deleted" }, async ({ data }) => {
+      if (!data.id) {
+        return Response.json({ status: "success" });
+      }
+
       const user = await ctx.runQuery(internal.users.getByAuthId, {
         authId: data.id,
       });
 
       if (!user) {
-        return Response.json(
-          {
-            status: "error",
-            message: "User not found",
-            metadata: { id: data.id },
-          },
-          { status: 404 }
-        );
+        return Response.json({ status: "success" });
       }
 
       await ctx.runMutation(internal.users.destroy, {
@@ -60,15 +53,10 @@ export const workosWebhook = httpAction(async (ctx, request) => {
 
       return Response.json({ status: "success" });
     })
+    .with({ type: "user.updated" }, async ({ data }) => {
+      return Response.json({ status: "success" });
+    })
     .otherwise(() => Response.json({ status: "success" }));
-});
-
-export const jwks = httpAction(async () => {
-  const response = await fetch(
-    `https://${process.env.WORKOS_API_HOSTNAME}/sso/jwks/${process.env.WORKOS_CLIENT_ID}`
-  );
-  const jwks = await response.json();
-  return Response.json(jwks);
 });
 
 export const authenticate = internalQuery({

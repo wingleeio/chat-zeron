@@ -9,41 +9,40 @@ import {
   UserMessage,
 } from "@/components/chat/message";
 import { PromptInputWithActions } from "@/components/chat/prompt-input";
-import { getAccessToken } from "@/lib/auth";
-import { setDrivenIds } from "@/stores/chat";
 import { convexQuery } from "@convex-dev/react-query";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { api } from "convex/_generated/api";
 import type { Id } from "convex/_generated/dataModel";
-import { useEffect } from "react";
+import { Authenticated } from "convex/react";
 import { Fragment } from "react/jsx-runtime";
 import { match, P } from "ts-pattern";
 
 export const Route = createFileRoute("/c/$cid")({
   component: RouteComponent,
   loader: async ({ context, params }) => {
-    const token = await context.queryClient.fetchQuery({
-      queryKey: ["accessToken"],
-      queryFn: getAccessToken,
-    });
-    if (token) {
-      context.convexQueryClient.serverHttpClient?.setAuth(token);
-      await context.queryClient.ensureQueryData(
-        convexQuery(api.chats.getById, {
-          id: params.cid as Id<"chats">,
-        })
-      );
-      await context.queryClient.ensureQueryData(
-        convexQuery(api.messages.list, {
-          chatId: params.cid as Id<"chats">,
-        })
-      );
-    }
+    await context.queryClient.ensureQueryData(
+      convexQuery(api.chats.getById, {
+        id: params.cid as Id<"chats">,
+      })
+    );
+    await context.queryClient.ensureQueryData(
+      convexQuery(api.messages.list, {
+        chatId: params.cid as Id<"chats">,
+      })
+    );
   },
 });
 
 function RouteComponent() {
+  return (
+    <Authenticated>
+      <Chat />
+    </Authenticated>
+  );
+}
+
+function Chat() {
   const { cid } = Route.useParams();
   const { data: messages } = useSuspenseQuery(
     convexQuery(api.messages.list, {

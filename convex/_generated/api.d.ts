@@ -18,7 +18,6 @@ import type * as messages from "../messages.js";
 import type * as streaming from "../streaming.js";
 import type * as users from "../users.js";
 import type * as validators_chat from "../validators/chat.js";
-import type * as workos from "../workos.js";
 
 import type {
   ApiFromModules,
@@ -45,7 +44,6 @@ declare const fullApi: ApiFromModules<{
   streaming: typeof streaming;
   users: typeof users;
   "validators/chat": typeof validators_chat;
-  workos: typeof workos;
 }>;
 declare const fullApiWithMounts: typeof fullApi;
 
