@@ -1,7 +1,7 @@
 import { getAccessToken } from "@/lib/auth";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useRouteContext } from "@tanstack/react-router";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { useMemo } from "react";
 
 export function useAuth() {
@@ -14,9 +14,19 @@ export function useAuth() {
     refetchInterval: 1000 * 60 * 3,
   });
 
-  const fetchAccessToken = useCallback(async () => {
-    return data.data;
-  }, [data.data]);
+  const lastToken = useRef<string | null>(null);
+
+  const fetchAccessToken = useCallback(
+    async ({ forceRefreshToken }: { forceRefreshToken: boolean }) => {
+      if (!forceRefreshToken && lastToken.current) {
+        return lastToken.current;
+      }
+      const token = await getAccessToken();
+      lastToken.current = token;
+      return token;
+    },
+    [data.data]
+  );
 
   useEffect(() => {
     if (data.data) {
@@ -28,9 +38,9 @@ export function useAuth() {
   return useMemo(() => {
     return {
       accessToken: data.data,
-      isLoading: false,
-      isAuthenticated: !!data.data,
+      isLoading: data.isLoading,
+      isAuthenticated: Boolean(data.data),
       fetchAccessToken,
     };
-  }, [data.data, fetchAccessToken]);
+  }, [data.data, data.isLoading, fetchAccessToken]);
 }

@@ -9,6 +9,7 @@ import {
   UserMessage,
 } from "@/components/chat/message";
 import { PromptInputWithActions } from "@/components/chat/prompt-input";
+import { getAccessToken } from "@/lib/auth";
 import { convexQuery } from "@convex-dev/react-query";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
@@ -20,16 +21,23 @@ import { match, P } from "ts-pattern";
 export const Route = createFileRoute("/c/$cid")({
   component: RouteComponent,
   loader: async ({ context, params }) => {
-    await context.queryClient.ensureQueryData(
-      convexQuery(api.chats.getById, {
-        id: params.cid as Id<"chats">,
-      })
-    );
-    await context.queryClient.ensureQueryData(
-      convexQuery(api.messages.list, {
-        chatId: params.cid as Id<"chats">,
-      })
-    );
+    const token = await context.queryClient.fetchQuery({
+      queryKey: ["accessToken"],
+      queryFn: getAccessToken,
+    });
+    if (token) {
+      context.convexQueryClient.serverHttpClient?.setAuth(token);
+      await context.queryClient.ensureQueryData(
+        convexQuery(api.chats.getById, {
+          id: params.cid as Id<"chats">,
+        })
+      );
+      await context.queryClient.ensureQueryData(
+        convexQuery(api.messages.list, {
+          chatId: params.cid as Id<"chats">,
+        })
+      );
+    }
   },
 });
 
@@ -74,7 +82,7 @@ function RouteComponent() {
           ))}
         </ChatContainerContent>
       </ChatContainerRoot>
-      <div className="w-full p-4">
+      <div className="w-full px-4 pb-4">
         <PromptInputWithActions />
       </div>
     </Fragment>

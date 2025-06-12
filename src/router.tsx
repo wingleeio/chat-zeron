@@ -22,7 +22,9 @@ export const createRouter = () => {
     console.error("missing envar WORKOS_CLIENT_ID");
   }
 
-  const convexClient = new ConvexReactClient(CONVEX_URL);
+  const convexClient = new ConvexReactClient(CONVEX_URL, {
+    authRefreshTokenLeewaySeconds: 60,
+  });
   const convexQueryClient = new ConvexQueryClient(convexClient);
   const queryClient = new QueryClient({
     defaultOptions: {

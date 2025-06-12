@@ -238,6 +238,16 @@ function CompletedServerMessage({ message }: CompletedServerMessageProps) {
             variant="ghost"
             size="icon"
             onClick={() => {
+              navigator.clipboard.writeText(
+                uiMessages
+                  .map((m) =>
+                    m.parts
+                      .filter((p) => p.type === "text")
+                      .map((p) => p.text)
+                      .join("")
+                  )
+                  .join("\n")
+              );
               toast.success("Copied to clipboard");
             }}
           >
