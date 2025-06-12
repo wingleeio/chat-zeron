@@ -30,13 +30,13 @@ function App() {
   });
 
   return (
-    <div className="text-center">
+    <div className="text-center p-12">
       <div>what's good {user.data?.authId}</div>
       <Button
         disabled={sendMessage.isPending}
         onClick={() =>
           sendMessage.mutate({
-            prompt: "Write a 1000 word story about unicorns",
+            prompt: "Write a 1000 word story about lookism daniel park",
           })
         }
       >

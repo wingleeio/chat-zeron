@@ -132,6 +132,14 @@ function PendingServerMessage() {
   );
 }
 
+function TextPart({ text }: { text: string }) {
+  return (
+    <MessageContent markdown className="bg-transparent py-0 w-full max-w-full!">
+      {text}
+    </MessageContent>
+  );
+}
+
 function UIMessage({ message }: { message: UIMessage }) {
   return (
     <Fragment>
@@ -139,16 +147,13 @@ function UIMessage({ message }: { message: UIMessage }) {
         <Fragment key={index}>
           {match(part)
             .with({ type: "reasoning" }, (part) => (
-              <ReasoningPart id={message.id} part={part} />
+              <ReasoningPart
+                id={message.id}
+                part={part}
+                done={message.parts.length > 1}
+              />
             ))
-            .with({ type: "text" }, (part) => (
-              <MessageContent
-                markdown
-                className="bg-transparent py-0 w-full max-w-full!"
-              >
-                {part.text}
-              </MessageContent>
-            ))
+            .with({ type: "text" }, (part) => <TextPart text={part.text} />)
             .otherwise(() => null)}
         </Fragment>
       ))}

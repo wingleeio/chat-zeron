@@ -5,12 +5,8 @@ import {
 import { crud } from "convex-helpers/server/crud";
 import { internal } from "convex/_generated/api";
 import type { Doc } from "convex/_generated/dataModel";
-import {
-  action,
-  internalMutation,
-  internalQuery,
-  query,
-} from "convex/_generated/server";
+import { action, internalQuery, query } from "convex/_generated/server";
+import { internalMutation } from "convex/functions";
 import { streamingComponent } from "convex/streaming";
 import { v } from "convex/values";
 import { match, P } from "ts-pattern";

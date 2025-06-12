@@ -155,13 +155,19 @@ function ReasoningContent({
   );
 }
 
-function ReasoningPart({ id, part }: { id: string; part: ReasoningUIPart }) {
+function ReasoningPart({
+  id,
+  part,
+  done,
+}: {
+  id: string;
+  part: ReasoningUIPart;
+  done: boolean;
+}) {
   const isOpen = useIsOpenReasoning(id);
   const [isManuallyToggled, setIsManuallyToggled] = useState(false);
   const initialTextRef = useRef<string | null>(null);
-  const closeTimeoutRef = useRef<NodeJS.Timeout>(null);
   const thinkingTime = useReasoningDuration(id);
-
   const thinkingStartRef = useRef<number | null>(null);
 
   const text = useMemo(() => {
@@ -171,7 +177,6 @@ function ReasoningPart({ id, part }: { id: string; part: ReasoningUIPart }) {
       .join("\n");
   }, [part.details]);
 
-  // Track thinking time and auto-open
   useEffect(() => {
     if (initialTextRef.current === null) {
       initialTextRef.current = text;
@@ -184,7 +189,7 @@ function ReasoningPart({ id, part }: { id: string; part: ReasoningUIPart }) {
       }
       setReasoningDuration(
         id,
-        Math.floor((Date.now() - (thinkingStartRef.current || 0)) / 1000)
+        (Date.now() - (thinkingStartRef.current || 0)) / 1000
       );
 
       if (!isManuallyToggled) {
@@ -194,23 +199,10 @@ function ReasoningPart({ id, part }: { id: string; part: ReasoningUIPart }) {
   }, [text, isManuallyToggled, id]);
 
   useEffect(() => {
-    if (isOpen && !isManuallyToggled) {
-      if (closeTimeoutRef.current) {
-        clearTimeout(closeTimeoutRef.current);
-      }
-
-      closeTimeoutRef.current = setTimeout(() => {
-        console.log("closing");
-        closeReasoning(id);
-      }, 1000);
+    if (isOpen && !isManuallyToggled && done) {
+      closeReasoning(id);
     }
-
-    return () => {
-      if (closeTimeoutRef.current) {
-        clearTimeout(closeTimeoutRef.current);
-      }
-    };
-  }, [text, isOpen, isManuallyToggled, id]);
+  }, [done, isOpen, isManuallyToggled, id]);
 
   const handleOpenChange = (newOpen: boolean) => {
     if (newOpen) {
@@ -225,7 +217,10 @@ function ReasoningPart({ id, part }: { id: string; part: ReasoningUIPart }) {
     <Reasoning className="px-2" open={isOpen} onOpenChange={handleOpenChange}>
       <ReasoningTrigger>
         <span className="text-sm">
-          Reasoning{thinkingTime > 0 ? ` (${thinkingTime}s)` : ""}
+          Reasoning
+          <span className="text-muted-foreground">
+            {thinkingTime > 0 ? ` (${thinkingTime}s)` : ""}
+          </span>
         </span>
       </ReasoningTrigger>
       <ReasoningContent className="ml-2 border-l-1 pb-1 pl-2">

@@ -13,7 +13,9 @@ export default defineSchema({
     isPublic: v.boolean(),
     status: vStatus,
     lastMessageTimestamp: v.number(),
-  }).index("by_user", ["userId"]),
+  })
+    .index("by_user", ["userId"])
+    .index("by_user_lastMessageTimestamp", ["userId", "lastMessageTimestamp"]),
   messages: defineTable({
     prompt: v.string(),
     userId: v.id("users"),

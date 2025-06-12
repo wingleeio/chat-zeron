@@ -7,12 +7,11 @@ import type { Doc } from "convex/_generated/dataModel";
 import {
   httpAction,
   internalAction,
-  internalMutation,
   internalQuery,
   query,
 } from "convex/_generated/server";
 import { provider } from "convex/ai/provider";
-import { mutation } from "convex/functions";
+import { mutation, internalMutation } from "convex/functions";
 import schema from "convex/schema";
 import { paginationOptsValidator, type PaginationResult } from "convex/server";
 import { streamingComponent } from "convex/streaming";
@@ -133,6 +132,7 @@ export const generateTitle = internalAction({
       - ensure it is not more than 80 characters long
       - the title should be a summary of the user's message
       - do not use quotes or colons`,
+      temperature: 0.8,
       prompt: args.prompt,
     });
 
@@ -196,7 +196,9 @@ export const getPaginated = query({
 
     return await ctx.db
       .query("chats")
-      .withIndex("by_user", (q) => q.eq("userId", user._id))
+      .withIndex("by_user_lastMessageTimestamp", (q) =>
+        q.eq("userId", user._id)
+      )
       .order("desc")
       .paginate(args.paginationOpts);
   },

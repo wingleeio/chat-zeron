@@ -42,7 +42,7 @@ function RouteComponent() {
   );
 
   return (
-    <Fragment>
+    <Fragment key={cid}>
       <ChatContainerRoot
         className="w-full flex-1"
         initial="instant"

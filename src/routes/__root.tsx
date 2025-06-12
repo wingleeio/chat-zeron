@@ -17,11 +17,13 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app/sidebar";
 import { AppHeader } from "@/components/app/header";
 
-export const Route = createRootRouteWithContext<{
+export type RouterContext = {
   queryClient: QueryClient;
   convexQueryClient: ConvexQueryClient;
   convexClient: ConvexReactClient;
-}>()({
+};
+
+export const Route = createRootRouteWithContext<RouterContext>()({
   head: () => ({
     meta: [
       {
@@ -58,6 +60,7 @@ export const Route = createRootRouteWithContext<{
       );
     }
   },
+
   component: () => (
     <RootDocument>
       <AppProvider>
