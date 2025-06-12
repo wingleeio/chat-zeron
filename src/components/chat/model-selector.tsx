@@ -63,14 +63,14 @@ export function ModelSelector() {
       </PopoverTrigger>
       <PopoverContent className="w-[200px] p-0">
         <Command className="bg-sidebar">
-          <CommandInput placeholder="Search framework..." className="h-9" />
+          <CommandInput placeholder="Search models..." className="h-9" />
           <CommandList>
-            <CommandEmpty>No framework found.</CommandEmpty>
+            <CommandEmpty>No models found.</CommandEmpty>
             <CommandGroup>
               {models?.map((model) => (
                 <CommandItem
                   key={model._id}
-                  value={model._id}
+                  value={model.name}
                   className="data-[selected=true]:bg-muted data-[selected=true]:text-foreground"
                   onSelect={() => {
                     setOpen(false);

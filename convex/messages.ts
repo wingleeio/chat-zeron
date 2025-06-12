@@ -122,6 +122,7 @@ export const regenerate = action({
       id: args.messageId,
       patch: {
         responseStreamId: streamId,
+        modelId: user.model,
       },
     });
     await ctx.runMutation(internal.messages.deleteMessagesAfterCreationTime, {
