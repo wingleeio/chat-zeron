@@ -13,16 +13,48 @@ import {
 import { Link } from "@tanstack/react-router";
 import { api } from "convex/_generated/api";
 import { usePaginatedQuery } from "convex/react";
-import { Loader2Icon } from "lucide-react";
+import { Loader2Icon, PlusIcon } from "lucide-react";
 import { match } from "ts-pattern";
 import type { Doc } from "convex/_generated/dataModel";
 import { Fragment } from "react/jsx-runtime";
+import { IconInnerShadowTop } from "@tabler/icons-react";
+import { Button } from "@/components/ui/button";
 
 export function AppSidebar() {
   return (
     <Sidebar>
-      <SidebarHeader />
+      <SidebarHeader>
+        <SidebarMenu className="flex-row">
+          <SidebarMenuItem>
+            <Button variant="ghost" size="icon" asChild>
+              <SidebarMenuButton
+                asChild
+                className="data-[slot=sidebar-menu-button]:!p-1.5 flex-shrink"
+              >
+                <Link to="/">
+                  <IconInnerShadowTop className="!size-4" />
+                  <span className="sr-only">Zeron</span>
+                </Link>
+              </SidebarMenuButton>
+            </Button>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarHeader>
       <SidebarContent>
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <Link to="/">
+                    <PlusIcon />
+                    <span>New Chat</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
         <SidebarChats />
       </SidebarContent>
     </Sidebar>

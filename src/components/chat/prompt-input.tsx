@@ -20,7 +20,7 @@ import {
   useQueryClient,
   useSuspenseQuery,
 } from "@tanstack/react-query";
-import { useParams } from "@tanstack/react-router";
+import { useParams, useNavigate } from "@tanstack/react-router";
 import { api } from "convex/_generated/api";
 import type { Doc, Id } from "convex/_generated/dataModel";
 import { ArrowUp, Paperclip, Square, X } from "lucide-react";
@@ -361,10 +361,113 @@ function PromptInputWithActions() {
   );
 }
 
+function PromptInputWithActionsNewChat() {
+  const [input, setInput] = useState("");
+  const [files, setFiles] = useState<File[]>([]);
+  const uploadInputRef = useRef<HTMLInputElement>(null);
+
+  const navigate = useNavigate();
+  const sendMessage = useMutation({
+    mutationFn: useConvexAction(api.messages.send),
+    onSuccess: async (message: Doc<"messages">) => {
+      setDrivenIds((prev) => [...prev, message._id]);
+      await navigate({ to: "/c/$cid", params: { cid: message.chatId } });
+    },
+  });
+
+  const handleSubmit = () => {
+    if (input.trim() || files.length > 0) {
+      sendMessage.mutate({
+        prompt: input,
+      });
+      setInput("");
+    }
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files) {
+      const newFiles = Array.from(event.target.files);
+      setFiles((prev) => [...prev, ...newFiles]);
+    }
+  };
+
+  const handleRemoveFile = (index: number) => {
+    setFiles((prev) => prev.filter((_, i) => i !== index));
+    if (uploadInputRef?.current) {
+      uploadInputRef.current.value = "";
+    }
+  };
+
+  return (
+    <PromptInput
+      value={input}
+      onValueChange={setInput}
+      isLoading={sendMessage.isPending}
+      onSubmit={handleSubmit}
+      className="w-full max-w-(--breakpoint-md) mx-auto p-3"
+    >
+      {files.length > 0 && (
+        <div className="flex flex-wrap gap-2 pb-2">
+          {files.map((file, index) => (
+            <div
+              key={index}
+              className="bg-secondary flex items-center gap-2 rounded-lg px-3 py-2 text-sm"
+            >
+              <Paperclip className="size-4" />
+              <span className="max-w-[120px] truncate">{file.name}</span>
+              <button
+                onClick={() => handleRemoveFile(index)}
+                className="hover:bg-secondary/50 rounded-full p-1"
+              >
+                <X className="size-4" />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <PromptInputTextarea
+        className="bg-transparent!"
+        placeholder="Ask me anything..."
+      />
+
+      <PromptInputActions className="flex items-center justify-between gap-2 pt-2">
+        <PromptInputAction tooltip="Attach files">
+          <label
+            htmlFor="file-upload"
+            className="hover:bg-secondary-foreground/10 flex h-8 w-8 cursor-pointer items-center justify-center rounded-2xl"
+          >
+            <input
+              type="file"
+              multiple
+              onChange={handleFileChange}
+              className="hidden"
+              id="file-upload"
+            />
+            <Paperclip className="text-primary size-4" />
+          </label>
+        </PromptInputAction>
+
+        <PromptInputAction tooltip="Send message">
+          <Button
+            variant="default"
+            size="icon"
+            className="h-8 w-8 rounded-full"
+            onClick={handleSubmit}
+          >
+            <ArrowUp className="size-4" />
+          </Button>
+        </PromptInputAction>
+      </PromptInputActions>
+    </PromptInput>
+  );
+}
+
 export {
   PromptInput,
   PromptInputTextarea,
   PromptInputActions,
   PromptInputAction,
   PromptInputWithActions,
+  PromptInputWithActionsNewChat,
 };
