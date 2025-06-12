@@ -10,11 +10,13 @@ import {
 } from "@/components/chat/message";
 import { PromptInputWithActions } from "@/components/chat/prompt-input";
 import { getAccessToken } from "@/lib/auth";
+import { setDrivenIds } from "@/stores/chat";
 import { convexQuery } from "@convex-dev/react-query";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { api } from "convex/_generated/api";
 import type { Id } from "convex/_generated/dataModel";
+import { useEffect } from "react";
 import { Fragment } from "react/jsx-runtime";
 import { match, P } from "ts-pattern";
 
@@ -48,6 +50,10 @@ function RouteComponent() {
       chatId: cid as Id<"chats">,
     })
   );
+
+  useEffect(() => {
+    setDrivenIds((_) => []);
+  }, [cid]);
 
   return (
     <Fragment key={cid}>
