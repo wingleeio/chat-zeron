@@ -53,7 +53,7 @@ export const clerkWebhook = httpAction(async (ctx, request) => {
 
       return Response.json({ status: "success" });
     })
-    .with({ type: "user.updated" }, async ({ data }) => {
+    .with({ type: "user.updated" }, async () => {
       return Response.json({ status: "success" });
     })
     .otherwise(() => Response.json({ status: "success" }));

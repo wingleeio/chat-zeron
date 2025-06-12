@@ -32,7 +32,7 @@ export type CodeBlockCodeProps = {
 function CodeBlockCode({
   code,
   language = "tsx",
-  theme = "github-dark",
+  theme = "catppuccin-mocha",
   className,
   ...props
 }: CodeBlockCodeProps) {
@@ -52,7 +52,7 @@ function CodeBlockCode({
   }, [code, language, theme]);
 
   const classNames = cn(
-    "w-full overflow-x-auto text-[13px] [&>pre]:px-4 [&>pre]:py-4",
+    "w-full overflow-x-auto text-[13px] [&>pre]:px-4 [&>pre]:py-4 shadow-xl",
     className
   );
 

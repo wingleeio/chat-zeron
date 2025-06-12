@@ -157,12 +157,22 @@ export const getById = query({
     id: v.id("chats"),
   },
   handler: async (ctx, args): Promise<Doc<"chats">> => {
+    const user = await ctx.runQuery(internal.auth.authenticate, {});
+
+    if (!user) {
+      throw new Error("Unauthorized");
+    }
+
     const chat = await ctx.runQuery(internal.chats.read, {
       id: args.id,
     });
 
     if (!chat) {
       throw new Error("Chat not found");
+    }
+
+    if (chat.userId !== user._id) {
+      throw new Error("Unauthorized");
     }
 
     return chat;

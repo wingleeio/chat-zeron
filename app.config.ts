@@ -1,20 +1,21 @@
-import { defineConfig } from '@tanstack/react-start/config'
-import viteTsConfigPaths from 'vite-tsconfig-paths'
-import tailwindcss from '@tailwindcss/vite'
+import { defineConfig } from "@tanstack/react-start/config";
+import viteTsConfigPaths from "vite-tsconfig-paths";
+import tailwindcss from "@tailwindcss/vite";
 
 const config = defineConfig({
   tsr: {
-    appDirectory: 'src',
+    appDirectory: "src",
+    autoCodeSplitting: false,
   },
   vite: {
     plugins: [
       // this is the plugin that enables path aliases
       viteTsConfigPaths({
-        projects: ['./tsconfig.json'],
+        projects: ["./tsconfig.json"],
       }),
       tailwindcss(),
     ],
   },
-})
+});
 
-export default config
+export default config;

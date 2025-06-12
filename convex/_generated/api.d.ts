@@ -14,6 +14,7 @@ import type * as chats from "../chats.js";
 import type * as cors from "../cors.js";
 import type * as functions from "../functions.js";
 import type * as http from "../http.js";
+import type * as init from "../init.js";
 import type * as messages from "../messages.js";
 import type * as streaming from "../streaming.js";
 import type * as users from "../users.js";
@@ -40,6 +41,7 @@ declare const fullApi: ApiFromModules<{
   cors: typeof cors;
   functions: typeof functions;
   http: typeof http;
+  init: typeof init;
   messages: typeof messages;
   streaming: typeof streaming;
   users: typeof users;

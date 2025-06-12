@@ -28,7 +28,8 @@ export const createRouter = () => {
   const router = createTanstackRouter({
     routeTree,
     scrollRestoration: true,
-    defaultPreloadStaleTime: 0,
+    defaultPreloadStaleTime: 30,
+    defaultPreload: "viewport",
     context: {
       convexClient,
       convexQueryClient,
