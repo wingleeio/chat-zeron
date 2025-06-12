@@ -14,7 +14,6 @@ import type {
 } from "@convex-dev/persistent-text-streaming";
 import type { Doc, Id } from "convex/_generated/dataModel";
 import { api } from "convex/_generated/api";
-import { useAuth } from "@/hooks/use-auth";
 import { CopyIcon, Loader2Icon, RefreshCcwIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Loader } from "@/components/chat/loaders";
@@ -28,6 +27,7 @@ import type { UIMessage } from "ai";
 import { Fragment } from "react/jsx-runtime";
 import { match } from "ts-pattern";
 import { ReasoningPart } from "@/components/chat/reasoning";
+import { Route } from "@/routes/__root";
 
 export type MessageProps = {
   children: React.ReactNode;
@@ -170,14 +170,14 @@ type StreamingServerMessageProps = {
 function StreamingServerMessage({ message }: StreamingServerMessageProps) {
   const drivenIds = useDrivenIds();
   const isDriven = drivenIds.includes(message._id);
-  const { accessToken } = useAuth();
+  const context = Route.useRouteContext();
   const { text, status } = useStream(
     api.streaming.getStreamBody,
     new URL(`${env.VITE_CONVEX_SITE_URL}/stream`),
     isDriven,
     message.responseStreamId as StreamId,
     {
-      authToken: accessToken,
+      authToken: context.token,
     }
   );
 

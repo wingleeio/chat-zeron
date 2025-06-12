@@ -5,17 +5,18 @@ import {
   createRootRouteWithContext,
 } from "@tanstack/react-router";
 import appCss from "../styles.css?url";
-import { ConvexProviderWithAuth, ConvexReactClient } from "convex/react";
-import { convexQuery, ConvexQueryClient } from "@convex-dev/react-query";
+import { ConvexReactClient } from "convex/react";
+import { ConvexQueryClient } from "@convex-dev/react-query";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { api } from "convex/_generated/api";
-import { getAccessToken } from "@/lib/auth";
 
-import { useAuth } from "@/hooks/use-auth";
 import { Toaster } from "@/components/ui/sonner";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app/sidebar";
 import { AppHeader } from "@/components/app/header";
+
+import { ConvexProviderWithClerk } from "convex/react-clerk";
+import { ClerkProvider, useAuth } from "@clerk/tanstack-start";
+import { fetchClerkAuth } from "@/lib/auth";
 
 export type RouterContext = {
   queryClient: QueryClient;
@@ -49,16 +50,20 @@ export const Route = createRootRouteWithContext<RouterContext>()({
     ],
   }),
   beforeLoad: async ({ context }) => {
-    const accessToken = await context.queryClient.fetchQuery({
-      queryKey: ["accessToken"],
-      queryFn: getAccessToken,
-    });
-    if (accessToken) {
-      context.convexQueryClient.serverHttpClient?.setAuth(accessToken);
-      await context.queryClient.ensureQueryData(
-        convexQuery(api.users.getCurrent, {})
-      );
+    const auth = await fetchClerkAuth().catch((e) => ({
+      userId: null,
+      token: null,
+    }));
+    const { userId, token } = auth;
+
+    if (token) {
+      context.convexQueryClient.serverHttpClient?.setAuth(token);
     }
+
+    return {
+      userId,
+      token,
+    };
   },
 
   component: () => (
@@ -80,11 +85,16 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 function AppProvider({ children }: { children: React.ReactNode }) {
   const context = Route.useRouteContext();
   return (
-    <QueryClientProvider client={context.queryClient}>
-      <ConvexProviderWithAuth client={context.convexClient} useAuth={useAuth}>
-        {children}
-      </ConvexProviderWithAuth>
-    </QueryClientProvider>
+    <ClerkProvider>
+      <QueryClientProvider client={context.queryClient}>
+        <ConvexProviderWithClerk
+          client={context.convexClient}
+          useAuth={useAuth}
+        >
+          {children}
+        </ConvexProviderWithClerk>
+      </QueryClientProvider>
+    </ClerkProvider>
   );
 }
 

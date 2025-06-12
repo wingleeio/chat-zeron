@@ -11,18 +11,7 @@ import { ConvexReactClient } from "convex/react";
 
 // Create a new router instance
 export const createRouter = () => {
-  const CONVEX_URL = env.VITE_CONVEX_URL;
-  const WORKOS_CLIENT_ID = env.VITE_WORKOS_CLIENT_ID;
-
-  if (!CONVEX_URL) {
-    console.error("missing envar CONVEX_URL");
-  }
-
-  if (!WORKOS_CLIENT_ID) {
-    console.error("missing envar WORKOS_CLIENT_ID");
-  }
-
-  const convexClient = new ConvexReactClient(CONVEX_URL, {
+  const convexClient = new ConvexReactClient(env.VITE_CONVEX_URL, {
     authRefreshTokenLeewaySeconds: 60,
   });
   const convexQueryClient = new ConvexQueryClient(convexClient);

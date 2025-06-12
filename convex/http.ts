@@ -1,4 +1,4 @@
-import { workosWebhook, jwks } from "convex/auth";
+import { clerkWebhook } from "convex/auth";
 import { streamChat } from "convex/chats";
 import { cors } from "convex/cors";
 import { httpRouter } from "convex/server";
@@ -6,15 +6,9 @@ import { httpRouter } from "convex/server";
 const http = httpRouter();
 
 http.route({
-  path: "/workos-webhook",
+  path: "/clerk-webhook",
   method: "POST",
-  handler: workosWebhook,
-});
-
-http.route({
-  path: "/jwks",
-  method: "GET",
-  handler: jwks,
+  handler: clerkWebhook,
 });
 
 http.route({
