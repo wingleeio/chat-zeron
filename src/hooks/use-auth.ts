@@ -12,6 +12,7 @@ export function useAuth() {
     queryKey: ["accessToken"],
     queryFn: getAccessToken,
     refetchInterval: 1000 * 60 * 3,
+    refetchIntervalInBackground: true,
   });
 
   const lastToken = useRef<string | null>(null);
