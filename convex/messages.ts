@@ -31,6 +31,10 @@ export const send = action({
       throw new Error("Unauthorized");
     }
 
+    if (!user.model) {
+      throw new Error("Model not selected");
+    }
+
     const chat = await match(args.chatId)
       .with(P.nullish, async () => {
         const newChat = await ctx.runMutation(internal.chats.create, {
@@ -70,6 +74,7 @@ export const send = action({
       userId: user._id,
       chatId: chat._id,
       responseStreamId: streamId,
+      modelId: user.model,
     });
 
     return message;
@@ -244,11 +249,18 @@ export const list = query({
               ctx,
               message.responseStreamId as StreamId
             );
+            const model = await ctx.db.get(message.modelId);
+
+            if (!model) {
+              throw new Error("Model not found");
+            }
+
             const content = stream.status === "done" ? stream.text : "";
             return {
               ...message,
               responseStreamStatus: stream.status,
               responseStreamContent: content,
+              model: model,
             };
           })
         );

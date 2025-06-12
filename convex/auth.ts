@@ -1,6 +1,6 @@
 import { internal } from "convex/_generated/api";
 import type { Doc } from "convex/_generated/dataModel";
-import { httpAction, internalQuery } from "convex/_generated/server";
+import { httpAction, internalQuery, query } from "convex/_generated/server";
 import { match } from "ts-pattern";
 import { Webhook } from "svix";
 import type { WebhookEvent } from "@clerk/tanstack-start/server";
@@ -73,6 +73,18 @@ export const authenticate = internalQuery({
 
     if (!user) {
       return null;
+    }
+
+    return user;
+  },
+});
+
+export const current = query({
+  handler: async (ctx): Promise<Doc<"users"> | null> => {
+    const user = await ctx.runQuery(internal.auth.authenticate);
+
+    if (!user) {
+      throw new Error("Unauthorized");
     }
 
     return user;

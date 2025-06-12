@@ -19,11 +19,14 @@ import {
 } from "@/components/chat/base-message";
 import { Message } from "@/components/chat/base-message";
 import { UIMessage } from "@/components/chat/ui-message";
+import type { ModelType } from "@/components/chat/model-icon";
+import ModelIcon from "@/components/chat/model-icon";
 
 type CompletedServerMessageProps = {
   message: Doc<"messages"> & {
     responseStreamStatus: StreamBody["status"];
     responseStreamContent: string;
+    model: Doc<"models">;
   };
 };
 
@@ -90,6 +93,12 @@ function CompletedServerMessage({ message }: CompletedServerMessageProps) {
             )}
           </Button>
         </MessageAction>
+        <Button variant="ghost" className="hover:bg-transparent!">
+          <ModelIcon model={message.model.icon as ModelType} />
+          <span className="text-xs text-muted-foreground font-normal">
+            {message.model.name}
+          </span>
+        </Button>
       </MessageActions>
     </Message>
   );
@@ -98,7 +107,7 @@ function CompletedServerMessage({ message }: CompletedServerMessageProps) {
 function UserMessage({ message }: { message: Doc<"messages"> }) {
   return (
     <Message className="justify-end">
-      <MessageContent markdown className="rounded-xl px-4">
+      <MessageContent markdown className="rounded-xl px-4 bg-muted">
         {message.prompt}
       </MessageContent>
     </Message>

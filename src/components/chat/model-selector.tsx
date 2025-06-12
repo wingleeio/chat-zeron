@@ -1,4 +1,3 @@
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   Command,
@@ -15,34 +14,34 @@ import {
 } from "@/components/ui/popover";
 import { ChevronsUpDownIcon } from "lucide-react";
 import { useState } from "react";
-import { Badge } from "@/components/ui/badge";
-
-const frameworks = [
-  {
-    value: "next.js",
-    label: "Next.js",
-  },
-  {
-    value: "sveltekit",
-    label: "SvelteKit",
-  },
-  {
-    value: "nuxt.js",
-    label: "Nuxt.js",
-  },
-  {
-    value: "remix",
-    label: "Remix",
-  },
-  {
-    value: "astro",
-    label: "Astro",
-  },
-];
+import { useMutation, useQuery } from "convex/react";
+import { api } from "convex/_generated/api";
+import ModelIcon, { type ModelType } from "@/components/chat/model-icon";
 
 export function ModelSelector() {
   const [open, setOpen] = useState(false);
-  const [value, setValue] = useState("");
+  const models = useQuery(api.models.list);
+  const user = useQuery(api.auth.current);
+  const selectModel = useMutation(api.models.select).withOptimisticUpdate(
+    (store, args) => {
+      const user = store.getQuery(api.auth.current);
+
+      if (!user) {
+        return;
+      }
+
+      store.setQuery(
+        api.auth.current,
+        {},
+        {
+          ...user,
+          model: args.modelId,
+        }
+      );
+    }
+  );
+
+  const selectedModel = models?.find((m) => m._id === user?.model);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -53,9 +52,12 @@ export function ModelSelector() {
           aria-expanded={open}
           className="w-[200px] justify-between hover:text-foreground"
         >
-          {value
-            ? frameworks.find((framework) => framework.value === value)?.label
-            : "Select framework..."}
+          <span className="flex items-center gap-2">
+            {selectedModel && (
+              <ModelIcon model={selectedModel.icon as ModelType} />
+            )}
+            {selectedModel?.name || "Select model..."}
+          </span>
           <ChevronsUpDownIcon className="opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -65,26 +67,22 @@ export function ModelSelector() {
           <CommandList>
             <CommandEmpty>No framework found.</CommandEmpty>
             <CommandGroup>
-              {frameworks.map((framework) => (
+              {models?.map((model) => (
                 <CommandItem
-                  key={framework.value}
-                  value={framework.value}
-                  onSelect={(currentValue) => {
-                    setValue(currentValue === value ? "" : currentValue);
+                  key={model._id}
+                  value={model._id}
+                  className="data-[selected=true]:bg-muted data-[selected=true]:text-foreground"
+                  onSelect={() => {
                     setOpen(false);
+                    selectModel({ modelId: model._id });
                   }}
                 >
-                  {framework.label}
-
-                  <Badge
-                    variant="secondary"
-                    className={cn(
-                      "ml-auto text-xs",
-                      value === framework.value ? "opacity-100" : "opacity-0"
+                  <span className="flex items-center gap-2">
+                    {model.icon && (
+                      <ModelIcon model={model.icon as ModelType} />
                     )}
-                  >
-                    Current
-                  </Badge>
+                    {model.name}
+                  </span>
                 </CommandItem>
               ))}
             </CommandGroup>

@@ -10,7 +10,7 @@ import {
   internalQuery,
   query,
 } from "convex/_generated/server";
-import { provider } from "convex/ai/provider";
+import { getModel, provider } from "convex/ai/provider";
 import { mutation, internalMutation } from "convex/functions";
 import schema from "convex/schema";
 import { paginationOptsValidator, type PaginationResult } from "convex/server";
@@ -43,11 +43,19 @@ export const streamChat = httpAction(async (ctx, request) => {
         chatId: message.chatId,
       });
 
+      const model = await ctx.runQuery(internal.models.read, {
+        id: message.modelId,
+      });
+
+      if (!model) {
+        throw new Error("Model not found");
+      }
+
       const abortController = new AbortController();
       const stream = createDataStream({
         execute: async (writer) => {
           const result = streamText({
-            model: provider.languageModel("deepseek-r1"),
+            model: getModel(model.provider, model.model),
             experimental_transform: smoothStream({
               chunking: "word",
             }),

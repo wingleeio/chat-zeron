@@ -14,6 +14,7 @@
     "@ai-sdk/google-vertex": "^2.2.24",
     "@ai-sdk/ui-utils": "^1.2.11",
     "@clerk/tanstack-start": "^0.11.5",
+    "@convex-dev/migrations": "^0.2.9",
     "@convex-dev/persistent-text-streaming": "^0.2.3",
     "@convex-dev/react-query": "0.0.0-alpha.8",
     "@openrouter/ai-sdk-provider": "^0.7.1",

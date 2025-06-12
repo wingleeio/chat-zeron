@@ -7,6 +7,7 @@ import { vModel, vProvider } from "convex/ai/provider";
 export default defineSchema({
   users: defineTable({
     authId: v.string(),
+    model: v.optional(v.id("models")),
   }).index("by_auth_id", ["authId"]),
   chats: defineTable({
     title: v.string(),
@@ -21,14 +22,19 @@ export default defineSchema({
     prompt: v.string(),
     userId: v.id("users"),
     chatId: v.id("chats"),
+    modelId: v.id("models"),
     uiMessages: v.optional(v.string()),
     responseStreamId: StreamIdValidator,
   })
     .index("by_chat", ["chatId"])
     .index("by_stream", ["responseStreamId"]),
-  model: defineTable({
+  models: defineTable({
     name: v.string(),
     model: vModel,
     provider: vProvider,
-  }),
+    searchField: v.string(),
+    icon: v.string(),
+  })
+    .index("by_name", ["name"])
+    .index("by_model", ["model"]),
 });
