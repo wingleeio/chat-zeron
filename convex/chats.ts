@@ -10,7 +10,7 @@ import {
   internalQuery,
   query,
 } from "convex/_generated/server";
-import { getModel, provider } from "convex/ai/provider";
+import { getModel } from "convex/ai/provider";
 import { mutation, internalMutation } from "convex/functions";
 import schema from "convex/schema";
 import { paginationOptsValidator, type PaginationResult } from "convex/server";
@@ -134,7 +134,7 @@ export const generateTitle = internalAction({
   },
   handler: async (ctx, args) => {
     const { text } = await generateText({
-      model: provider.languageModel("gpt-4o-mini"),
+      model: getModel("openrouter", "google/gemini-2.0-flash-001"),
       system: `\nc
       - you will generate a short title based on the first message a user begins a conversation with
       - ensure it is not more than 80 characters long

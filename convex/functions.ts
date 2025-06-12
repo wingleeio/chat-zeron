@@ -27,6 +27,20 @@ triggers.register("messages", async (ctx, change) => {
     });
 });
 
+triggers.register("chats", async (ctx, change) => {
+  await match(change)
+    .with({ operation: "delete" }, async (change) => {
+      for await (const message of ctx.db
+        .query("messages")
+        .withIndex("by_chat", (q) => q.eq("chatId", change.oldDoc._id))) {
+        await ctx.db.delete(message._id);
+      }
+    })
+    .otherwise(() => {
+      // ignore other operations
+    });
+});
+
 export const mutation = customMutation(rawMutation, customCtx(triggers.wrapDB));
 export const internalMutation = customMutation(
   rawInternalMutation,
