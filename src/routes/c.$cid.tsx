@@ -51,10 +51,6 @@ function RouteComponent() {
     })
   );
 
-  useEffect(() => {
-    setDrivenIds((_) => []);
-  }, [cid]);
-
   return (
     <Fragment key={cid}>
       <ChatContainerRoot
