@@ -117,10 +117,7 @@ function SidebarChats() {
                 key={chat._id}
                 className="relative group/chat-item"
               >
-                <SidebarMenuButton
-                  className="w-full group-hover/chat-item:bg-muted! text-foreground!"
-                  asChild
-                >
+                <SidebarMenuButton className="w-full" asChild>
                   <Link
                     to="/c/$cid"
                     params={{ cid: chat._id }}
