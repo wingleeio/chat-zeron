@@ -93,11 +93,17 @@ function CompletedServerMessage({ message }: CompletedServerMessageProps) {
             )}
           </Button>
         </MessageAction>
-        <Button variant="ghost" className="hover:bg-transparent!">
-          <ModelIcon model={message.model.icon as ModelType} />
-          <span className="text-xs text-muted-foreground font-normal">
-            {message.model.name}
-          </span>
+        <Button
+          variant="ghost"
+          className="hover:bg-transparent! cursor-default"
+          asChild
+        >
+          <div>
+            <ModelIcon model={message.model.icon as ModelType} />
+            <span className="text-xs text-muted-foreground font-normal">
+              {message.model.name}
+            </span>
+          </div>
         </Button>
       </MessageActions>
     </Message>
