@@ -83,11 +83,36 @@ export function AppSidebar() {
 function SidebarChats() {
   const [editChat, setEditChat] = React.useState<Doc<"chats"> | null>(null);
   const [deleteChat, setDeleteChat] = React.useState<Doc<"chats"> | null>(null);
+  const loadMoreRef = React.useRef<HTMLDivElement>(null);
+
   const chats = usePaginatedQuery(
     api.chats.getPaginated,
     {},
     { initialNumItems: 20 }
   );
+
+  React.useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const first = entries[0];
+        if (first.isIntersecting && chats.status === "CanLoadMore") {
+          chats.loadMore(20);
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    const currentRef = loadMoreRef.current;
+    if (currentRef) {
+      observer.observe(currentRef);
+    }
+
+    return () => {
+      if (currentRef) {
+        observer.unobserve(currentRef);
+      }
+    };
+  }, [chats]);
 
   const now = Date.now();
   const oneDayAgo = now - 24 * 60 * 60 * 1000;
@@ -178,6 +203,14 @@ function SidebarChats() {
       {renderChatGroup(todayChats, "Today")}
       {renderChatGroup(lastWeekChats, "Last Week")}
       {renderChatGroup(historyChats, "History")}
+      {chats.status === "CanLoadMore" && (
+        <div ref={loadMoreRef} className="h-4 w-full" />
+      )}
+      {chats.status === "LoadingMore" && (
+        <div className="flex justify-center py-2">
+          <Loader2Icon className="w-4 h-4 animate-spin text-muted-foreground" />
+        </div>
+      )}
       <EditChatTitleDialog chat={editChat} setEditChat={setEditChat} />
       <DeleteChatDialog chat={deleteChat} setDeleteChat={setDeleteChat} />
     </Fragment>

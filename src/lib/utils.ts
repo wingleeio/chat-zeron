@@ -31,7 +31,7 @@ export function lazy<T>(fn: () => T): () => T {
 }
 
 export function parseDataStream(text: string) {
-  return text
+  const lines = text
     .split("\n")
     .filter((line) => line.trim() !== "")
     .map((line) => {
@@ -40,6 +40,16 @@ export function parseDataStream(text: string) {
       }
     })
     .filter((part) => part != null);
+
+  return lines.filter((part, index) => {
+    if (part?.type === "reasoning" && index > 0) {
+      const prevPart = lines[index - 1];
+      if (prevPart?.type === "reasoning" && prevPart.value === part.value) {
+        return false;
+      }
+    }
+    return true;
+  });
 }
 
 type PartialToolCall = {
@@ -51,6 +61,7 @@ type PartialToolCall = {
 
 export function parseRawTextIntoUIMessages(text: string) {
   const parsed = parseDataStream(text);
+
   const messages: UIMessage[] = [];
   let currentMessage: UIMessage | undefined;
 
