@@ -1,4 +1,4 @@
-import { getAuth } from "@clerk/tanstack-start/server";
+import { getAuth } from "@clerk/tanstack-react-start/server";
 import { createServerFn } from "@tanstack/react-start";
 import { getWebRequest } from "@tanstack/react-start/server";
 

@@ -224,7 +224,7 @@ export const list = query({
     const user = await ctx.runQuery(internal.auth.authenticate, {});
 
     if (!user) {
-      throw new Error("Unauthorized");
+      return [];
     }
 
     const chat = await ctx.runQuery(internal.chats.read, {

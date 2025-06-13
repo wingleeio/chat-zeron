@@ -9,6 +9,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
+import { Route } from "@/routes/c.$cid";
 import { setDrivenIds } from "@/stores/chat";
 import {
   convexQuery,
@@ -97,6 +98,7 @@ function PromptInput({
         }}
       >
         <div
+          id="chat-prompt-input"
           className={cn(
             "border-input bg-background rounded-3xl border p-2 shadow-xs",
             className
@@ -210,8 +212,10 @@ function PromptInputWithActions() {
   const chatQuery = convexQuery(api.chats.getById, {
     id: params.cid as Id<"chats">,
   });
+  const { data } = useSuspenseQuery(chatQuery);
+  const loaderData = Route.useLoaderData();
 
-  const { data: chat } = useSuspenseQuery(chatQuery);
+  const chat = data ?? loaderData.chat;
 
   const sendMessage = useMutation({
     mutationFn: useConvexAction(api.messages.send),
@@ -233,12 +237,13 @@ function PromptInputWithActions() {
   });
 
   const isLoading = useMemo(() => {
-    return chat.status === "streaming" || chat.status === "submitted";
-  }, [chat.status]);
+    return chat?.status === "streaming" || chat?.status === "submitted";
+  }, [chat?.status]);
 
   const handleSubmit = () => {
     if (isLoading) return;
     if (input.trim() || files.length > 0) {
+      if (chat === null) return;
       queryClient.setQueryData(
         convexQuery(api.messages.list, {
           chatId: chat._id,
@@ -340,7 +345,7 @@ function PromptInputWithActions() {
             size="icon"
             className="h-8 w-8 rounded-full"
             onClick={() => {
-              if (isLoading) {
+              if (isLoading && chat) {
                 stop.mutate({
                   chatId: chat._id,
                 });
@@ -371,7 +376,11 @@ function PromptInputWithActionsNewChat() {
     mutationFn: useConvexAction(api.messages.send),
     onSuccess: async (message: Doc<"messages">) => {
       setDrivenIds((prev) => [...prev, message._id]);
-      await navigate({ to: "/c/$cid", params: { cid: message.chatId } });
+      await navigate({
+        to: "/c/$cid",
+        params: { cid: message.chatId },
+        viewTransition: true,
+      });
     },
   });
 

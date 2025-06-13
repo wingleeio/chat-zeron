@@ -14,41 +14,39 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { api } from "convex/_generated/api";
 import type { Id } from "convex/_generated/dataModel";
-import { Authenticated } from "convex/react";
 import { Fragment } from "react/jsx-runtime";
 import { match, P } from "ts-pattern";
 
 export const Route = createFileRoute("/c/$cid")({
   component: RouteComponent,
   loader: async ({ context, params }) => {
-    await context.queryClient.ensureQueryData(
-      convexQuery(api.chats.getById, {
-        id: params.cid as Id<"chats">,
-      })
-    );
-    await context.queryClient.ensureQueryData(
-      convexQuery(api.messages.list, {
-        chatId: params.cid as Id<"chats">,
-      })
-    );
+    context.convexQueryClient.serverHttpClient?.setAuth(context.token ?? "");
+    const [chat, messages] = await Promise.all([
+      context.queryClient.fetchQuery(
+        convexQuery(api.chats.getById, {
+          id: params.cid as Id<"chats">,
+        })
+      ),
+      context.queryClient.fetchQuery(
+        convexQuery(api.messages.list, {
+          chatId: params.cid as Id<"chats">,
+        })
+      ),
+    ]);
+    return { chat, messages };
   },
 });
 
 function RouteComponent() {
-  return (
-    <Authenticated>
-      <Chat />
-    </Authenticated>
-  );
-}
-
-function Chat() {
   const { cid } = Route.useParams();
-  const { data: messages } = useSuspenseQuery(
+  const { data } = useSuspenseQuery(
     convexQuery(api.messages.list, {
       chatId: cid as Id<"chats">,
     })
   );
+  const loaderData = Route.useLoaderData();
+
+  const messages = data.length > 0 ? data : loaderData.messages;
 
   return (
     <Fragment key={cid}>

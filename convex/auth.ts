@@ -3,7 +3,7 @@ import type { Doc } from "convex/_generated/dataModel";
 import { httpAction, internalQuery, query } from "convex/_generated/server";
 import { match } from "ts-pattern";
 import { Webhook } from "svix";
-import type { WebhookEvent } from "@clerk/tanstack-start/server";
+import type { WebhookEvent } from "@clerk/tanstack-react-start/server";
 
 export const clerkWebhook = httpAction(async (ctx, request) => {
   const bodyText = await request.text();
@@ -84,7 +84,7 @@ export const current = query({
     const user = await ctx.runQuery(internal.auth.authenticate);
 
     if (!user) {
-      throw new Error("Unauthorized");
+      return null;
     }
 
     return user;

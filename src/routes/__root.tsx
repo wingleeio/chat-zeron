@@ -15,8 +15,9 @@ import { AppSidebar } from "@/components/app/sidebar";
 import { AppHeader } from "@/components/app/header";
 
 import { ConvexProviderWithClerk } from "convex/react-clerk";
-import { ClerkProvider, useAuth } from "@clerk/tanstack-start";
+import { ClerkProvider, useAuth } from "@clerk/tanstack-react-start";
 import { fetchClerkAuth } from "@/lib/auth";
+import { api } from "convex/_generated/api";
 
 export type RouterContext = {
   queryClient: QueryClient;
@@ -66,6 +67,18 @@ export const Route = createRootRouteWithContext<RouterContext>()({
     };
   },
 
+  loader: async ({ context }) => {
+    context.convexClient.setAuth(async () => context.token);
+    const chats = await context.convexClient.query(api.chats.getPaginated, {
+      paginationOpts: {
+        cursor: null,
+        numItems: 20,
+      },
+    });
+
+    return { chats };
+  },
+
   component: () => (
     <RootDocument>
       <AppProvider>
@@ -103,7 +116,7 @@ function AppProvider({ children }: { children: React.ReactNode }) {
 function RootDocument({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <head>
+      <head suppressHydrationWarning>
         <HeadContent />
       </head>
       <body className="dark flex flex-col fixed inset-0">

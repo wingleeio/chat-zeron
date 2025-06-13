@@ -170,11 +170,11 @@ export const getById = query({
   args: {
     id: v.id("chats"),
   },
-  handler: async (ctx, args): Promise<Doc<"chats">> => {
+  handler: async (ctx, args): Promise<Doc<"chats"> | null> => {
     const user = await ctx.runQuery(internal.auth.authenticate, {});
 
     if (!user) {
-      throw new Error("Unauthorized");
+      return null;
     }
 
     const chat = await ctx.runQuery(internal.chats.read, {
@@ -215,7 +215,11 @@ export const getPaginated = query({
     const user = await ctx.runQuery(internal.auth.authenticate, {});
 
     if (!user) {
-      throw new Error("Unauthorized");
+      return {
+        isDone: true,
+        page: [],
+        continueCursor: "null",
+      };
     }
 
     return await ctx.db

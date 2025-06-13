@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 
 import { PromptInputWithActionsNewChat } from "@/components/chat/prompt-input";
 import { Authenticated, Unauthenticated } from "convex/react";
-import { SignInButton } from "@clerk/tanstack-start";
+import { SignInButton } from "@clerk/tanstack-react-start";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/")({

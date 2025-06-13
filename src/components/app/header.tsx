@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 import { Authenticated } from "convex/react";
-import { UserButton } from "@clerk/tanstack-start";
+import { UserButton } from "@clerk/tanstack-react-start";
 import { Link } from "@tanstack/react-router";
 import { PlusIcon } from "lucide-react";
 

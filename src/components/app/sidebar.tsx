@@ -12,7 +12,7 @@ import {
 
 import { Link } from "@tanstack/react-router";
 import { api } from "convex/_generated/api";
-import { Authenticated, useMutation, usePaginatedQuery } from "convex/react";
+import { useMutation, usePaginatedQuery } from "convex/react";
 import { EditIcon, Loader2Icon, PlusIcon, TrashIcon } from "lucide-react";
 import { match } from "ts-pattern";
 import type { Doc } from "convex/_generated/dataModel";
@@ -36,6 +36,7 @@ import { useForm } from "@tanstack/react-form";
 import { z } from "zod";
 import React from "react";
 import { useNavigate, useParams } from "@tanstack/react-router";
+import { Route } from "@/routes/__root";
 
 export function AppSidebar() {
   return (
@@ -72,9 +73,7 @@ export function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-        <Authenticated>
-          <SidebarChats />
-        </Authenticated>
+        <SidebarChats />
       </SidebarContent>
     </Sidebar>
   );
@@ -90,6 +89,10 @@ function SidebarChats() {
     {},
     { initialNumItems: 20 }
   );
+
+  const data = Route.useLoaderData();
+
+  const items = chats.results.length > 0 ? chats.results : data.chats.page;
 
   React.useEffect(() => {
     const observer = new IntersectionObserver(
@@ -118,15 +121,15 @@ function SidebarChats() {
   const oneDayAgo = now - 24 * 60 * 60 * 1000;
   const oneWeekAgo = now - 7 * 24 * 60 * 60 * 1000;
 
-  const todayChats = chats.results.filter(
+  const todayChats = items.filter(
     (chat) => chat.lastMessageTimestamp >= oneDayAgo
   );
-  const lastWeekChats = chats.results.filter(
+  const lastWeekChats = items.filter(
     (chat) =>
       chat.lastMessageTimestamp >= oneWeekAgo &&
       chat.lastMessageTimestamp < oneDayAgo
   );
-  const historyChats = chats.results.filter(
+  const historyChats = items.filter(
     (chat) => chat.lastMessageTimestamp < oneWeekAgo
   );
 
