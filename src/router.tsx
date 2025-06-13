@@ -29,7 +29,7 @@ export const createRouter = () => {
     routeTree,
     scrollRestoration: true,
     defaultPreloadStaleTime: 30,
-    defaultPreload: "viewport",
+    defaultPreload: "intent",
     context: {
       convexClient,
       convexQueryClient,
