@@ -34,7 +34,7 @@ import {
 } from "@/components/ui/dialog";
 import { useForm } from "@tanstack/react-form";
 import { z } from "zod";
-import React from "react";
+import React, { useEffect } from "react";
 import { useNavigate, useParams } from "@tanstack/react-router";
 
 export function AppSidebar() {
@@ -241,6 +241,12 @@ function EditChatTitleDialog({
     },
   });
 
+  useEffect(() => {
+    if (chat) {
+      form.setFieldValue("title", chat.title);
+    }
+  }, [chat, form]);
+
   return (
     <Dialog open={!!chat} onOpenChange={() => setEditChat(null)}>
       <DialogContent className="max-w-sm">
@@ -292,13 +298,21 @@ function EditChatTitleDialog({
             >
               Cancel
             </Button>
-            <Button
-              type="submit"
-              disabled={!form.state.canSubmit}
-              onClick={() => form.handleSubmit()}
-            >
-              Save
-            </Button>
+            <form.Subscribe
+              selector={(state) => [state.canSubmit, state.isSubmitting]}
+              children={([canSubmit, isSubmitting]) => (
+                <Button
+                  type="submit"
+                  disabled={!canSubmit || isSubmitting}
+                  onClick={() => form.handleSubmit()}
+                >
+                  {isSubmitting && (
+                    <Loader2Icon className="w-4 h-4 animate-spin" />
+                  )}
+                  <span>Save</span>
+                </Button>
+              )}
+            />
           </DialogFooter>
         </form>
       </DialogContent>

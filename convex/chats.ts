@@ -236,6 +236,10 @@ export const updateTitle = mutation({
   handler: async (ctx, args) => {
     const user = await ctx.runQuery(internal.auth.authenticate, {});
 
+    if (args.title.length > 100) {
+      throw new Error("Title must be less than 100 characters");
+    }
+
     if (!user) {
       throw new Error("Unauthorized");
     }

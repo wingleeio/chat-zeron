@@ -11,6 +11,7 @@ import { streamingComponent } from "convex/streaming";
 import { v } from "convex/values";
 import { match, P } from "ts-pattern";
 import schema from "convex/schema";
+import { convertToCoreMessages } from "ai";
 
 export const { create, read, update } = crud(
   schema,
@@ -123,6 +124,7 @@ export const regenerate = action({
       patch: {
         responseStreamId: streamId,
         modelId: user.model,
+        uiMessages: "[]",
       },
     });
     await ctx.runMutation(internal.messages.deleteMessagesAfterCreationTime, {
@@ -181,10 +183,9 @@ export const history = internalQuery({
       allMessages.map(async (userMessage) => {
         return {
           userMessage,
-          agentMessage: await streamingComponent.getStreamBody(
-            ctx,
-            userMessage.responseStreamId as StreamId
-          ),
+          agentMessages: userMessage.uiMessages
+            ? JSON.parse(userMessage.uiMessages)
+            : [],
         };
       })
     );
@@ -199,19 +200,10 @@ export const history = internalQuery({
           },
         ],
       };
-      const agentMessage = {
-        role: "assistant",
-        content: [
-          {
-            type: "text",
-            text: message.agentMessage.text,
-          },
-        ],
-      };
 
-      if (agentMessage.content[0].text === "") return [userMessage];
-
-      return [userMessage, agentMessage];
+      const agentMessages = convertToCoreMessages(message.agentMessages);
+      console.log(agentMessages);
+      return [userMessage, ...agentMessages];
     });
   },
 });
