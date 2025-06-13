@@ -12,14 +12,19 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { ChevronsUpDownIcon } from "lucide-react";
+import { BrainIcon, ChevronsUpDownIcon, WrenchIcon } from "lucide-react";
+import { IconPhoto } from "@tabler/icons-react";
 import { useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "convex/_generated/api";
 import ModelIcon, { type ModelType } from "@/components/chat/model-icon";
+import type { Doc, Id } from "convex/_generated/dataModel";
+import { Badge } from "@/components/ui/badge";
+import { match } from "ts-pattern";
 
 export function ModelSelector() {
   const [open, setOpen] = useState(false);
+  const [hoveredModel, setHoveredModel] = useState<Doc<"models"> | null>(null);
   const models = useQuery(api.models.list);
   const user = useQuery(api.auth.current);
   const selectModel = useMutation(api.models.select).withOptimisticUpdate(
@@ -44,7 +49,15 @@ export function ModelSelector() {
   const selectedModel = models?.find((m) => m._id === user?.model);
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover
+      open={open}
+      onOpenChange={(open) => {
+        setOpen(open);
+        if (!open) {
+          setHoveredModel(null);
+        }
+      }}
+    >
       <PopoverTrigger asChild>
         <Button
           variant="outline"
@@ -61,7 +74,47 @@ export function ModelSelector() {
           <ChevronsUpDownIcon className="opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[200px] p-0">
+      <PopoverContent className="w-[200px] p-0 border-none">
+        <div className="absolute top-0 right-0 translate-x-full pl-2">
+          {hoveredModel && (
+            <div className="rounded-md p-2 bg-sidebar flex flex-col gap-2 w-64">
+              <div className="flex items-center gap-2">
+                <ModelIcon
+                  className="size-4"
+                  model={hoveredModel.icon as ModelType}
+                />
+                <span className="text-sm">{hoveredModel.name}</span>
+              </div>
+              <div className="text-sm text-muted-foreground">
+                {hoveredModel.description}
+              </div>
+              <div className="text-sm flex gap-2">
+                {hoveredModel.capabilities?.map((c) => (
+                  <Badge
+                    key={c}
+                    variant="outline"
+                    className="text-xs flex items-center gap-1"
+                  >
+                    {match(c)
+                      .with("thinking", () => (
+                        <BrainIcon className="size-4 text-pink-400" />
+                      ))
+                      .with("vision", () => (
+                        <IconPhoto className="size-4 text-blue-400" />
+                      ))
+                      .with("tools", () => (
+                        <WrenchIcon className="size-4 text-green-400" />
+                      ))
+                      .exhaustive()}
+                    <span className="text-xs">
+                      {c.charAt(0).toUpperCase() + c.slice(1)}
+                    </span>
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
         <Command className="bg-sidebar">
           <CommandInput placeholder="Search models..." className="h-9" />
           <CommandList>
@@ -74,7 +127,11 @@ export function ModelSelector() {
                   className="data-[selected=true]:bg-muted data-[selected=true]:text-foreground"
                   onSelect={() => {
                     setOpen(false);
+                    setHoveredModel(null);
                     selectModel({ modelId: model._id });
+                  }}
+                  onMouseEnter={() => {
+                    setHoveredModel(model);
                   }}
                 >
                   <span className="flex items-center gap-2">

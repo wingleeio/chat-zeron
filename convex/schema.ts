@@ -2,7 +2,7 @@ import { defineSchema, defineTable } from "convex/server";
 import { vStatus } from "convex/validators/chat";
 import { v } from "convex/values";
 import { StreamIdValidator } from "@convex-dev/persistent-text-streaming";
-import { vModel, vProvider } from "convex/ai/provider";
+import { vCapabilities, vModel, vProvider } from "convex/ai/provider";
 
 export default defineSchema({
   users: defineTable({
@@ -34,6 +34,8 @@ export default defineSchema({
     provider: vProvider,
     searchField: v.string(),
     icon: v.string(),
+    capabilities: v.optional(v.array(vCapabilities)),
+    description: v.optional(v.string()),
   })
     .index("by_name", ["name"])
     .index("by_model", ["model"]),

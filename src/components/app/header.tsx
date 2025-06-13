@@ -2,7 +2,6 @@ import { ModelSelector } from "@/components/chat/model-selector";
 import { Button } from "@/components/ui/button";
 import { SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
-import { Authenticated } from "convex/react";
 import { UserButton } from "@clerk/tanstack-start";
 import { Link } from "@tanstack/react-router";
 import { PlusIcon } from "lucide-react";
@@ -13,9 +12,7 @@ export function AppHeader() {
     <header className="p-3 flex items-center justify-between">
       <div className="flex items-center gap-2">
         <SidebarTrigger />
-        <Authenticated>
-          <ModelSelector />
-        </Authenticated>
+        <ModelSelector />
         <Button
           variant="ghost"
           size="icon"

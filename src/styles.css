@@ -77,7 +77,7 @@ code {
   --font-sans: Montserrat, sans-serif;
   --font-serif: Georgia, serif;
   --font-mono: Fira Code, monospace;
-  --radius: 0.35rem;
+  --radius: 1rem;
   --shadow-2xs: 0px 4px 6px 0px hsl(240 30% 25% / 0.06);
   --shadow-xs: 0px 4px 6px 0px hsl(240 30% 25% / 0.06);
   --shadow-sm:

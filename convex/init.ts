@@ -14,6 +14,8 @@ export default internalMutation(async (ctx) => {
         provider: model.provider,
         searchField: `${model.name} ${model.provider}`,
         icon: model.icon,
+        capabilities: model.capabilities,
+        description: model.description,
       });
     } else {
       await ctx.db.patch(dbModel._id, {
@@ -22,6 +24,8 @@ export default internalMutation(async (ctx) => {
         provider: model.provider,
         searchField: `${model.name} ${model.provider}`,
         icon: model.icon,
+        capabilities: model.capabilities,
+        description: model.description,
       });
     }
   }

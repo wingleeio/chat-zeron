@@ -5,7 +5,11 @@ import {
   createRootRouteWithContext,
 } from "@tanstack/react-router";
 import appCss from "../styles.css?url";
-import { ConvexReactClient } from "convex/react";
+import {
+  Authenticated,
+  ConvexReactClient,
+  Unauthenticated,
+} from "convex/react";
 import { ConvexQueryClient } from "@convex-dev/react-query";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
@@ -15,8 +19,9 @@ import { AppSidebar } from "@/components/app/sidebar";
 import { AppHeader } from "@/components/app/header";
 
 import { ConvexProviderWithClerk } from "convex/react-clerk";
-import { ClerkProvider, useAuth } from "@clerk/tanstack-start";
+import { ClerkProvider, SignInButton, useAuth } from "@clerk/tanstack-start";
 import { fetchClerkAuth } from "@/lib/auth";
+import { Button } from "@/components/ui/button";
 
 export type RouterContext = {
   queryClient: QueryClient;
@@ -35,7 +40,7 @@ export const Route = createRootRouteWithContext<RouterContext>()({
         content: "width=device-width, initial-scale=1",
       },
       {
-        title: "Zeron Chat",
+        title: "Zeron",
       },
     ],
     links: [
@@ -69,16 +74,26 @@ export const Route = createRootRouteWithContext<RouterContext>()({
   component: () => (
     <RootDocument>
       <AppProvider>
-        <SidebarProvider>
-          <AppSidebar />
-          <main className="flex-1 relative">
-            <div className="flex flex-col absolute inset-0">
-              <AppHeader />
-              <Outlet />
-            </div>
-          </main>
-          <Toaster position="top-center" />
-        </SidebarProvider>
+        <Unauthenticated>
+          <div className="flex flex-col gap-6 items-center justify-center h-full">
+            <h2 className="text-2xl">Please sign in to continue</h2>
+            <Button variant="outline" asChild>
+              <SignInButton />
+            </Button>
+          </div>
+        </Unauthenticated>
+        <Authenticated>
+          <SidebarProvider>
+            <AppSidebar />
+            <main className="flex-1 relative">
+              <div className="flex flex-col absolute inset-0">
+                <AppHeader />
+                <Outlet />
+              </div>
+            </main>
+            <Toaster position="top-center" />
+          </SidebarProvider>
+        </Authenticated>
       </AppProvider>
     </RootDocument>
   ),

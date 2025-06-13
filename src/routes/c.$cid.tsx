@@ -14,14 +14,13 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { api } from "convex/_generated/api";
 import type { Id } from "convex/_generated/dataModel";
-import { Authenticated } from "convex/react";
 import { Fragment } from "react/jsx-runtime";
 import { match, P } from "ts-pattern";
 
 export const Route = createFileRoute("/c/$cid")({
   component: RouteComponent,
   loader: async ({ context, params }) => {
-    await context.queryClient.ensureQueryData(
+    const chat = await context.queryClient.fetchQuery(
       convexQuery(api.chats.getById, {
         id: params.cid as Id<"chats">,
       })
@@ -31,18 +30,20 @@ export const Route = createFileRoute("/c/$cid")({
         chatId: params.cid as Id<"chats">,
       })
     );
+    return { chat };
+  },
+  head: ({ loaderData }) => {
+    return {
+      meta: [
+        {
+          title: `${loaderData?.chat.title && `${loaderData.chat.title} | `} Zeron`,
+        },
+      ],
+    };
   },
 });
 
 function RouteComponent() {
-  return (
-    <Authenticated>
-      <Chat />
-    </Authenticated>
-  );
-}
-
-function Chat() {
   const { cid } = Route.useParams();
   const { data: messages } = useSuspenseQuery(
     convexQuery(api.messages.list, {

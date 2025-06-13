@@ -72,9 +72,7 @@ export function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-        <Authenticated>
-          <SidebarChats />
-        </Authenticated>
+        <SidebarChats />
       </SidebarContent>
     </Sidebar>
   );
