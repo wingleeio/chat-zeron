@@ -71,9 +71,11 @@ export const Route = createRootRouteWithContext<RouterContext>()({
       <AppProvider>
         <SidebarProvider>
           <AppSidebar />
-          <main className="flex flex-col flex-1 relative">
-            <AppHeader />
-            <Outlet />
+          <main className="flex-1 relative">
+            <div className="flex flex-col absolute inset-0">
+              <AppHeader />
+              <Outlet />
+            </div>
           </main>
           <Toaster position="top-center" />
         </SidebarProvider>

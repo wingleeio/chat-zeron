@@ -96,6 +96,12 @@ export const streamChat = httpAction(async (ctx, request) => {
           const chat = await ctx.runQuery(internal.chats.read, {
             id: message.chatId,
           });
+
+          if (!chat) {
+            abortController.abort();
+            throw new Error("Chat not found");
+          }
+
           if (chat?.status === "ready") {
             abortController.abort();
             break;
@@ -219,5 +225,65 @@ export const getPaginated = query({
       )
       .order("desc")
       .paginate(args.paginationOpts);
+  },
+});
+
+export const updateTitle = mutation({
+  args: {
+    chatId: v.id("chats"),
+    title: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const user = await ctx.runQuery(internal.auth.authenticate, {});
+
+    if (!user) {
+      throw new Error("Unauthorized");
+    }
+
+    const chat = await ctx.runQuery(internal.chats.read, {
+      id: args.chatId,
+    });
+
+    if (!chat) {
+      throw new Error("Chat not found");
+    }
+
+    if (chat.userId !== user._id) {
+      throw new Error("Unauthorized");
+    }
+
+    await ctx.runMutation(internal.chats.update, {
+      id: args.chatId,
+      patch: {
+        title: args.title,
+      },
+    });
+  },
+});
+
+export const deleteChat = mutation({
+  args: {
+    chatId: v.id("chats"),
+  },
+  handler: async (ctx, args) => {
+    const user = await ctx.runQuery(internal.auth.authenticate, {});
+
+    if (!user) {
+      throw new Error("Unauthorized");
+    }
+
+    const chat = await ctx.runQuery(internal.chats.read, {
+      id: args.chatId,
+    });
+
+    if (!chat) {
+      throw new Error("Chat not found");
+    }
+
+    if (chat.userId !== user._id) {
+      throw new Error("Unauthorized");
+    }
+
+    await ctx.db.delete(args.chatId);
   },
 });
