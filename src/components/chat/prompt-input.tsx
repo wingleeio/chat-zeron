@@ -23,7 +23,7 @@ import {
 import { useParams, useNavigate } from "@tanstack/react-router";
 import { api } from "convex/_generated/api";
 import type { Doc, Id } from "convex/_generated/dataModel";
-import { ArrowUp, Paperclip, Square, X } from "lucide-react";
+import { ArrowUp, GlobeIcon, Paperclip, Square, X } from "lucide-react";
 import React, {
   createContext,
   useContext,
@@ -32,6 +32,7 @@ import React, {
   useRef,
   useState,
 } from "react";
+import type { Tool } from "convex/ai/tools";
 
 type PromptInputContextType = {
   isLoading: boolean;
@@ -203,6 +204,7 @@ function PromptInputAction({
 function PromptInputWithActions() {
   const [input, setInput] = useState("");
   const [files, setFiles] = useState<File[]>([]);
+  const [tool, setTool] = useState<Tool | undefined>(undefined);
   const uploadInputRef = useRef<HTMLInputElement>(null);
 
   const params = useParams({ from: "/c/$cid" });
@@ -256,6 +258,7 @@ function PromptInputWithActions() {
       sendMessage.mutate({
         chatId: chat._id,
         prompt: input,
+        tool,
       });
 
       queryClient.setQueryData(chatQuery.queryKey, (old: Doc<"chats">) => {
@@ -317,20 +320,46 @@ function PromptInputWithActions() {
 
       <PromptInputActions className="flex items-center justify-between gap-2 pt-2">
         <PromptInputAction tooltip="Attach files">
-          <label
-            htmlFor="file-upload"
-            className="hover:bg-secondary-foreground/10 flex h-8 w-8 cursor-pointer items-center justify-center rounded-2xl"
+          <Button
+            asChild
+            variant="outline"
+            size="icon"
+            className="h-8 w-8 rounded-full"
           >
-            <input
-              type="file"
-              multiple
-              onChange={handleFileChange}
-              className="hidden"
-              id="file-upload"
-            />
-            <Paperclip className="text-primary size-4" />
-          </label>
+            <label htmlFor="file-upload">
+              <input
+                type="file"
+                multiple
+                onChange={handleFileChange}
+                className="hidden"
+                id="file-upload"
+              />
+              <Paperclip className="size-4" />
+            </label>
+          </Button>
         </PromptInputAction>
+
+        <PromptInputAction tooltip="Search">
+          <Button
+            variant="outline"
+            className={cn(
+              "h-8 rounded-full",
+              tool === "search" &&
+                "text-primary hover:text-primary border-primary!"
+            )}
+            onClick={() => {
+              if (tool === "search") {
+                setTool(undefined);
+              } else {
+                setTool("search");
+              }
+            }}
+          >
+            <GlobeIcon className="size-4" />
+            <span className="text-sm">Search</span>
+          </Button>
+        </PromptInputAction>
+        <div className="flex-1" />
 
         <PromptInputAction
           tooltip={isLoading ? "Stop generation" : "Send message"}
@@ -363,6 +392,7 @@ function PromptInputWithActions() {
 
 function PromptInputWithActionsNewChat() {
   const [input, setInput] = useState("");
+  const [tool, setTool] = useState<Tool | undefined>(undefined);
   const [files, setFiles] = useState<File[]>([]);
   const uploadInputRef = useRef<HTMLInputElement>(null);
 
@@ -379,6 +409,7 @@ function PromptInputWithActionsNewChat() {
     if (input.trim() || files.length > 0) {
       sendMessage.mutate({
         prompt: input,
+        tool,
       });
       setInput("");
     }
@@ -431,23 +462,48 @@ function PromptInputWithActionsNewChat() {
         placeholder="Ask me anything..."
       />
 
-      <PromptInputActions className="flex items-center justify-between gap-2 pt-2">
+      <PromptInputActions className="flex items-center gap-2 pt-2">
         <PromptInputAction tooltip="Attach files">
-          <label
-            htmlFor="file-upload"
-            className="hover:bg-secondary-foreground/10 flex h-8 w-8 cursor-pointer items-center justify-center rounded-2xl"
+          <Button
+            asChild
+            variant="outline"
+            size="icon"
+            className="h-8 w-8 rounded-full"
           >
-            <input
-              type="file"
-              multiple
-              onChange={handleFileChange}
-              className="hidden"
-              id="file-upload"
-            />
-            <Paperclip className="text-primary size-4" />
-          </label>
+            <label htmlFor="file-upload">
+              <input
+                type="file"
+                multiple
+                onChange={handleFileChange}
+                className="hidden"
+                id="file-upload"
+              />
+              <Paperclip className="size-4" />
+            </label>
+          </Button>
         </PromptInputAction>
 
+        <PromptInputAction tooltip="Search">
+          <Button
+            variant="outline"
+            className={cn(
+              "h-8 rounded-full",
+              tool === "search" &&
+                "text-primary hover:text-primary border-primary!"
+            )}
+            onClick={() => {
+              if (tool === "search") {
+                setTool(undefined);
+              } else {
+                setTool("search");
+              }
+            }}
+          >
+            <GlobeIcon className="size-4" />
+            <span className="text-sm">Search</span>
+          </Button>
+        </PromptInputAction>
+        <div className="flex-1" />
         <PromptInputAction tooltip="Send message">
           <Button
             variant="default"

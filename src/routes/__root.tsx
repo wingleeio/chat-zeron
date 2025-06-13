@@ -55,7 +55,7 @@ export const Route = createRootRouteWithContext<RouterContext>()({
     ],
   }),
   beforeLoad: async ({ context }) => {
-    const auth = await fetchClerkAuth().catch((e) => ({
+    const auth = await fetchClerkAuth().catch(() => ({
       userId: null,
       token: null,
     }));

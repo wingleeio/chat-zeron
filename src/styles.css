@@ -343,3 +343,63 @@ code {
     opacity: 1;
   }
 }
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+/* Hide scrollbar for IE, Edge and Firefox */
+.no-scrollbar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+.fade-gradient-left,
+.fade-gradient-right {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 50px; /* Adjust width as needed */
+  pointer-events: none; /* Ensure it doesn't block scrolling */
+  z-index: 1;
+}
+.fade-gradient-left,
+.fade-gradient-right {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 100px; /* Adjust width as needed */
+  pointer-events: none; /* Ensure it doesn't block scrolling */
+  z-index: 1;
+}
+
+.fade-gradient-left {
+  left: 0;
+  background: linear-gradient(to right, var(--background), transparent);
+}
+
+.fade-gradient-right {
+  right: 0;
+  background: linear-gradient(to left, var(--background), transparent);
+}
+
+.fade-gradient-top {
+  top: 0;
+  left: 0; /* Full width of the container */
+  right: 0;
+  height: 100px; /* Adjust height as needed */
+  background: linear-gradient(to bottom, var(--sidebar), transparent);
+  position: absolute; /* Ensure it sits on top of the content */
+  pointer-events: none; /* Prevent blocking interactions */
+  z-index: 10;
+}
+
+.fade-gradient-bottom {
+  bottom: 0;
+  left: 0; /* Full width of the container */
+  right: 0;
+  height: 100px; /* Adjust height as needed */
+  background: linear-gradient(to top, var(--sidebar), transparent);
+  position: absolute; /* Ensure it sits on top of the content */
+  pointer-events: none; /* Prevent blocking interactions */
+  z-index: 10;
+}

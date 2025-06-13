@@ -9,6 +9,7 @@
  */
 
 import type * as ai_provider from "../ai/provider.js";
+import type * as ai_tools from "../ai/tools.js";
 import type * as auth from "../auth.js";
 import type * as chats from "../chats.js";
 import type * as cors from "../cors.js";
@@ -37,6 +38,7 @@ import type {
  */
 declare const fullApi: ApiFromModules<{
   "ai/provider": typeof ai_provider;
+  "ai/tools": typeof ai_tools;
   auth: typeof auth;
   chats: typeof chats;
   cors: typeof cors;

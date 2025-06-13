@@ -12,6 +12,7 @@ import { v } from "convex/values";
 import { match, P } from "ts-pattern";
 import schema from "convex/schema";
 import { convertToCoreMessages } from "ai";
+import { vTool } from "convex/ai/tools";
 
 export const { create, read, update } = crud(
   schema,
@@ -24,6 +25,7 @@ export const send = action({
   args: {
     prompt: v.string(),
     chatId: v.optional(v.id("chats")),
+    tool: v.optional(vTool),
   },
   handler: async (ctx, args): Promise<Doc<"messages">> => {
     const user = await ctx.runQuery(internal.auth.authenticate, {});
@@ -76,6 +78,7 @@ export const send = action({
       chatId: chat._id,
       responseStreamId: streamId,
       modelId: user.model,
+      tool: args.tool,
     });
 
     return message;
@@ -202,7 +205,7 @@ export const history = internalQuery({
       };
 
       const agentMessages = convertToCoreMessages(message.agentMessages);
-      console.log(agentMessages);
+
       return [userMessage, ...agentMessages];
     });
   },

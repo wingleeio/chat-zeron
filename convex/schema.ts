@@ -3,6 +3,7 @@ import { vStatus } from "convex/validators/chat";
 import { v } from "convex/values";
 import { StreamIdValidator } from "@convex-dev/persistent-text-streaming";
 import { vCapabilities, vModel, vProvider } from "convex/ai/provider";
+import { vTool } from "convex/ai/tools";
 
 export default defineSchema({
   users: defineTable({
@@ -25,6 +26,7 @@ export default defineSchema({
     modelId: v.id("models"),
     uiMessages: v.optional(v.string()),
     responseStreamId: StreamIdValidator,
+    tool: v.optional(vTool),
   })
     .index("by_chat", ["chatId"])
     .index("by_stream", ["responseStreamId"]),

@@ -11,6 +11,7 @@ import {
   query,
 } from "convex/_generated/server";
 import { getModel } from "convex/ai/provider";
+import { getTools } from "convex/ai/tools";
 import { mutation, internalMutation } from "convex/functions";
 import schema from "convex/schema";
 import { paginationOptsValidator, type PaginationResult } from "convex/server";
@@ -62,6 +63,9 @@ export const streamChat = httpAction(async (ctx, request) => {
             temperature: 0.8,
             messages,
             abortSignal: abortController.signal,
+            tools: getTools({ ctx, writer }),
+            maxSteps: 2,
+            experimental_activeTools: message.tool ? [message.tool] : [],
           });
 
           result.consumeStream();
