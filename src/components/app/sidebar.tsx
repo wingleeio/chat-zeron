@@ -116,18 +116,24 @@ function SidebarChats() {
 
   const now = Date.now();
   const oneDayAgo = now - 24 * 60 * 60 * 1000;
-  const oneWeekAgo = now - 7 * 24 * 60 * 60 * 1000;
+  const twoDaysAgo = now - 2 * 24 * 60 * 60 * 1000;
+  const thirtyDaysAgo = now - 30 * 24 * 60 * 60 * 1000;
 
   const todayChats = chats.results.filter(
     (chat) => chat.lastMessageTimestamp >= oneDayAgo
   );
-  const lastWeekChats = chats.results.filter(
+  const yesterdayChats = chats.results.filter(
     (chat) =>
-      chat.lastMessageTimestamp >= oneWeekAgo &&
+      chat.lastMessageTimestamp >= twoDaysAgo &&
       chat.lastMessageTimestamp < oneDayAgo
   );
+  const lastThirtyDaysChats = chats.results.filter(
+    (chat) =>
+      chat.lastMessageTimestamp >= thirtyDaysAgo &&
+      chat.lastMessageTimestamp < twoDaysAgo
+  );
   const historyChats = chats.results.filter(
-    (chat) => chat.lastMessageTimestamp < oneWeekAgo
+    (chat) => chat.lastMessageTimestamp < thirtyDaysAgo
   );
 
   const renderChatGroup = (chatGroup: Doc<"chats">[], label: string) => {
@@ -201,7 +207,8 @@ function SidebarChats() {
   return (
     <Fragment>
       {renderChatGroup(todayChats, "Today")}
-      {renderChatGroup(lastWeekChats, "Last Week")}
+      {renderChatGroup(yesterdayChats, "Yesterday")}
+      {renderChatGroup(lastThirtyDaysChats, "Last 30 Days")}
       {renderChatGroup(historyChats, "History")}
       {chats.status === "CanLoadMore" && (
         <div ref={loadMoreRef} className="h-4 w-full" />

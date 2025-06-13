@@ -28,8 +28,17 @@ export const clerkWebhook = httpAction(async (ctx, request) => {
         return Response.json({ status: "success" });
       }
 
+      const model = await ctx.runQuery(internal.models.getByModel, {
+        model: "google/gemini-2.5-flash-preview-05-20",
+      });
+
+      if (!model) {
+        throw new Error("Model not found");
+      }
+
       await ctx.runMutation(internal.users.create, {
         authId: data.id,
+        model: model._id,
       });
 
       return Response.json({ status: "success" });

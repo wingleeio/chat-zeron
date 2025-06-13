@@ -5,6 +5,7 @@ import { query } from "convex/_generated/server";
 import { internalMutation, mutation } from "convex/functions";
 import { v } from "convex/values";
 import schema from "convex/schema";
+import { vModel } from "convex/ai/provider";
 
 export const list = query(async (ctx) => {
   return await ctx.db.query("models").withIndex("by_name").collect();
@@ -33,3 +34,15 @@ export const { read } = crud(
   internalQuery,
   internalMutation as any
 );
+
+export const getByModel = internalQuery({
+  args: {
+    model: vModel,
+  },
+  handler: async (ctx, args) => {
+    return await ctx.db
+      .query("models")
+      .withIndex("by_model", (q) => q.eq("model", args.model))
+      .first();
+  },
+});
