@@ -12,7 +12,7 @@ import {
 
 import { Link } from "@tanstack/react-router";
 import { api } from "convex/_generated/api";
-import { Authenticated, useMutation, usePaginatedQuery } from "convex/react";
+import { useMutation, usePaginatedQuery } from "convex/react";
 import { EditIcon, Loader2Icon, PlusIcon, TrashIcon } from "lucide-react";
 import { match } from "ts-pattern";
 import type { Doc } from "convex/_generated/dataModel";

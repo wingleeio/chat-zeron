@@ -18,7 +18,7 @@ import { useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "convex/_generated/api";
 import ModelIcon, { type ModelType } from "@/components/chat/model-icon";
-import type { Doc, Id } from "convex/_generated/dataModel";
+import type { Doc } from "convex/_generated/dataModel";
 import { Badge } from "@/components/ui/badge";
 import { match } from "ts-pattern";
 
