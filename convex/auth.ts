@@ -39,6 +39,7 @@ export const clerkWebhook = httpAction(async (ctx, request) => {
       await ctx.runMutation(internal.users.create, {
         authId: data.id,
         model: model._id,
+        email: data.email_addresses[0].email_address,
       });
 
       return Response.json({ status: "success" });

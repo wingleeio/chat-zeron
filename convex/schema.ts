@@ -9,6 +9,7 @@ export default defineSchema({
   users: defineTable({
     authId: v.string(),
     model: v.optional(v.id("models")),
+    email: v.optional(v.string()),
   }).index("by_auth_id", ["authId"]),
   chats: defineTable({
     title: v.string(),
