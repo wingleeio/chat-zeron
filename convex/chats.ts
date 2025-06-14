@@ -371,10 +371,11 @@ export const branch = mutation({
       title: chat.title,
       userId: user._id,
       isPublic: false,
-      isBranch: true,
+      branchId: args.chatId,
       status: "ready",
       lastMessageTimestamp: Date.now(),
     });
+
     const messages = await ctx.db
       .query("messages")
       .withIndex("by_chat", (q) => q.eq("chatId", args.chatId))

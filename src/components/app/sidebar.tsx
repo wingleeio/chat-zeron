@@ -161,7 +161,7 @@ function SidebarChats() {
                       className: "bg-muted",
                     }}
                   >
-                    {chat.isBranch && <GitBranchIcon className="size-4" />}
+                    {chat.branchId && <GitBranchIcon className="size-4" />}
                     <span className="truncate flex-1">{chat.title}</span>
                     {match(chat.status)
                       .with("ready", () => null)
