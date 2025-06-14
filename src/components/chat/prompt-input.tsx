@@ -34,7 +34,6 @@ import React, {
 } from "react";
 import type { Tool } from "convex/ai/tools";
 import { useModelSupports } from "@/hooks/use-model-supports";
-import { useStickToBottomContext } from "use-stick-to-bottom";
 
 type PromptInputContextType = {
   isLoading: boolean;
@@ -204,8 +203,6 @@ function PromptInputAction({
 }
 
 function PromptInputWithActions() {
-  const { isAtBottom, scrollToBottom } = useStickToBottomContext();
-
   const [input, setInput] = useState("");
   const [files, setFiles] = useState<File[]>([]);
   const [tool, setTool] = useState<Tool | undefined>(undefined);
@@ -282,9 +279,6 @@ function PromptInputWithActions() {
         };
       });
       setInput("");
-      if (isAtBottom) {
-        scrollToBottom();
-      }
     }
   };
 

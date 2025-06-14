@@ -196,7 +196,7 @@ export const getById = query({
       return null;
     }
 
-    if (chat.userId !== user._id) {
+    if (!chat.isPublic && chat.userId !== user._id) {
       throw new Error("Unauthorized");
     }
 
@@ -323,7 +323,7 @@ export const branch = mutation({
       throw new Error("Chat not found");
     }
 
-    if (chat.userId !== user._id) {
+    if (!chat.isPublic && chat.userId !== user._id) {
       throw new Error("Unauthorized");
     }
 

@@ -15,6 +15,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { api } from "convex/_generated/api";
 import type { Id } from "convex/_generated/dataModel";
+import { useQuery } from "convex/react";
 import { ChevronDownIcon } from "lucide-react";
 import { Fragment } from "react/jsx-runtime";
 import { match, P } from "ts-pattern";
@@ -47,6 +48,8 @@ export const Route = createFileRoute("/c/$cid")({
 
 function RouteComponent() {
   const { cid } = Route.useParams();
+  const { chat } = Route.useLoaderData();
+  const me = useQuery(api.auth.current);
   const { data: messages } = useSuspenseQuery(
     convexQuery(api.messages.list, {
       chatId: cid as Id<"chats">,
@@ -93,7 +96,7 @@ function RouteComponent() {
               <ChevronDownIcon className="size-3" />
             </ScrollButton>
           </div>
-          <PromptInputWithActions />
+          {me?._id === chat?.userId && <PromptInputWithActions />}
         </div>
       </ChatContainerRoot>
     </Fragment>
