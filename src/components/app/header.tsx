@@ -13,10 +13,13 @@ import { IconShare2 } from "@tabler/icons-react";
 import { Link, useParams } from "@tanstack/react-router";
 import type { Id } from "convex/_generated/dataModel";
 import { PlusIcon } from "lucide-react";
+import { useQuery } from "convex/react";
+import { api } from "convex/_generated/api";
 
 export function AppHeader() {
   const sidebar = useSidebar();
   const params = useParams({ from: "/c/$cid", shouldThrow: false });
+  const me = useQuery(api.auth.current);
   return (
     <header className="p-3 flex items-center justify-between">
       <div className="flex items-center gap-2">
@@ -38,7 +41,7 @@ export function AppHeader() {
         </Button>
       </div>
       <div className="flex items-center gap-2">
-        {params?.cid && (
+        {params?.cid && me?._id === params.cid && (
           <Tooltip>
             <TooltipTrigger>
               <ShareModal id={params.cid as Id<"chats">}>

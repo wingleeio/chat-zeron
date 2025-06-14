@@ -37,6 +37,7 @@ import type { ModelType } from "@/components/chat/model-icon";
 import ModelIcon from "@/components/chat/model-icon";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
+import { useQuery } from "convex/react";
 
 type CompletedServerMessageProps = {
   message: Doc<"messages"> & {
@@ -51,8 +52,11 @@ function CompletedServerMessage({ message }: CompletedServerMessageProps) {
   const chatQuery = convexQuery(api.chats.getById, {
     id: params.cid as Id<"chats">,
   });
+  const { data: chat } = useSuspenseQuery(chatQuery);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+
+  const me = useQuery(api.auth.current);
 
   const regenerate = useMutation({
     mutationFn: useConvexAction(api.messages.regenerate),
@@ -108,7 +112,11 @@ function CompletedServerMessage({ message }: CompletedServerMessageProps) {
             <CopyIcon className="size-3" />
           </Button>
         </MessageAction>
-        <MessageAction tooltip="Regenerate" side="bottom">
+        <MessageAction
+          tooltip="Regenerate"
+          side="bottom"
+          className={cn("hidden", me?._id === chat?.userId && "block")}
+        >
           <Button
             variant="ghost"
             size="icon"
@@ -161,6 +169,7 @@ function UserMessage({ message }: { message: Doc<"messages"> }) {
     id: params.cid as Id<"chats">,
   });
   const { data: chat } = useSuspenseQuery(chatQuery);
+  const me = useQuery(api.auth.current);
 
   const isLoading = useMemo(() => {
     return chat?.status === "streaming" || chat?.status === "submitted";
@@ -197,7 +206,9 @@ function UserMessage({ message }: { message: Doc<"messages"> }) {
       <MessageActions
         className={cn(
           "group-hover/user-message:opacity-100 md:opacity-0 transition-opacity duration-200",
-          isEditing && "opacity-100"
+          isEditing && "opacity-100",
+          me?._id === chat?.userId && "opacity-100",
+          me?._id !== chat?.userId && "opacity-0 pointer-events-none"
         )}
       >
         {isEditing ? (

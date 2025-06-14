@@ -23,6 +23,9 @@ import { match, P } from "ts-pattern";
 export const Route = createFileRoute("/c/$cid")({
   component: RouteComponent,
   loader: async ({ context, params }) => {
+    if (!context.token) {
+      return {};
+    }
     const chat = await context.queryClient.fetchQuery(
       convexQuery(api.chats.getById, {
         id: params.cid as Id<"chats">,
@@ -39,7 +42,7 @@ export const Route = createFileRoute("/c/$cid")({
     return {
       meta: [
         {
-          title: `${loaderData?.chat?.title && `${loaderData.chat.title} | `} Zeron`,
+          title: `${loaderData?.chat?.title ? `${loaderData.chat.title} | ` : ""} Zeron`,
         },
       ],
     };
