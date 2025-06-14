@@ -349,7 +349,7 @@ export const branch = mutation({
       .collect();
 
     const messagesToInsert = messages.filter((messageToFilter) => {
-      return messageToFilter._creationTime >= message._creationTime;
+      return messageToFilter._creationTime <= message._creationTime;
     });
 
     for (const message of messagesToInsert) {
