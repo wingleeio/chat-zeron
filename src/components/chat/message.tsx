@@ -159,7 +159,7 @@ function UserMessage({ message }: { message: Doc<"messages"> }) {
       )}
       <MessageActions
         className={cn(
-          "group-hover/user-message:opacity-100 opacity-0 transition-opacity duration-200",
+          "group-hover/user-message:opacity-100 md:opacity-0 transition-opacity duration-200",
           isEditing && "opacity-100"
         )}
       >
