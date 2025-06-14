@@ -62,7 +62,7 @@ function RouteComponent() {
   return (
     <Fragment key={cid}>
       <ChatContainerRoot
-        className="w-full flex-1 flex-col"
+        className="w-full flex-1 flex-col overflow-x-hidden"
         initial="instant"
         resize="smooth"
       >

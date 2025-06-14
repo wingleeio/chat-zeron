@@ -91,7 +91,14 @@ export const Route = createRootRouteWithContext<RouterContext>()({
                 <Outlet />
               </div>
             </main>
-            <Toaster position="top-center" />
+            <Toaster
+              position="top-center"
+              toastOptions={{
+                classNames: {
+                  toast: "bg-sidebar! border!",
+                },
+              }}
+            />
           </SidebarProvider>
         </Authenticated>
       </AppProvider>
