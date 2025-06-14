@@ -303,6 +303,38 @@ export const deleteChat = mutation({
   },
 });
 
+export const togglePublic = mutation({
+  args: {
+    chatId: v.id("chats"),
+  },
+  handler: async (ctx, args): Promise<Doc<"chats"> | null> => {
+    const user = await ctx.runQuery(internal.auth.authenticate, {});
+
+    if (!user) {
+      throw new Error("Unauthorized");
+    }
+
+    const chat = await ctx.runQuery(internal.chats.read, {
+      id: args.chatId,
+    });
+
+    if (!chat) {
+      throw new Error("Chat not found");
+    }
+
+    if (chat.userId !== user._id) {
+      throw new Error("Unauthorized");
+    }
+
+    return await ctx.runMutation(internal.chats.update, {
+      id: args.chatId,
+      patch: {
+        isPublic: !chat.isPublic,
+      },
+    });
+  },
+});
+
 export const branch = mutation({
   args: {
     chatId: v.id("chats"),

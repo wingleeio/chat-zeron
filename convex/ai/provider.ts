@@ -21,8 +21,18 @@ export const models = [
     description: "Flagship model by DeepSeek.",
   },
   {
-    name: "Claude Sonnet 4",
+    name: "Claude Sonnet 3.7",
     model: "anthropic/claude-3.7-sonnet:thinking",
+    provider: "openrouter",
+    icon: "anthropic",
+    capabilities: ["thinking", "vision", "tools"] as Infer<
+      typeof vCapabilities
+    >[],
+    description: "Sonnet 3.7 model by Anthropic.",
+  },
+  {
+    name: "Claude Sonnet 4",
+    model: "anthropic/claude-4-sonnet-20250522",
     provider: "openrouter",
     icon: "anthropic",
     capabilities: ["thinking", "vision", "tools"] as Infer<
@@ -30,6 +40,7 @@ export const models = [
     >[],
     description: "Latest Sonnet model by Anthropic.",
   },
+
   {
     name: "Claude Opus 4",
     model: "anthropic/claude-opus-4",

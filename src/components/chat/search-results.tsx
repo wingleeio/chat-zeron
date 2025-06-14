@@ -161,7 +161,7 @@ function NonMemoizedSearchResultCard({
   };
 
   return (
-    <div className="bg-background border-border w-[300px] flex-shrink-0 rounded-xl border shadow-sm transition-all hover:shadow-md">
+    <div className="bg-background border-border w-[300px] flex-shrink-0 rounded-xl border shadow-sm transition-all hover:shadow-md h-full">
       <div className="p-4">
         <div className="mb-3 flex items-center gap-2.5">
           <div className="bg-muted relative flex min-h-10 min-w-10 items-center justify-center overflow-hidden rounded-lg">

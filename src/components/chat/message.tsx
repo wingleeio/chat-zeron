@@ -82,7 +82,7 @@ function CompletedServerMessage({ message }: CompletedServerMessageProps) {
   const uiMessages: UIMessageType[] = JSON.parse(message.uiMessages ?? "[]");
 
   return (
-    <Message className="flex-col w-full">
+    <Message id={`m-${message._id}`} className="flex-col w-full">
       {uiMessages.map((message) => (
         <UIMessage key={message.id} message={message} />
       ))}

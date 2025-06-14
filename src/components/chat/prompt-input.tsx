@@ -271,7 +271,6 @@ function PromptInputWithActions() {
         prompt: input,
         tool,
       });
-      setTool(undefined);
       queryClient.setQueryData(chatQuery.queryKey, (old: Doc<"chats">) => {
         return {
           ...old,

@@ -43,7 +43,7 @@ export const send = action({
         const newChat = await ctx.runMutation(internal.chats.create, {
           userId: user._id,
           title: "",
-          isPublic: true,
+          isPublic: false,
           status: "submitted",
           lastMessageTimestamp: Date.now(),
         });
