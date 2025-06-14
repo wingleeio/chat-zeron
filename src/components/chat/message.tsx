@@ -38,7 +38,7 @@ import ModelIcon from "@/components/chat/model-icon";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { useQuery } from "convex/react";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { X } from "lucide-react";
 
 type CompletedServerMessageProps = {
