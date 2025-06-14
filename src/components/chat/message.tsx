@@ -348,7 +348,7 @@ function UploadedFile({
           className="max-w-[95vw] max-h-[95vh] p-0 bg-transparent border-none"
           showCloseButton={false}
         >
-          <div className="relative w-full h-full flex items-center justify-center">
+          <div className="relative w-full h-full">
             <Button
               variant="ghost"
               size="icon"
@@ -357,11 +357,7 @@ function UploadedFile({
             >
               <X className="size-4" />
             </Button>
-            <img
-              src={src}
-              alt={alt}
-              className="max-w-[95vw] max-h-[95vh] w-auto h-auto object-contain"
-            />
+            <img src={src} alt={alt} className="w-full h-full object-contain" />
           </div>
         </DialogContent>
       </Dialog>
