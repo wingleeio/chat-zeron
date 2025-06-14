@@ -170,7 +170,7 @@ function SidebarChats() {
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="size-6 rounded-[10px]"
+                            className="size-6 rounded-[10px] text-muted-foreground"
                             asChild
                           >
                             <Link
@@ -182,7 +182,7 @@ function SidebarChats() {
                           </Button>
                         </TooltipTrigger>
                         <TooltipContent>
-                          <p>Branch of {chat.branch.title}</p>
+                          <p>Branched from: {chat.branch.title}</p>
                         </TooltipContent>
                       </Tooltip>
                     )}
@@ -200,6 +200,7 @@ function SidebarChats() {
                     <TooltipTrigger asChild>
                       <Button
                         size="icon"
+                        variant="ghost"
                         className="size-6 rounded-[10px]"
                         onClick={() => setEditChat(chat)}
                       >
@@ -214,6 +215,7 @@ function SidebarChats() {
                     <TooltipTrigger asChild>
                       <Button
                         size="icon"
+                        variant="ghost"
                         className="size-6 rounded-[10px]"
                         onClick={() => setDeleteChat(chat)}
                       >

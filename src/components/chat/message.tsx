@@ -80,6 +80,7 @@ function CompletedServerMessage({ message }: CompletedServerMessageProps) {
           cid: id,
         },
       });
+      toast.success("Created branch");
     },
   });
 
