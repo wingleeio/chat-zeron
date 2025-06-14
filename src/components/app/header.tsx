@@ -18,7 +18,7 @@ export function AppHeader() {
           size="icon"
           asChild
           className={cn(
-            "opacity-0 transition-opacity size-7",
+            "md:opacity-0 transition-opacity size-7",
             !sidebar.open && "opacity-100",
             sidebar.open && "pointer-events-none"
           )}
