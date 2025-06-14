@@ -17,7 +17,7 @@ export const models = [
     model: "deepseek/deepseek-r1-0528:free",
     provider: "openrouter",
     icon: "deepseek",
-    capabilities: ["thinking", "tools"] as Infer<typeof vCapabilities>[],
+    capabilities: ["thinking"] as Infer<typeof vCapabilities>[],
     description: "Flagship model by DeepSeek.",
   },
   {

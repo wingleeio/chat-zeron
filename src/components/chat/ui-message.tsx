@@ -27,9 +27,9 @@ export function UIMessage({ message }: { message: UIMessage }) {
           {match(part)
             .with({ type: "reasoning" }, (part) => (
               <ReasoningPart
-                id={message.id}
+                id={message.id + "-" + index}
                 part={part}
-                done={message.parts.length > 1}
+                done={message.parts[index + 1] !== undefined}
               />
             ))
             .with({ type: "tool-invocation" }, (part) =>

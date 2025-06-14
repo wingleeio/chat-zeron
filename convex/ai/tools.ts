@@ -6,11 +6,14 @@ import { z } from "zod";
 export const vTool = v.union(v.literal("search"));
 export type Tool = Infer<typeof vTool>;
 
-export function getTools(opts: {
-  ctx: GenericActionCtx<any>;
-  writer: DataStreamWriter;
-}) {
-  return {
+export function getTools(
+  opts: {
+    ctx: GenericActionCtx<any>;
+    writer: DataStreamWriter;
+  },
+  activeTools: Tool[]
+) {
+  const tools: Record<Tool, any> = {
     search: tool({
       description: "Search the web for information with one or more queries",
       parameters: z.object({
@@ -62,6 +65,14 @@ export function getTools(opts: {
       },
     }),
   };
+
+  return activeTools.reduce(
+    (acc, tool) => {
+      acc[tool] = tools[tool]!;
+      return acc;
+    },
+    {} as Record<Tool, any>
+  );
 }
 
 export type ConciseSearchResult = {

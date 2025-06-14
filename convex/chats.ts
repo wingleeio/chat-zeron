@@ -53,6 +53,7 @@ export const streamChat = httpAction(async (ctx, request) => {
       }
 
       const abortController = new AbortController();
+      const activeTools = message.tool ? [message.tool] : [];
       const stream = createDataStream({
         execute: async (writer) => {
           const result = streamText({
@@ -63,9 +64,8 @@ export const streamChat = httpAction(async (ctx, request) => {
             temperature: 0.8,
             messages,
             abortSignal: abortController.signal,
-            tools: getTools({ ctx, writer }),
-            maxSteps: 2,
-            experimental_activeTools: message.tool ? [message.tool] : [],
+            tools: getTools({ ctx, writer }, activeTools),
+            maxSteps: 3,
           });
 
           result.consumeStream();
@@ -91,6 +91,9 @@ export const streamChat = httpAction(async (ctx, request) => {
       while (true) {
         const { done, value } = await reader.read();
         if (done) {
+          break;
+        }
+        if (value.startsWith("3:")) {
           break;
         }
         await append(value);
