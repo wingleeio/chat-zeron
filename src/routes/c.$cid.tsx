@@ -9,11 +9,13 @@ import {
   UserMessage,
 } from "@/components/chat/message";
 import { PromptInputWithActions } from "@/components/chat/prompt-input";
+import { ScrollButton } from "@/components/chat/scroll-button";
 import { convexQuery } from "@convex-dev/react-query";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { api } from "convex/_generated/api";
 import type { Id } from "convex/_generated/dataModel";
+import { ChevronDownIcon } from "lucide-react";
 import { Fragment } from "react/jsx-runtime";
 import { match, P } from "ts-pattern";
 
@@ -36,7 +38,7 @@ export const Route = createFileRoute("/c/$cid")({
     return {
       meta: [
         {
-          title: `${loaderData?.chat.title && `${loaderData.chat.title} | `} Zeron`,
+          title: `${loaderData?.chat?.title && `${loaderData.chat.title} | `} Zeron`,
         },
       ],
     };
@@ -54,7 +56,7 @@ function RouteComponent() {
   return (
     <Fragment key={cid}>
       <ChatContainerRoot
-        className="w-full flex-1"
+        className="w-full flex-1 flex-col"
         initial="instant"
         resize="smooth"
       >
@@ -83,10 +85,17 @@ function RouteComponent() {
             </Fragment>
           ))}
         </ChatContainerContent>
+
+        <div className="w-full px-4 pb-4 relative">
+          <div className="absolute -top-10 left-[50%] -translate-x-1/2">
+            <ScrollButton variant="default">
+              <span className="text-xs">Scroll to bottom</span>
+              <ChevronDownIcon className="size-3" />
+            </ScrollButton>
+          </div>
+          <PromptInputWithActions />
+        </div>
       </ChatContainerRoot>
-      <div className="w-full px-4 pb-4">
-        <PromptInputWithActions />
-      </div>
     </Fragment>
   );
 }
