@@ -19,6 +19,14 @@ import { api } from "convex/_generated/api";
 export function AppHeader() {
   const sidebar = useSidebar();
   const params = useParams({ from: "/c/$cid", shouldThrow: false });
+  const chat = useQuery(
+    api.chats.getById,
+    params
+      ? {
+          id: params?.cid as Id<"chats">,
+        }
+      : "skip"
+  );
   const me = useQuery(api.auth.current);
   return (
     <header className="p-3 flex items-center justify-between">
@@ -41,7 +49,7 @@ export function AppHeader() {
         </Button>
       </div>
       <div className="flex items-center gap-2">
-        {params?.cid && me?._id === params.cid && (
+        {params?.cid && me?._id === chat?.userId && (
           <Tooltip>
             <TooltipTrigger>
               <ShareModal id={params.cid as Id<"chats">}>
