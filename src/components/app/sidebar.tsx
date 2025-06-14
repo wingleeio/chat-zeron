@@ -140,7 +140,10 @@ function SidebarChats() {
     (chat) => chat.lastMessageTimestamp < thirtyDaysAgo
   );
 
-  const renderChatGroup = (chatGroup: Doc<"chats">[], label: string) => {
+  const renderChatGroup = (
+    chatGroup: (Doc<"chats"> & { branch: Doc<"chats"> | null })[],
+    label: string
+  ) => {
     if (chatGroup.length === 0) return null;
     return (
       <SidebarGroup>
@@ -161,7 +164,28 @@ function SidebarChats() {
                       className: "bg-muted",
                     }}
                   >
-                    {chat.branchId && <GitBranchIcon className="size-4" />}
+                    {chat.branch && (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="size-6 rounded-[10px]"
+                            asChild
+                          >
+                            <Link
+                              to="/c/$cid"
+                              params={{ cid: chat.branch._id }}
+                            >
+                              <GitBranchIcon className="size-4" />
+                            </Link>
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Branch of {chat.branch.title}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    )}
                     <span className="truncate flex-1">{chat.title}</span>
                     {match(chat.status)
                       .with("ready", () => null)

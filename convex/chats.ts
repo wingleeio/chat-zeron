@@ -222,7 +222,12 @@ export const getPaginated = query({
   args: {
     paginationOpts: paginationOptsValidator,
   },
-  handler: async (ctx, args): Promise<PaginationResult<Doc<"chats">>> => {
+  handler: async (
+    ctx,
+    args
+  ): Promise<
+    PaginationResult<Doc<"chats"> & { branch: Doc<"chats"> | null }>
+  > => {
     const user = await ctx.runQuery(internal.auth.authenticate, {});
 
     if (!user) {
@@ -235,7 +240,31 @@ export const getPaginated = query({
         q.eq("userId", user._id)
       )
       .order("desc")
-      .paginate(args.paginationOpts);
+      .paginate(args.paginationOpts)
+      .then(async (result) => {
+        const chats = await Promise.all(
+          result.page.map(async (chat) => {
+            if (chat.branchId) {
+              const branch = await ctx.runQuery(internal.chats.read, {
+                id: chat.branchId,
+              });
+              return {
+                ...chat,
+                branch: branch,
+              };
+            }
+            return {
+              ...chat,
+              branch: null,
+            };
+          })
+        );
+
+        return {
+          ...result,
+          page: chats,
+        };
+      });
   },
 });
 
