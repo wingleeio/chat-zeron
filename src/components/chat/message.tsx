@@ -1,7 +1,13 @@
 import type { StreamBody } from "@convex-dev/persistent-text-streaming";
 import type { Doc, Id } from "convex/_generated/dataModel";
 import { api } from "convex/_generated/api";
-import { CopyIcon, EditIcon, Loader2Icon, RefreshCcwIcon } from "lucide-react";
+import {
+  CopyIcon,
+  EditIcon,
+  GitBranchIcon,
+  Loader2Icon,
+  RefreshCcwIcon,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Loader } from "@/components/chat/loaders";
 import { setDrivenIds } from "@/stores/chat";
@@ -10,8 +16,12 @@ import {
   useQueryClient,
   useSuspenseQuery,
 } from "@tanstack/react-query";
-import { convexQuery, useConvexAction } from "@convex-dev/react-query";
-import { useParams } from "@tanstack/react-router";
+import {
+  convexQuery,
+  useConvexAction,
+  useConvexMutation,
+} from "@convex-dev/react-query";
+import { useNavigate, useParams } from "@tanstack/react-router";
 import { toast } from "sonner";
 import type { UIMessage as UIMessageType } from "ai";
 
@@ -42,6 +52,7 @@ function CompletedServerMessage({ message }: CompletedServerMessageProps) {
     id: params.cid as Id<"chats">,
   });
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   const regenerate = useMutation({
     mutationFn: useConvexAction(api.messages.regenerate),
@@ -52,6 +63,18 @@ function CompletedServerMessage({ message }: CompletedServerMessageProps) {
           ...old,
           status: "submitted",
         };
+      });
+    },
+  });
+
+  const branch = useMutation({
+    mutationFn: useConvexMutation(api.chats.branch),
+    onSuccess: (id: Id<"chats">) => {
+      navigate({
+        to: "/c/$cid",
+        params: {
+          cid: id,
+        },
       });
     },
   });
@@ -97,6 +120,20 @@ function CompletedServerMessage({ message }: CompletedServerMessageProps) {
             ) : (
               <RefreshCcwIcon className="size-3" />
             )}
+          </Button>
+        </MessageAction>
+        <MessageAction tooltip="Branch" side="bottom">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() =>
+              branch.mutate({
+                chatId: params.cid as Id<"chats">,
+                messageId: message._id,
+              })
+            }
+          >
+            <GitBranchIcon className="size-3" />
           </Button>
         </MessageAction>
         <Button

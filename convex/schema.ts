@@ -16,6 +16,7 @@ export default defineSchema({
     isPublic: v.boolean(),
     status: vStatus,
     lastMessageTimestamp: v.number(),
+    isBranch: v.optional(v.boolean()),
   })
     .index("by_user", ["userId"])
     .index("by_user_lastMessageTimestamp", ["userId", "lastMessageTimestamp"]),

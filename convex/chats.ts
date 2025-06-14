@@ -3,7 +3,7 @@ import type { StreamId } from "@convex-dev/persistent-text-streaming";
 import { createDataStream, generateText, smoothStream, streamText } from "ai";
 import { crud } from "convex-helpers/server/crud";
 import { api, internal } from "convex/_generated/api";
-import type { Doc } from "convex/_generated/dataModel";
+import type { Doc, Id } from "convex/_generated/dataModel";
 import {
   httpAction,
   internalAction,
@@ -300,5 +300,71 @@ export const deleteChat = mutation({
     }
 
     await ctx.db.delete(args.chatId);
+  },
+});
+
+export const branch = mutation({
+  args: {
+    chatId: v.id("chats"),
+    messageId: v.id("messages"),
+  },
+  handler: async (ctx, args): Promise<Id<"chats">> => {
+    const user = await ctx.runQuery(internal.auth.authenticate, {});
+
+    if (!user) {
+      throw new Error("Unauthorized");
+    }
+
+    const chat = await ctx.runQuery(internal.chats.read, {
+      id: args.chatId,
+    });
+
+    if (!chat) {
+      throw new Error("Chat not found");
+    }
+
+    if (chat.userId !== user._id) {
+      throw new Error("Unauthorized");
+    }
+
+    const message = await ctx.runQuery(internal.messages.read, {
+      id: args.messageId,
+    });
+
+    if (!message || message.chatId !== args.chatId) {
+      throw new Error("Message not found");
+    }
+
+    const branchedChat = await ctx.db.insert("chats", {
+      title: chat.title,
+      userId: user._id,
+      isPublic: false,
+      isBranch: true,
+      status: "ready",
+      lastMessageTimestamp: Date.now(),
+    });
+    const messages = await ctx.db
+      .query("messages")
+      .withIndex("by_chat", (q) => q.eq("chatId", args.chatId))
+      .collect();
+
+    const messagesToInsert = messages.filter((messageToFilter) => {
+      return messageToFilter._creationTime >= message._creationTime;
+    });
+
+    for (const message of messagesToInsert) {
+      await ctx.db.insert("messages", {
+        prompt: message.prompt,
+        chatId: branchedChat,
+        userId: user._id,
+        modelId: message.modelId,
+        responseStreamId: message.responseStreamId,
+        uiMessages: message.uiMessages,
+        tool: message.tool,
+        error: message.error,
+      });
+    }
+
+    return branchedChat;
   },
 });

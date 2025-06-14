@@ -13,7 +13,13 @@ import {
 import { Link } from "@tanstack/react-router";
 import { api } from "convex/_generated/api";
 import { useMutation, usePaginatedQuery } from "convex/react";
-import { EditIcon, Loader2Icon, PlusIcon, TrashIcon } from "lucide-react";
+import {
+  EditIcon,
+  GitBranchIcon,
+  Loader2Icon,
+  PlusIcon,
+  TrashIcon,
+} from "lucide-react";
 import { match } from "ts-pattern";
 import type { Doc } from "convex/_generated/dataModel";
 import { Fragment } from "react/jsx-runtime";
@@ -155,11 +161,12 @@ function SidebarChats() {
                       className: "bg-muted",
                     }}
                   >
+                    {chat.isBranch && <GitBranchIcon className="size-4" />}
                     <span className="truncate flex-1">{chat.title}</span>
                     {match(chat.status)
                       .with("ready", () => null)
                       .otherwise(() => (
-                        <Loader2Icon className="w-4 h-4 animate-spin text-muted-foreground" />
+                        <Loader2Icon className="size-4 animate-spin text-muted-foreground" />
                       ))}
                   </Link>
                 </SidebarMenuButton>
