@@ -217,7 +217,9 @@ function PromptInputWithActions() {
     id: params?.cid as Id<"chats">,
   });
 
-  const { data: chat } = useSuspenseQuery(chatQuery);
+  const { data } = useSuspenseQuery(chatQuery);
+
+  const chat = params?.cid ? data : null;
 
   const sendMessage = useMutation({
     mutationFn: useConvexAction(api.messages.send),
