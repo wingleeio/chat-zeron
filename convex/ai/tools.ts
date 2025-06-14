@@ -21,7 +21,8 @@ export function getTools(
 
   const tools: Record<Tool, any> = {
     search: tool({
-      description: "Search the web for information with one or more queries",
+      description:
+        "Search the web for information with one or more queries. Ask the user for more information if needed before using this tool.",
       parameters: z.object({
         queries: z
           .array(z.string())

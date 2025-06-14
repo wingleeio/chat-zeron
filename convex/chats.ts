@@ -10,6 +10,7 @@ import {
   internalQuery,
   query,
 } from "convex/_generated/server";
+import { getPrompt } from "convex/ai/prompt";
 import { getModel } from "convex/ai/provider";
 import { getTools } from "convex/ai/tools";
 import { mutation, internalMutation } from "convex/functions";
@@ -65,6 +66,7 @@ export const streamChat = httpAction(async (ctx, request) => {
             messages,
             abortSignal: abortController.signal,
             tools: getTools({ ctx, writer, model }, activeTools),
+            system: getPrompt({ ctx }),
             maxSteps: 3,
           });
 

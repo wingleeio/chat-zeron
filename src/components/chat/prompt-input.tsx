@@ -34,6 +34,10 @@ import React, {
 } from "react";
 import type { Tool } from "convex/ai/tools";
 import { useModelSupports } from "@/hooks/use-model-supports";
+import { useUploadFile } from "@convex-dev/r2/react";
+import { useQuery } from "convex/react";
+import { CircularLoader } from "@/components/chat/loaders";
+import { toast } from "sonner";
 
 type PromptInputContextType = {
   isLoading: boolean;
@@ -202,19 +206,70 @@ function PromptInputAction({
   );
 }
 
+type R2File = {
+  key: string;
+  name: string;
+};
+
+type FilePreviewProps = {
+  files: R2File[];
+  fileUrls: (string | undefined)[] | undefined;
+  onRemoveFile: (key: string) => void;
+};
+
+function FilePreview({ files, fileUrls, onRemoveFile }: FilePreviewProps) {
+  const [loadedImages, setLoadedImages] = useState<Record<number, boolean>>({});
+
+  const handleImageLoad = (index: number) => {
+    setLoadedImages((prev) => ({ ...prev, [index]: true }));
+  };
+
+  return (
+    <div className="flex flex-wrap gap-2 pb-2">
+      {files.map((file, index) => (
+        <div key={index} className="flex items-center relative">
+          <div className="relative size-16 rounded-sm overflow-hidden">
+            {!loadedImages[index] && (
+              <div className="absolute inset-0 flex items-center justify-center bg-muted">
+                <CircularLoader size="sm" />
+              </div>
+            )}
+            <img
+              src={fileUrls?.[index]}
+              alt={file.name}
+              className="size-16 rounded-sm object-cover"
+              onLoad={() => handleImageLoad(index)}
+            />
+          </div>
+          <Button
+            onClick={() => onRemoveFile(file.key)}
+            size="icon"
+            className="rounded-full size-5 absolute -top-2 -right-2"
+          >
+            <X className="size-3" />
+          </Button>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function PromptInputWithActions() {
   const [input, setInput] = useState("");
-  const [files, setFiles] = useState<File[]>([]);
+  const [files, setFiles] = useState<R2File[]>([]);
   const [tool, setTool] = useState<Tool | undefined>(undefined);
   const supportsVision = useModelSupports("vision");
   const supportsTools = useModelSupports("tools");
   const navigate = useNavigate();
-  const uploadInputRef = useRef<HTMLInputElement>(null);
-
+  const uploadFile = useUploadFile(api.files);
   const params = useParams({ from: "/c/$cid", shouldThrow: false });
   const queryClient = useQueryClient();
   const chatQuery = convexQuery(api.chats.getById, {
     id: params?.cid as Id<"chats">,
+  });
+
+  const fileUrls = useQuery(api.files.getFileUrls, {
+    keys: files.map((file) => file.key),
   });
 
   const { data } = useSuspenseQuery(chatQuery);
@@ -229,6 +284,21 @@ function PromptInputWithActions() {
         to: "/c/$cid",
         params: { cid: message.chatId },
         replace: true,
+      });
+    },
+  });
+
+  const deleteFile = useMutation({
+    mutationFn: useConvexMutation(api.files.deleteFile),
+  });
+
+  const upload = useMutation({
+    mutationFn: async (file: File) => {
+      const id = toast.loading("Uploading file...");
+      const key = await uploadFile(file);
+      setFiles((prev) => [...prev, { key, name: file.name }]);
+      toast.success("File uploaded", {
+        id,
       });
     },
   });
@@ -272,6 +342,7 @@ function PromptInputWithActions() {
         chatId: chat?._id,
         prompt: input,
         tool,
+        files: files.map((file) => file.key),
       });
       queryClient.setQueryData(chatQuery.queryKey, (old: Doc<"chats">) => {
         return {
@@ -280,21 +351,25 @@ function PromptInputWithActions() {
         };
       });
       setInput("");
+      setFiles([]);
     }
   };
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     if (event.target.files) {
-      const newFiles = Array.from(event.target.files);
-      setFiles((prev) => [...prev, ...newFiles]);
+      Array.from(event.target.files).forEach(async (file) => {
+        upload.mutate(file);
+      });
     }
   };
 
-  const handleRemoveFile = (index: number) => {
-    setFiles((prev) => prev.filter((_, i) => i !== index));
-    if (uploadInputRef?.current) {
-      uploadInputRef.current.value = "";
-    }
+  const handleRemoveFile = async (key: string) => {
+    await deleteFile.mutateAsync({
+      key,
+    });
+    setFiles((prev) => prev.filter((file) => file.key !== key));
   };
 
   return (
@@ -306,23 +381,11 @@ function PromptInputWithActions() {
       className="w-full max-w-(--breakpoint-md) mx-auto p-3"
     >
       {files.length > 0 && (
-        <div className="flex flex-wrap gap-2 pb-2">
-          {files.map((file, index) => (
-            <div
-              key={index}
-              className="bg-secondary flex items-center gap-2 rounded-lg px-3 py-2 text-sm"
-            >
-              <Paperclip className="size-4" />
-              <span className="max-w-[120px] truncate">{file.name}</span>
-              <button
-                onClick={() => handleRemoveFile(index)}
-                className="hover:bg-secondary/50 rounded-full p-1"
-              >
-                <X className="size-4" />
-              </button>
-            </div>
-          ))}
-        </div>
+        <FilePreview
+          files={files}
+          fileUrls={fileUrls}
+          onRemoveFile={handleRemoveFile}
+        />
       )}
 
       <PromptInputTextarea
@@ -345,6 +408,7 @@ function PromptInputWithActions() {
                   multiple
                   onChange={handleFileChange}
                   className="hidden"
+                  accept="image/*"
                   id="file-upload"
                 />
                 <Paperclip className="size-4" />
@@ -384,6 +448,7 @@ function PromptInputWithActions() {
             variant="default"
             size="icon"
             className="h-8 w-8 rounded-full"
+            disabled={upload.isPending || (!supportsVision && files.length > 0)}
             onClick={() => {
               if (isLoading) {
                 if (chat?._id) {

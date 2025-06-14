@@ -16,6 +16,7 @@
     "@clerk/tanstack-start": "^0.11.5",
     "@convex-dev/migrations": "^0.2.9",
     "@convex-dev/persistent-text-streaming": "^0.2.3",
+    "@convex-dev/r2": "^0.6.2",
     "@convex-dev/react-query": "0.0.0-alpha.8",
     "@openrouter/ai-sdk-provider": "^0.7.1",
     "@radix-ui/react-avatar": "^1.1.10",

@@ -13,6 +13,7 @@ import { match, P } from "ts-pattern";
 import schema from "convex/schema";
 import { convertToCoreMessages } from "ai";
 import { vTool } from "convex/ai/tools";
+import { r2 } from "convex/files";
 
 export const { create, read, update } = crud(
   schema,
@@ -26,6 +27,7 @@ export const send = action({
     prompt: v.string(),
     chatId: v.optional(v.id("chats")),
     tool: v.optional(vTool),
+    files: v.optional(v.array(v.string())),
   },
   handler: async (ctx, args): Promise<Doc<"messages">> => {
     const user = await ctx.runQuery(internal.auth.authenticate, {});
@@ -79,6 +81,7 @@ export const send = action({
       responseStreamId: streamId,
       modelId: user.model,
       tool: args.tool,
+      files: args.files,
     });
 
     return message;
@@ -195,21 +198,36 @@ export const history = internalQuery({
       })
     );
 
-    return messagesWithStreamBody.flatMap((message) => {
-      const userMessage = {
-        role: "user",
-        content: [
-          {
-            type: "text",
-            text: message.userMessage.prompt,
-          },
-        ],
-      };
+    const messages = await Promise.all(
+      messagesWithStreamBody.map(async (message) => {
+        const filePromises =
+          message.userMessage.files?.map(async (file) => ({
+            type: "image",
+            image: await r2.getUrl(file, {
+              expiresIn: 60,
+            }),
+          })) ?? [];
 
-      const agentMessages = convertToCoreMessages(message.agentMessages);
+        const fileContents = await Promise.all(filePromises);
 
-      return [userMessage, ...agentMessages];
-    });
+        const userMessage = {
+          role: "user",
+          content: [
+            {
+              type: "text",
+              text: message.userMessage.prompt,
+            },
+            ...fileContents,
+          ],
+        };
+
+        const agentMessages = convertToCoreMessages(message.agentMessages);
+
+        return [userMessage, ...agentMessages];
+      })
+    ).then((results) => results.flat());
+
+    return messages;
   },
 });
 
@@ -256,6 +274,14 @@ export const list = query({
             const content = stream.status === "done" ? stream.text : "";
             return {
               ...message,
+              uploadedFiles: await Promise.all(
+                message.files?.map(
+                  async (file) =>
+                    await r2.getUrl(file, {
+                      expiresIn: 60 * 60 * 3, // 3 hours
+                    })
+                ) ?? []
+              ),
               responseStreamStatus: stream.status,
               responseStreamContent: content,
               model: model,

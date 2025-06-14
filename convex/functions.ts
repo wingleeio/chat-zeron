@@ -9,6 +9,7 @@ import {
   internalMutation as rawInternalMutation,
 } from "convex/_generated/server";
 import { match } from "ts-pattern";
+import { r2 } from "convex/files";
 const triggers = new Triggers<DataModel>();
 
 triggers.register("messages", async (ctx, change) => {
@@ -21,6 +22,20 @@ triggers.register("messages", async (ctx, change) => {
       await ctx.db.patch(change.newDoc.chatId, {
         lastMessageTimestamp: change.newDoc._creationTime,
       });
+    })
+    .with({ operation: "delete" }, async (change) => {
+      await Promise.all(
+        change.oldDoc?.files?.map(async (file) => {
+          const fileDoc = await ctx.db
+            .query("files")
+            .withIndex("by_key", (q) => q.eq("key", file))
+            .first();
+          if (fileDoc) {
+            await ctx.db.delete(fileDoc._id);
+          }
+          await r2.deleteObject(ctx, file);
+        }) ?? []
+      );
     })
     .otherwise((_) => {
       // ignore other operations

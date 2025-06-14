@@ -11,6 +11,12 @@ export default defineSchema({
     model: v.optional(v.id("models")),
     email: v.optional(v.string()),
   }).index("by_auth_id", ["authId"]),
+  files: defineTable({
+    key: v.string(),
+    userId: v.id("users"),
+  })
+    .index("by_user", ["userId"])
+    .index("by_key", ["key"]),
   chats: defineTable({
     title: v.string(),
     userId: v.id("users"),
@@ -30,6 +36,7 @@ export default defineSchema({
     responseStreamId: StreamIdValidator,
     tool: v.optional(vTool),
     error: v.optional(v.union(v.boolean(), v.string())),
+    files: v.optional(v.array(v.string())),
   })
     .index("by_chat", ["chatId"])
     .index("by_stream", ["responseStreamId"]),

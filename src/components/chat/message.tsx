@@ -9,7 +9,7 @@ import {
   RefreshCcwIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Loader } from "@/components/chat/loaders";
+import { Loader, CircularLoader } from "@/components/chat/loaders";
 import { setDrivenIds } from "@/stores/chat";
 import {
   useMutation,
@@ -38,6 +38,8 @@ import ModelIcon from "@/components/chat/model-icon";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { useQuery } from "convex/react";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { X } from "lucide-react";
 
 type CompletedServerMessageProps = {
   message: Doc<"messages"> & {
@@ -162,7 +164,11 @@ function CompletedServerMessage({ message }: CompletedServerMessageProps) {
   );
 }
 
-function UserMessage({ message }: { message: Doc<"messages"> }) {
+function UserMessage({
+  message,
+}: {
+  message: Doc<"messages"> & { uploadedFiles: string[] };
+}) {
   const [isEditing, setIsEditing] = useState(false);
   const [prompt, setPrompt] = useState(message.prompt);
   const params = useParams({ from: "/c/$cid" });
@@ -193,11 +199,19 @@ function UserMessage({ message }: { message: Doc<"messages"> }) {
 
   return (
     <Message className="flex-col items-end group/user-message">
+      {message.uploadedFiles?.map((file, index) => (
+        <UploadedFile
+          key={index}
+          src={file}
+          alt={`Uploaded file ${index + 1}`}
+        />
+      ))}
       {isEditing ? (
         <Textarea
-          className="rounded-xl px-4 bg-muted"
+          className="rounded-xl px-4 bg-muted min-h-[60px] resize-none"
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
+          rows={6}
         />
       ) : (
         <MessageContent markdown className="rounded-xl px-4 bg-muted">
@@ -293,6 +307,65 @@ function PendingServerMessage() {
         </Button>
       </MessageActions>
     </Message>
+  );
+}
+
+type UploadedFileProps = {
+  src: string;
+  alt?: string;
+  className?: string;
+};
+
+function UploadedFile({
+  src,
+  alt = "Uploaded file",
+  className,
+}: UploadedFileProps) {
+  const [isLoading, setIsLoading] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <>
+      <div
+        className="relative size-18 rounded-md overflow-hidden cursor-pointer"
+        onClick={() => setIsOpen(true)}
+      >
+        {isLoading && (
+          <div className="absolute inset-0 flex items-center justify-center bg-muted">
+            <CircularLoader size="sm" />
+          </div>
+        )}
+        <img
+          src={src}
+          alt={alt}
+          className={cn("size-18 object-cover rounded-md", className)}
+          onLoad={() => setIsLoading(false)}
+        />
+      </div>
+
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <DialogContent
+          className="max-w-[95vw] max-h-[95vh] p-0 bg-transparent border-none"
+          showCloseButton={false}
+        >
+          <div className="relative w-full h-full flex items-center justify-center">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute top-4 right-4 z-50 bg-background/80 hover:bg-background"
+              onClick={() => setIsOpen(false)}
+            >
+              <X className="size-4" />
+            </Button>
+            <img
+              src={src}
+              alt={alt}
+              className="max-w-[95vw] max-h-[95vh] w-auto h-auto object-contain"
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
 
