@@ -27,6 +27,7 @@ export default defineSchema({
     uiMessages: v.optional(v.string()),
     responseStreamId: StreamIdValidator,
     tool: v.optional(vTool),
+    error: v.optional(v.union(v.boolean(), v.string())),
   })
     .index("by_chat", ["chatId"])
     .index("by_stream", ["responseStreamId"]),

@@ -1,4 +1,5 @@
 import { tool, type DataStreamWriter } from "ai";
+import type { Doc } from "convex/_generated/dataModel";
 import type { GenericActionCtx } from "convex/server";
 import { v, type Infer } from "convex/values";
 import { z } from "zod";
@@ -10,9 +11,14 @@ export function getTools(
   opts: {
     ctx: GenericActionCtx<any>;
     writer: DataStreamWriter;
+    model: Doc<"models">;
   },
   activeTools: Tool[]
 ) {
+  if (!opts.model.capabilities?.includes("tools")) {
+    return {};
+  }
+
   const tools: Record<Tool, any> = {
     search: tool({
       description: "Search the web for information with one or more queries",

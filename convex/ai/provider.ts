@@ -123,6 +123,10 @@ export const vCapabilities = v.union(
   v.literal("thinking")
 );
 
+export type Model = Infer<typeof vModel>;
+export type Provider = Infer<typeof vProvider>;
+export type Capability = Infer<typeof vCapabilities>;
+
 export function getModel(
   provider: Infer<typeof vProvider>,
   model: Infer<typeof vModel>
