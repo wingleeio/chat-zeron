@@ -75,7 +75,7 @@ export function ModelSelector() {
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[200px] p-0 border-none">
-        <div className="absolute top-0 right-0 translate-x-full pl-2">
+        <div className="absolute top-0 right-0 translate-x-full pl-2 hidden md:block">
           {hoveredModel && (
             <div className="rounded-md p-2 bg-sidebar flex flex-col gap-2 w-64">
               <div className="flex items-center gap-2">
