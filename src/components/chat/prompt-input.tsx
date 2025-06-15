@@ -439,6 +439,7 @@ function PromptInputWithActions() {
             </Button>
           </PromptInputAction>
         )}
+
         <div className="flex-1" />
 
         <PromptInputAction

@@ -14,9 +14,11 @@ export default defineSchema({
   files: defineTable({
     key: v.string(),
     userId: v.id("users"),
+    messageId: v.optional(v.id("messages")),
   })
     .index("by_user", ["userId"])
-    .index("by_key", ["key"]),
+    .index("by_key", ["key"])
+    .index("by_message", ["messageId"]),
   chats: defineTable({
     title: v.string(),
     userId: v.id("users"),

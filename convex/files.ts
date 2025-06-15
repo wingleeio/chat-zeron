@@ -1,10 +1,10 @@
-import { components, internal } from "convex/_generated/api";
-import { R2 } from "@convex-dev/r2";
-import { query } from "convex/_generated/server";
+import { internal } from "convex/_generated/api";
+import { internalQuery, query } from "convex/_generated/server";
 import { v } from "convex/values";
-import { mutation } from "convex/functions";
-
-export const r2 = new R2(components.r2);
+import { internalMutation, mutation } from "convex/functions";
+import { r2 } from "convex/r2";
+import { crud } from "convex-helpers/server/crud";
+import schema from "convex/schema";
 
 export const { generateUploadUrl, syncMetadata } = r2.clientApi({
   checkUpload: async (ctx) => {
@@ -64,5 +64,37 @@ export const getFileUrls = query({
         });
       })
     );
+  },
+});
+
+export const { create, read, update } = crud(
+  schema,
+  "files",
+  internalQuery,
+  internalMutation as any
+);
+
+export const getByKey = internalQuery({
+  args: {
+    key: v.string(),
+  },
+  handler: async (ctx, { key }) => {
+    return await ctx.db
+      .query("files")
+      .withIndex("by_key", (q) => q.eq("key", key))
+      .first();
+  },
+});
+
+export const clearDangling = internalMutation({
+  handler: async (ctx) => {
+    const files = await ctx.db
+      .query("files")
+      .withIndex("by_message", (q) => q.eq("messageId", undefined))
+      .collect();
+    for (const file of files) {
+      await ctx.db.delete(file._id);
+      await r2.deleteObject(ctx, file.key);
+    }
   },
 });

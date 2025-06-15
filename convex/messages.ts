@@ -13,7 +13,7 @@ import { match, P } from "ts-pattern";
 import schema from "convex/schema";
 import { convertToCoreMessages } from "ai";
 import { vTool } from "convex/ai/tools";
-import { r2 } from "convex/files";
+import { r2 } from "convex/r2";
 
 export const { create, read, update } = crud(
   schema,
@@ -81,8 +81,26 @@ export const send = action({
       responseStreamId: streamId,
       modelId: user.model,
       tool: args.tool,
-      files: args.files,
     });
+
+    if (args.files) {
+      for (const key of args.files) {
+        const file = await ctx.runQuery(internal.files.getByKey, {
+          key,
+        });
+
+        if (!file) {
+          throw new Error("File not found");
+        }
+
+        await ctx.runMutation(internal.files.update, {
+          id: file._id,
+          patch: {
+            messageId: message._id,
+          },
+        });
+      }
+    }
 
     return message;
   },
@@ -200,10 +218,17 @@ export const history = internalQuery({
 
     const messages = await Promise.all(
       messagesWithStreamBody.map(async (message) => {
+        const files = await ctx.db
+          .query("files")
+          .withIndex("by_message", (q) =>
+            q.eq("messageId", message.userMessage._id)
+          )
+          .collect();
+
         const filePromises =
-          message.userMessage.files?.map(async (file) => ({
+          files?.map(async (file) => ({
             type: "image",
-            image: await r2.getUrl(file, {
+            image: await r2.getUrl(file.key, {
               expiresIn: 60,
             }),
           })) ?? [];
@@ -271,17 +296,24 @@ export const list = query({
               throw new Error("Model not found");
             }
 
+            const files = await ctx.db
+              .query("files")
+              .withIndex("by_message", (q) => q.eq("messageId", message._id))
+              .collect();
+
+            const uploadedFiles = await Promise.all(
+              files.map(
+                async (file) =>
+                  await r2.getUrl(file.key, {
+                    expiresIn: 60 * 60 * 3,
+                  })
+              ) ?? []
+            );
+
             const content = stream.status === "done" ? stream.text : "";
             return {
               ...message,
-              uploadedFiles: await Promise.all(
-                message.files?.map(
-                  async (file) =>
-                    await r2.getUrl(file, {
-                      expiresIn: 60 * 60 * 3, // 3 hours
-                    })
-                ) ?? []
-              ),
+              uploadedFiles,
               responseStreamStatus: stream.status,
               responseStreamContent: content,
               model: model,

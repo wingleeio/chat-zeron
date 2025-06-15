@@ -9,7 +9,8 @@ import {
   internalMutation as rawInternalMutation,
 } from "convex/_generated/server";
 import { match } from "ts-pattern";
-import { r2 } from "convex/files";
+import { r2 } from "convex/r2";
+
 const triggers = new Triggers<DataModel>();
 
 triggers.register("messages", async (ctx, change) => {
