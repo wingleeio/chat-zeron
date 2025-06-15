@@ -165,7 +165,7 @@ function CompletedServerMessage({ message }: CompletedServerMessageProps) {
         >
           <div>
             <ModelIcon
-              className="fill-sidebar-accent"
+              className="fill-primary"
               model={message.model.icon as ModelType}
             />
             <span className="text-xs text-muted-foreground font-normal">

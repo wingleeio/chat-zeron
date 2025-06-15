@@ -9,7 +9,11 @@ import {
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { SignInButton, UserButton } from "@clerk/tanstack-start";
-import { IconInnerShadowTop, IconShare2 } from "@tabler/icons-react";
+import {
+  IconInnerShadowTop,
+  IconSettings,
+  IconShare2,
+} from "@tabler/icons-react";
 import { Link, useParams } from "@tanstack/react-router";
 import type { Id } from "convex/_generated/dataModel";
 import { PlusIcon } from "lucide-react";
@@ -52,6 +56,11 @@ export function AppHeader() {
       <div className="flex items-center gap-2 col-span-2 justify-end">
         <Authenticated>
           <ShareChatButton />
+          <Button variant="ghost" size="icon" asChild>
+            <Link to="/settings">
+              <IconSettings className="!size-4" />
+            </Link>
+          </Button>
           <UserButton />
         </Authenticated>
         <Unauthenticated>
@@ -72,7 +81,7 @@ function NewChatButton() {
       size="icon"
       asChild
       className={cn(
-        "opacity-0 transition-opacity size-7",
+        "opacity-0 transition-opacity",
         !sidebar.open && "opacity-100",
         sidebar.open && "pointer-events-none"
       )}
@@ -113,7 +122,7 @@ function ShareChatButton() {
         <Tooltip>
           <TooltipTrigger>
             <ShareModal id={params.cid as Id<"chats">}>
-              <Button variant="ghost" size="icon" className="size-7">
+              <Button variant="ghost" size="icon">
                 <IconShare2 className="size-4" />
               </Button>
             </ShareModal>
