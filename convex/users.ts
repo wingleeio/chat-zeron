@@ -39,3 +39,24 @@ export const getCurrent = query({
     });
   },
 });
+
+export const updatePreferences = mutation({
+  args: {
+    preferences: v.object({
+      nickname: v.optional(v.string()),
+      biography: v.optional(v.string()),
+      instructions: v.optional(v.string()),
+    }),
+  },
+  handler: async (ctx, args) => {
+    const user = await ctx.runQuery(internal.auth.authenticate);
+
+    if (!user) {
+      throw new Error("Unauthorized");
+    }
+
+    await ctx.db.patch(user._id, {
+      preferences: args.preferences,
+    });
+  },
+});

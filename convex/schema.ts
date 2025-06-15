@@ -10,6 +10,13 @@ export default defineSchema({
     authId: v.string(),
     model: v.optional(v.id("models")),
     email: v.optional(v.string()),
+    preferences: v.optional(
+      v.object({
+        nickname: v.optional(v.string()),
+        biography: v.optional(v.string()),
+        instructions: v.optional(v.string()),
+      })
+    ),
   }).index("by_auth_id", ["authId"]),
   files: defineTable({
     key: v.string(),

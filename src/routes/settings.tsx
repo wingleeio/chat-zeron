@@ -15,10 +15,6 @@ const navItems = [
     label: "Appearance",
   },
   {
-    to: "/settings/api-key",
-    label: "API Key",
-  },
-  {
     to: "/settings/contact",
     label: "Contact Us",
   },
@@ -30,23 +26,28 @@ export const Route = createFileRoute("/settings")({
 
 function RouteComponent() {
   return (
-    <div className="flex justify-center px-4 py-12">
-      <div className="bg-muted p-1 rounded-lg flex gap-1 max-w-full overflow-x-auto no-scrollbar">
-        {navItems.map((item) => (
-          <Button
-            key={item.to}
-            size="sm"
-            asChild
-            className="bg-muted text-foreground hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50"
-          >
-            <Link
-              to={item.to}
-              activeProps={{ className: "bg-primary text-primary-foreground" }}
+    <div className="flex flex-col gap-4 px-4 py-12">
+      <div className="flex justify-center">
+        <div className="bg-muted p-1 rounded-lg flex gap-1 max-w-full overflow-x-auto no-scrollbar">
+          {navItems.map((item) => (
+            <Button
+              key={item.to}
+              size="sm"
+              asChild
+              className="bg-muted text-foreground hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50"
             >
-              {item.label}
-            </Link>
-          </Button>
-        ))}
+              <Link
+                to={item.to}
+                activeOptions={{ exact: true }}
+                activeProps={{
+                  className: "bg-primary text-primary-foreground",
+                }}
+              >
+                {item.label}
+              </Link>
+            </Button>
+          ))}
+        </div>
       </div>
       <Outlet />
     </div>
