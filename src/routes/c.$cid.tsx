@@ -41,6 +41,22 @@ export const Route = createFileRoute("/c/$cid")({
         {
           title: `${loaderData?.chat?.title ? `${loaderData.chat.title} | ` : ""} Zeron`,
         },
+        {
+          property: "og:title",
+          content: `${loaderData?.chat?.title} | Zeron`,
+        },
+        {
+          property: "og:type",
+          content: "article",
+        },
+        {
+          property: "og:description",
+          content: `${loaderData?.chat?.isPublic ? "A user has shared a chat with you" : ""}`,
+        },
+        {
+          property: "og:site_name",
+          content: "Zeron",
+        },
       ],
     };
   },
