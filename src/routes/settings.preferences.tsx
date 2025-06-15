@@ -7,7 +7,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import z from "zod";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
-import { useMutation, useQuery } from "convex/react";
+import { useMutation } from "convex/react";
 import { api } from "convex/_generated/api";
 import { toast } from "sonner";
 import { convexQuery } from "@convex-dev/react-query";
@@ -59,7 +59,7 @@ function RouteComponent() {
 
   return (
     <form
-      className="flex flex-col gap-8 w-full md:max-w-3xl mx-auto flex-1 py-8"
+      className="flex flex-col gap-8"
       onSubmit={(e) => {
         e.preventDefault();
         e.stopPropagation();

@@ -10,8 +10,13 @@ import {
   ConvexReactClient,
   Unauthenticated,
 } from "convex/react";
-import { ConvexQueryClient } from "@convex-dev/react-query";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ConvexQueryClient, convexQuery } from "@convex-dev/react-query";
+import {
+  QueryClient,
+  QueryClientProvider,
+  useQueries,
+  useQuery,
+} from "@tanstack/react-query";
 
 import { Toaster } from "@/components/ui/sonner";
 import { SidebarProvider } from "@/components/ui/sidebar";
@@ -21,6 +26,8 @@ import { AppHeader } from "@/components/app/header";
 import { ConvexProviderWithClerk } from "convex/react-clerk";
 import { ClerkProvider, useAuth } from "@clerk/tanstack-start";
 import { fetchClerkAuth } from "@/lib/auth";
+import { api } from "convex/_generated/api";
+import { cn } from "@/lib/utils";
 
 export type RouterContext = {
   queryClient: QueryClient;
@@ -69,10 +76,14 @@ export const Route = createRootRouteWithContext<RouterContext>()({
       token,
     };
   },
-
+  loader: async ({ context }) => {
+    await context.queryClient.prefetchQuery(
+      convexQuery(api.users.getCurrent, {})
+    );
+  },
   component: () => (
-    <RootDocument>
-      <AppProvider>
+    <AppProvider>
+      <RootDocument>
         <Unauthenticated>
           <main className="flex-1 relative">
             <div className="flex flex-col absolute inset-0">
@@ -100,8 +111,8 @@ export const Route = createRootRouteWithContext<RouterContext>()({
             },
           }}
         />
-      </AppProvider>
-    </RootDocument>
+      </RootDocument>
+    </AppProvider>
   ),
 });
 
@@ -122,12 +133,15 @@ function AppProvider({ children }: { children: React.ReactNode }) {
 }
 
 function RootDocument({ children }: { children: React.ReactNode }) {
+  const { data: user } = useQuery(convexQuery(api.users.getCurrent, {}));
+  const mode = user?.appearance?.mode ?? "dark";
+  const theme = user?.appearance?.theme ?? "default";
   return (
     <html lang="en">
       <head>
         <HeadContent />
       </head>
-      <body className="dark flex flex-col fixed inset-0">
+      <body className={cn("flex flex-col fixed inset-0", mode, theme)}>
         {children}
         <Scripts />
       </body>

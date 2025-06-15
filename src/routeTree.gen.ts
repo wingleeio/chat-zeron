@@ -14,6 +14,7 @@ import { Route as rootRoute } from './routes/__root'
 import { Route as SettingsImport } from './routes/settings'
 import { Route as IndexImport } from './routes/index'
 import { Route as SettingsPreferencesImport } from './routes/settings.preferences'
+import { Route as SettingsAppearanceImport } from './routes/settings.appearance'
 import { Route as CCidImport } from './routes/c.$cid'
 
 // Create/Update Routes
@@ -33,6 +34,12 @@ const IndexRoute = IndexImport.update({
 const SettingsPreferencesRoute = SettingsPreferencesImport.update({
   id: '/preferences',
   path: '/preferences',
+  getParentRoute: () => SettingsRoute,
+} as any)
+
+const SettingsAppearanceRoute = SettingsAppearanceImport.update({
+  id: '/appearance',
+  path: '/appearance',
   getParentRoute: () => SettingsRoute,
 } as any)
 
@@ -67,6 +74,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CCidImport
       parentRoute: typeof rootRoute
     }
+    '/settings/appearance': {
+      id: '/settings/appearance'
+      path: '/appearance'
+      fullPath: '/settings/appearance'
+      preLoaderRoute: typeof SettingsAppearanceImport
+      parentRoute: typeof SettingsImport
+    }
     '/settings/preferences': {
       id: '/settings/preferences'
       path: '/preferences'
@@ -80,10 +94,12 @@ declare module '@tanstack/react-router' {
 // Create and export the route tree
 
 interface SettingsRouteChildren {
+  SettingsAppearanceRoute: typeof SettingsAppearanceRoute
   SettingsPreferencesRoute: typeof SettingsPreferencesRoute
 }
 
 const SettingsRouteChildren: SettingsRouteChildren = {
+  SettingsAppearanceRoute: SettingsAppearanceRoute,
   SettingsPreferencesRoute: SettingsPreferencesRoute,
 }
 
@@ -95,6 +111,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/settings': typeof SettingsRouteWithChildren
   '/c/$cid': typeof CCidRoute
+  '/settings/appearance': typeof SettingsAppearanceRoute
   '/settings/preferences': typeof SettingsPreferencesRoute
 }
 
@@ -102,6 +119,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/settings': typeof SettingsRouteWithChildren
   '/c/$cid': typeof CCidRoute
+  '/settings/appearance': typeof SettingsAppearanceRoute
   '/settings/preferences': typeof SettingsPreferencesRoute
 }
 
@@ -110,15 +128,32 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/settings': typeof SettingsRouteWithChildren
   '/c/$cid': typeof CCidRoute
+  '/settings/appearance': typeof SettingsAppearanceRoute
   '/settings/preferences': typeof SettingsPreferencesRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/settings' | '/c/$cid' | '/settings/preferences'
+  fullPaths:
+    | '/'
+    | '/settings'
+    | '/c/$cid'
+    | '/settings/appearance'
+    | '/settings/preferences'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/settings' | '/c/$cid' | '/settings/preferences'
-  id: '__root__' | '/' | '/settings' | '/c/$cid' | '/settings/preferences'
+  to:
+    | '/'
+    | '/settings'
+    | '/c/$cid'
+    | '/settings/appearance'
+    | '/settings/preferences'
+  id:
+    | '__root__'
+    | '/'
+    | '/settings'
+    | '/c/$cid'
+    | '/settings/appearance'
+    | '/settings/preferences'
   fileRoutesById: FileRoutesById
 }
 
@@ -155,11 +190,16 @@ export const routeTree = rootRoute
     "/settings": {
       "filePath": "settings.tsx",
       "children": [
+        "/settings/appearance",
         "/settings/preferences"
       ]
     },
     "/c/$cid": {
       "filePath": "c.$cid.tsx"
+    },
+    "/settings/appearance": {
+      "filePath": "settings.appearance.tsx",
+      "parent": "/settings"
     },
     "/settings/preferences": {
       "filePath": "settings.preferences.tsx",

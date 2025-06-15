@@ -1,16 +1,16 @@
 import { query, internalQuery } from "convex/_generated/server";
-import { mutation } from "convex/functions";
+import { internalMutation, mutation } from "convex/functions";
 import schema from "convex/schema";
 import { v } from "convex/values";
 import { crud } from "convex-helpers/server/crud";
 import { internal } from "convex/_generated/api";
 import type { Doc } from "convex/_generated/dataModel";
 
-export const { create, destroy, update } = crud(
+export const { create, destroy, update, read } = crud(
   schema,
   "users",
-  query,
-  mutation as any
+  internalQuery,
+  internalMutation as any
 );
 
 export const getByAuthId = internalQuery({
@@ -57,6 +57,26 @@ export const updatePreferences = mutation({
 
     await ctx.db.patch(user._id, {
       preferences: args.preferences,
+    });
+  },
+});
+
+export const updateAppearance = mutation({
+  args: {
+    appearance: v.object({
+      mode: v.optional(v.union(v.literal("light"), v.literal("dark"))),
+      theme: v.optional(v.string()),
+    }),
+  },
+  handler: async (ctx, args) => {
+    const user = await ctx.runQuery(internal.auth.authenticate);
+
+    if (!user) {
+      throw new Error("Unauthorized");
+    }
+
+    await ctx.db.patch(user._id, {
+      appearance: args.appearance,
     });
   },
 });

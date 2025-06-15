@@ -17,6 +17,12 @@ export default defineSchema({
         instructions: v.optional(v.string()),
       })
     ),
+    appearance: v.optional(
+      v.object({
+        mode: v.optional(v.union(v.literal("light"), v.literal("dark"))),
+        theme: v.optional(v.string()),
+      })
+    ),
   }).index("by_auth_id", ["authId"]),
   files: defineTable({
     key: v.string(),
