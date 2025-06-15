@@ -37,7 +37,7 @@ import type { ModelType } from "@/components/chat/model-icon";
 import ModelIcon from "@/components/chat/model-icon";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
-import { useQuery } from "convex/react";
+import { Authenticated, useQuery } from "convex/react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { X } from "lucide-react";
 
@@ -115,38 +115,42 @@ function CompletedServerMessage({ message }: CompletedServerMessageProps) {
             <CopyIcon className="size-3" />
           </Button>
         </MessageAction>
-        <MessageAction
-          tooltip="Regenerate"
-          side="bottom"
-          className={cn("hidden", me?._id === chat?.userId && "block")}
-        >
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => regenerate.mutate({ messageId: message._id })}
-            disabled={regenerate.isPending}
+        {me?._id === chat?.userId && (
+          <MessageAction
+            tooltip="Regenerate"
+            side="bottom"
+            className={cn("hidden", me?._id === chat?.userId && "block")}
           >
-            {regenerate.isPending ? (
-              <Loader2Icon className="size-3 animate-spin" />
-            ) : (
-              <RefreshCcwIcon className="size-3" />
-            )}
-          </Button>
-        </MessageAction>
-        <MessageAction tooltip="Branch" side="bottom">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() =>
-              branch.mutate({
-                chatId: params.cid as Id<"chats">,
-                messageId: message._id,
-              })
-            }
-          >
-            <GitBranchIcon className="size-3" />
-          </Button>
-        </MessageAction>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => regenerate.mutate({ messageId: message._id })}
+              disabled={regenerate.isPending}
+            >
+              {regenerate.isPending ? (
+                <Loader2Icon className="size-3 animate-spin" />
+              ) : (
+                <RefreshCcwIcon className="size-3" />
+              )}
+            </Button>
+          </MessageAction>
+        )}
+        <Authenticated>
+          <MessageAction tooltip="Branch" side="bottom">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() =>
+                branch.mutate({
+                  chatId: params.cid as Id<"chats">,
+                  messageId: message._id,
+                })
+              }
+            >
+              <GitBranchIcon className="size-3" />
+            </Button>
+          </MessageAction>
+        </Authenticated>
         <Button
           variant="ghost"
           className="hover:bg-transparent! cursor-default"

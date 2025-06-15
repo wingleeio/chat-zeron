@@ -12,7 +12,7 @@ import { PromptInputWithActions } from "@/components/chat/prompt-input";
 import { ScrollButton } from "@/components/chat/scroll-button";
 import { convexQuery } from "@convex-dev/react-query";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Navigate } from "@tanstack/react-router";
 import { api } from "convex/_generated/api";
 import type { Id } from "convex/_generated/dataModel";
 import { useQuery } from "convex/react";
@@ -75,6 +75,10 @@ function RouteComponent() {
       chatId: cid as Id<"chats">,
     })
   );
+
+  if (!chat) {
+    return <Navigate to="/" />;
+  }
 
   return (
     <Fragment key={cid}>

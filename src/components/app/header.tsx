@@ -15,6 +15,8 @@ import type { Id } from "convex/_generated/dataModel";
 import { PlusIcon } from "lucide-react";
 import { Authenticated, Unauthenticated, useQuery } from "convex/react";
 import { api } from "convex/_generated/api";
+import { Fragment } from "react/jsx-runtime";
+import { Badge } from "@/components/ui/badge";
 
 export function AppHeader() {
   const params = useParams({ from: "/c/$cid", shouldThrow: false });
@@ -97,16 +99,28 @@ function ShareChatButton() {
   return (
     params?.cid &&
     me?._id === chat?.userId && (
-      <Tooltip>
-        <TooltipTrigger>
-          <ShareModal id={params.cid as Id<"chats">}>
-            <Button variant="ghost" size="icon" className="size-7">
-              <IconShare2 className="size-4" />
-            </Button>
-          </ShareModal>
-        </TooltipTrigger>
-        <TooltipContent>Share chat</TooltipContent>
-      </Tooltip>
+      <Fragment>
+        {chat?.isPublic && (
+          <Tooltip>
+            <TooltipTrigger>
+              <Badge variant="outline">Public</Badge>
+            </TooltipTrigger>
+            <TooltipContent>
+              This chat is public. Anyone can view it.
+            </TooltipContent>
+          </Tooltip>
+        )}
+        <Tooltip>
+          <TooltipTrigger>
+            <ShareModal id={params.cid as Id<"chats">}>
+              <Button variant="ghost" size="icon" className="size-7">
+                <IconShare2 className="size-4" />
+              </Button>
+            </ShareModal>
+          </TooltipTrigger>
+          <TooltipContent>Share chat</TooltipContent>
+        </Tooltip>
+      </Fragment>
     )
   );
 }
