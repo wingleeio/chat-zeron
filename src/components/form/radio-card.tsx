@@ -24,7 +24,7 @@ export function RadioCard({
       <Label
         htmlFor={id}
         className={cn(
-          "border-border peer-aria-checked:ring-primary/10 peer-disabled:bg-muted peer-disabled::cursor-not-allowed !mr-0 !ml-0 flex w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-md border p-8 font-normal shadow-sm peer-disabled:grayscale peer-aria-checked:ring-3",
+          "border-border peer-aria-checked:ring-primary/10 peer-disabled:bg-muted peer-disabled::cursor-not-allowed !mr-0 !ml-0 flex w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-md border p-8 font-normal peer-disabled:grayscale peer-aria-checked:ring-3",
           className
         )}
       >
