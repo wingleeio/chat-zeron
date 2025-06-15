@@ -1,4 +1,7 @@
-import type { StreamBody } from "@convex-dev/persistent-text-streaming";
+import type {
+  StreamBody,
+  StreamId,
+} from "@convex-dev/persistent-text-streaming";
 import type { Doc, Id } from "convex/_generated/dataModel";
 import { api } from "convex/_generated/api";
 import {
@@ -10,7 +13,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Loader, CircularLoader } from "@/components/chat/loaders";
-import { setDrivenIds } from "@/stores/chat";
+import { setDrivenIds, useDrivenIds } from "@/stores/chat";
 import {
   useMutation,
   useQueryClient,
@@ -25,7 +28,7 @@ import { useNavigate, useParams } from "@tanstack/react-router";
 import { toast } from "sonner";
 import type { UIMessage as UIMessageType } from "ai";
 
-import React, { Fragment, useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import {
   MessageAction,
   MessageActions,
@@ -40,6 +43,10 @@ import { cn } from "@/lib/utils";
 import { Authenticated, useQuery } from "convex/react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { X } from "lucide-react";
+import { Route } from "@/routes/__root";
+import { env } from "@/env.client";
+import { useStream } from "@convex-dev/persistent-text-streaming/react";
+import { useParseMessage } from "@/hooks/use-parse-message";
 
 type CompletedServerMessageProps = {
   message: Doc<"messages"> & {
@@ -289,12 +296,6 @@ function UserMessage({
   );
 }
 
-const StreamingServerMessage = React.lazy(() =>
-  import("@/components/chat/streaming").then((mod) => ({
-    default: mod.StreamingServerMessage,
-  }))
-);
-
 function PendingServerMessage() {
   return (
     <Message className="flex-col w-full">
@@ -366,6 +367,43 @@ function UploadedFile({
         </DialogContent>
       </Dialog>
     </>
+  );
+}
+
+type StreamingServerMessageProps = {
+  message: Doc<"messages"> & {
+    responseStreamStatus: StreamBody["status"];
+  };
+};
+
+function StreamingServerMessage({ message }: StreamingServerMessageProps) {
+  const drivenIds = useDrivenIds();
+  const isDriven = drivenIds.includes(message._id);
+  const context = Route.useRouteContext();
+  const { text, status } = useStream(
+    api.streaming.getStreamBody,
+    new URL(`${env.VITE_CONVEX_SITE_URL}/stream`),
+    message.responseStreamStatus === "pending" || isDriven,
+    message.responseStreamId as StreamId,
+    {
+      authToken: context.token,
+    }
+  );
+
+  const uiMessages = useParseMessage(text);
+
+  return (
+    <Message className="flex-col w-full">
+      {status === "pending" && <Loader variant="typing" />}
+      {uiMessages.map((message) => (
+        <UIMessage key={message.id} message={message} />
+      ))}
+      <MessageActions className="opacity-0">
+        <Button variant="ghost" size="icon">
+          <CopyIcon className="size-3" />
+        </Button>
+      </MessageActions>
+    </Message>
   );
 }
 
