@@ -67,7 +67,10 @@ export function ModelSelector() {
         >
           <span className="flex items-center gap-2">
             {selectedModel && (
-              <ModelIcon model={selectedModel.icon as ModelType} />
+              <ModelIcon
+                className="fill-sidebar-accent"
+                model={selectedModel.icon as ModelType}
+              />
             )}
             {selectedModel?.name || "Select model..."}
           </span>
@@ -80,7 +83,7 @@ export function ModelSelector() {
             <div className="rounded-md p-2 bg-sidebar flex flex-col gap-2 w-64">
               <div className="flex items-center gap-2">
                 <ModelIcon
-                  className="size-4"
+                  className="size-4 fill-sidebar-accent"
                   model={hoveredModel.icon as ModelType}
                 />
                 <span className="text-sm">{hoveredModel.name}</span>
@@ -136,7 +139,10 @@ export function ModelSelector() {
                 >
                   <span className="flex items-center gap-2">
                     {model.icon && (
-                      <ModelIcon model={model.icon as ModelType} />
+                      <ModelIcon
+                        className="fill-sidebar-accent"
+                        model={model.icon as ModelType}
+                      />
                     )}
                     {model.name}
                   </span>

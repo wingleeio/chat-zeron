@@ -5,7 +5,7 @@ export default function XaiIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      fill="oklch(0.8467 0.0833 210.2545)"
+      fill="currentColor"
       fillRule="evenodd"
       height={24}
       viewBox="0 0 24 24"

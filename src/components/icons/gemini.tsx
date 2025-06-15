@@ -6,14 +6,11 @@ const Icon = (props: SVGProps<SVGSVGElement>) => (
     width={64}
     height={64}
     viewBox="0 0 64 64"
-    fill="none"
+    fill="currentColor"
     {...props}
   >
     <g clipPath="url(#gemini)">
-      <path
-        fill="oklch(0.8467 0.0833 210.2545)"
-        d="M32 64A38.14 38.14 0 0 0 0 32 38.14 38.14 0 0 0 32 0a38.15 38.15 0 0 0 32 32 38.15 38.15 0 0 0-32 32"
-      />
+      <path d="M32 64A38.14 38.14 0 0 0 0 32 38.14 38.14 0 0 0 32 0a38.15 38.15 0 0 0 32 32 38.15 38.15 0 0 0-32 32" />
     </g>
     <defs>
       <clipPath id="gemini">
