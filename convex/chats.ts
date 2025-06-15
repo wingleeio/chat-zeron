@@ -41,6 +41,14 @@ export const streamChat = httpAction(async (ctx, request) => {
         throw new Error("Message not found");
       }
 
+      const user = await ctx.runQuery(internal.users.read, {
+        id: message.userId,
+      });
+
+      if (!user) {
+        throw new Error("User not found");
+      }
+
       const messages: any = await ctx.runQuery(internal.messages.history, {
         chatId: message.chatId,
       });
@@ -66,7 +74,7 @@ export const streamChat = httpAction(async (ctx, request) => {
             messages,
             abortSignal: abortController.signal,
             tools: getTools({ ctx, writer, model }, activeTools),
-            system: getPrompt({ ctx }),
+            system: getPrompt({ ctx, user }),
             maxSteps: 3,
           });
 

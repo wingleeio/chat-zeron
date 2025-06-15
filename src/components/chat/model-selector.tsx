@@ -68,7 +68,7 @@ export function ModelSelector() {
           <span className="flex items-center gap-2">
             {selectedModel && (
               <ModelIcon
-                className="fill-sidebar-accent"
+                className="fill-primary"
                 model={selectedModel.icon as ModelType}
               />
             )}
@@ -83,7 +83,7 @@ export function ModelSelector() {
             <div className="rounded-md p-2 bg-sidebar flex flex-col gap-2 w-64">
               <div className="flex items-center gap-2">
                 <ModelIcon
-                  className="size-4 fill-sidebar-accent"
+                  className="size-4 fill-primary"
                   model={hoveredModel.icon as ModelType}
                 />
                 <span className="text-sm">{hoveredModel.name}</span>
@@ -140,7 +140,7 @@ export function ModelSelector() {
                   <span className="flex items-center gap-2">
                     {model.icon && (
                       <ModelIcon
-                        className="fill-sidebar-accent"
+                        className="fill-primary"
                         model={model.icon as ModelType}
                       />
                     )}
