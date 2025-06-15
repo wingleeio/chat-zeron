@@ -23,9 +23,6 @@ import { match, P } from "ts-pattern";
 export const Route = createFileRoute("/c/$cid")({
   component: RouteComponent,
   loader: async ({ context, params }) => {
-    if (!context.token) {
-      return {};
-    }
     const chat = await context.queryClient.fetchQuery(
       convexQuery(api.chats.getById, {
         id: params.cid as Id<"chats">,
@@ -51,7 +48,11 @@ export const Route = createFileRoute("/c/$cid")({
 
 function RouteComponent() {
   const { cid } = Route.useParams();
-  const { chat } = Route.useLoaderData();
+  const { data: chat } = useSuspenseQuery(
+    convexQuery(api.chats.getById, {
+      id: cid as Id<"chats">,
+    })
+  );
   const me = useQuery(api.auth.current);
   const { data: messages } = useSuspenseQuery(
     convexQuery(api.messages.list, {
@@ -67,7 +68,7 @@ function RouteComponent() {
         resize="smooth"
       >
         <ChatContainerContent className="gap-4 px-4 pt-32 pb-16 mx-auto max-w-3xl">
-          {messages.map((message) => (
+          {messages?.map((message) => (
             <Fragment key={message._id}>
               <UserMessage message={message} />
               {match(message)

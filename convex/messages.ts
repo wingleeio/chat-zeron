@@ -263,20 +263,16 @@ export const list = query({
   handler: async (ctx, args) => {
     const user = await ctx.runQuery(internal.auth.authenticate, {});
 
-    if (!user) {
-      throw new Error("Unauthorized");
-    }
-
     const chat = await ctx.runQuery(internal.chats.read, {
       id: args.chatId,
     });
 
     if (!chat) {
-      throw new Error("Chat not found");
+      return null;
     }
 
-    if (chat.userId !== user._id && !chat.isPublic) {
-      throw new Error("Unauthorized");
+    if (chat.userId !== user?._id && !chat.isPublic) {
+      return null;
     }
 
     return await ctx.db

@@ -182,10 +182,6 @@ export const getById = query({
   handler: async (ctx, args): Promise<Doc<"chats"> | null> => {
     const user = await ctx.runQuery(internal.auth.authenticate, {});
 
-    if (!user) {
-      throw new Error("Unauthorized");
-    }
-
     if (!args.id) {
       return null;
     }
@@ -198,8 +194,8 @@ export const getById = query({
       return null;
     }
 
-    if (!chat.isPublic && chat.userId !== user._id) {
-      throw new Error("Unauthorized");
+    if (!chat.isPublic && chat.userId !== user?._id) {
+      return null;
     }
 
     return chat;

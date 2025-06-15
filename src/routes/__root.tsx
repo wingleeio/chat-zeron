@@ -19,9 +19,8 @@ import { AppSidebar } from "@/components/app/sidebar";
 import { AppHeader } from "@/components/app/header";
 
 import { ConvexProviderWithClerk } from "convex/react-clerk";
-import { ClerkProvider, SignInButton, useAuth } from "@clerk/tanstack-start";
+import { ClerkProvider, useAuth } from "@clerk/tanstack-start";
 import { fetchClerkAuth } from "@/lib/auth";
-import { Button } from "@/components/ui/button";
 
 export type RouterContext = {
   queryClient: QueryClient;
@@ -75,12 +74,12 @@ export const Route = createRootRouteWithContext<RouterContext>()({
     <RootDocument>
       <AppProvider>
         <Unauthenticated>
-          <div className="flex flex-col gap-6 items-center justify-center h-full">
-            <h2 className="text-2xl">Please sign in to continue</h2>
-            <Button variant="outline" asChild>
-              <SignInButton />
-            </Button>
-          </div>
+          <main className="flex-1 relative">
+            <div className="flex flex-col absolute inset-0">
+              <AppHeader />
+              <Outlet />
+            </div>
+          </main>
         </Unauthenticated>
         <Authenticated>
           <SidebarProvider>
@@ -91,16 +90,16 @@ export const Route = createRootRouteWithContext<RouterContext>()({
                 <Outlet />
               </div>
             </main>
-            <Toaster
-              position="top-center"
-              toastOptions={{
-                classNames: {
-                  toast: "bg-sidebar! border!",
-                },
-              }}
-            />
           </SidebarProvider>
         </Authenticated>
+        <Toaster
+          position="top-center"
+          toastOptions={{
+            classNames: {
+              toast: "bg-sidebar! border!",
+            },
+          }}
+        />
       </AppProvider>
     </RootDocument>
   ),

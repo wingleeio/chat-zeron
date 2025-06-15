@@ -94,7 +94,7 @@ export const current = query({
     const user = await ctx.runQuery(internal.auth.authenticate);
 
     if (!user) {
-      throw new Error("Unauthorized");
+      return null;
     }
 
     return user;
