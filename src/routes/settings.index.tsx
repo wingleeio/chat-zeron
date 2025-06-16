@@ -1,7 +1,6 @@
 import { FormSection } from "@/components/form/form-section";
 import { createFileRoute } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
-import { useAction } from "convex/react";
 import { api } from "convex/_generated/api";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { convexQuery } from "@convex-dev/react-query";
@@ -30,8 +29,6 @@ function RouteComponent() {
   const { data: user } = useCurrentUser();
 
   const { data: products } = useSuspenseQuery(productsQuery);
-
-  console.log(products);
 
   return (
     <div className="flex flex-col gap-8 w-full">
