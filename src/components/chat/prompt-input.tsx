@@ -332,6 +332,12 @@ function PromptInputWithActions() {
   const handleSubmit = () => {
     if (isLoading) return;
     if (input.trim() || files.length > 0) {
+      sendMessage.mutate({
+        chatId: chat?._id,
+        prompt: input,
+        tool: supportsTools ? tool : undefined,
+        files: files.map((file) => file.key),
+      });
       if (chat?._id) {
         queryClient.setQueryData(
           convexQuery(api.messages.list, {
@@ -348,12 +354,7 @@ function PromptInputWithActions() {
           }
         );
       }
-      sendMessage.mutate({
-        chatId: chat?._id,
-        prompt: input,
-        tool: supportsTools ? tool : undefined,
-        files: files.map((file) => file.key),
-      });
+
       queryClient.setQueryData(chatQuery.queryKey, (old: Doc<"chats">) => {
         return {
           ...old,

@@ -79,13 +79,6 @@ export const send = action({
           throw new Error("Chat is not ready");
         }
 
-        await ctx.runMutation(internal.chats.update, {
-          id: existingChat._id,
-          patch: {
-            status: "submitted",
-          },
-        });
-
         return existingChat;
       })
       .exhaustive();
@@ -123,6 +116,37 @@ export const send = action({
     return message;
   },
 });
+
+// export const createOnChat = internalMutation({
+//   args: {
+//     chatId: v.id("chats"),
+//     userId: v.id("users"),
+//     modelId: v.id("models"),
+//     tool: v.optional(vTool),
+//     prompt: v.string(),
+//   },
+//   handler: async (ctx, args): Promise<Doc<"messages">> => {
+//     const streamId = await streamingComponent.createStream(ctx);
+
+//     const message = await ctx.runMutation(internal.messages.create, {
+//       prompt: args.prompt,
+//       userId: args.userId,
+//       chatId: args.chatId,
+//       responseStreamId: streamId,
+//       modelId: args.modelId,
+//       tool: args.tool,
+//     });
+
+//     await ctx.runMutation(internal.chats.update, {
+//       id: args.chatId,
+//       patch: {
+//         status: "submitted",
+//       },
+//     });
+
+//     return message;
+//   },
+// });
 
 export const regenerate = action({
   args: {
