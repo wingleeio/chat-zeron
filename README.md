@@ -24,3 +24,11 @@ entire application to be client side rendered as opposed to SSR. I am likely doi
 
 My goal today is to implement image uploads and image generation. If time allows I would like to play around with potentially creating a deep
 research tool today as well.
+
+### Jun 15, 2025 Notes
+
+Yesterday got a lot of bugs fixed and finished image uploads. Waiting to see if I can get access to 4o ImageGen on Azure before implementing the image generation tool.
+
+Today I built out a lot of the setting UI, ultimately decided against BYOK for now as I do not want to encrypt users keys.
+
+I really enjoy using Convex so far, it's a great experience.
