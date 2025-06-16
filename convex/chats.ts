@@ -76,6 +76,14 @@ export const streamChat = httpAction(async (ctx, request) => {
             tools: getTools({ ctx, writer, model }, activeTools),
             system: getPrompt({ ctx, user }),
             maxSteps: 3,
+            onFinish: async ({ text }) => {
+              await ctx.runMutation(internal.messages.update, {
+                id: message._id,
+                patch: {
+                  content: text,
+                },
+              });
+            },
           });
 
           result.consumeStream();

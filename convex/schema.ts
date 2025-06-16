@@ -51,9 +51,19 @@ export default defineSchema({
     responseStreamId: StreamIdValidator,
     tool: v.optional(vTool),
     error: v.optional(v.union(v.boolean(), v.string())),
+    content: v.optional(v.string()),
+    searchContent: v.optional(v.string()),
+    promptTokens: v.optional(v.number()),
+    completionTokens: v.optional(v.number()),
+    totalTokens: v.optional(v.number()),
   })
     .index("by_chat", ["chatId"])
-    .index("by_stream", ["responseStreamId"]),
+    .index("by_stream", ["responseStreamId"])
+    .index("by_search", ["searchContent"])
+    .searchIndex("searchableMessage", {
+      searchField: "searchContent",
+      filterFields: ["userId"],
+    }),
   models: defineTable({
     name: v.string(),
     model: vModel,

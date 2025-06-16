@@ -231,6 +231,45 @@ export const getByStreamId = query({
   },
 });
 
+export const search = query({
+  args: {
+    query: v.string(),
+  },
+  handler: async (ctx, args): Promise<any> => {
+    const user = await ctx.runQuery(internal.auth.authenticate, {});
+
+    if (!user) {
+      throw new Error("Unauthorized");
+    }
+
+    return await ctx.db
+      .query("messages")
+      .withSearchIndex("searchableMessage", (q) =>
+        q.search("searchContent", args.query).eq("userId", user._id)
+      )
+      .take(15)
+      .then(
+        async (messages) =>
+          await Promise.all(
+            messages.map(async (message) => {
+              const chat = await ctx.db.get(message.chatId);
+              if (!chat) {
+                return null;
+              }
+              return {
+                id: message._id,
+                chatId: message.chatId,
+                title: chat.title,
+                prompt: message.prompt,
+                content: message.content?.slice(chat.title.length + 1),
+              };
+            })
+          )
+      )
+      .then((results) => results.filter((result) => result !== null));
+  },
+});
+
 export const history = internalQuery({
   args: {
     chatId: v.id("chats"),

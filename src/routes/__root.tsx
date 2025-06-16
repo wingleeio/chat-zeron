@@ -26,6 +26,7 @@ import { ConvexProviderWithClerk } from "convex/react-clerk";
 import { ClerkProvider, useAuth } from "@clerk/tanstack-start";
 import { api } from "convex/_generated/api";
 import { cn } from "@/lib/utils";
+import { SearchCommand } from "@/components/chat/search-command";
 
 export type RouterContext = {
   queryClient: QueryClient;
@@ -76,6 +77,7 @@ export const Route = createRootRouteWithContext<RouterContext>()({
           </main>
         </Unauthenticated>
         <Authenticated>
+          <SearchCommand />
           <SidebarProvider>
             <AppSidebar />
             <main className="flex-1 relative">

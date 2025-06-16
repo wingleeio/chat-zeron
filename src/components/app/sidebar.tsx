@@ -18,6 +18,7 @@ import {
   GitBranchIcon,
   Loader2Icon,
   PlusIcon,
+  SearchIcon,
   TrashIcon,
 } from "lucide-react";
 import { match } from "ts-pattern";
@@ -42,12 +43,28 @@ import { useForm } from "@tanstack/react-form";
 import { z } from "zod";
 import React, { useEffect } from "react";
 import { useNavigate, useParams } from "@tanstack/react-router";
+import { useCurrentUser } from "@/hooks/use-current-user";
+import { Badge } from "@/components/ui/badge";
+import { setOpenSearch } from "@/stores/chat";
 
 export function AppSidebar() {
+  const { data: user } = useCurrentUser();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const down = (e: KeyboardEvent) => {
+      if (e.key === "o" && (e.metaKey || e.ctrlKey) && e.shiftKey) {
+        e.preventDefault();
+        navigate({ to: "/" });
+      }
+    };
+    document.addEventListener("keydown", down);
+    return () => document.removeEventListener("keydown", down);
+  }, []);
   return (
     <Sidebar>
       <SidebarHeader>
-        <SidebarMenu className="flex-row">
+        <SidebarMenu className="flex-row items-center justify-between">
           <SidebarMenuItem>
             <Button variant="ghost" size="icon" asChild>
               <SidebarMenuButton
@@ -61,6 +78,20 @@ export function AppSidebar() {
               </SidebarMenuButton>
             </Button>
           </SidebarMenuItem>
+          {user?.isPremium && (
+            <SidebarMenuItem>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Badge className="px-3" variant="outline">
+                    Pro
+                  </Badge>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>You are a premium user.</p>
+                </TooltipContent>
+              </Tooltip>
+            </SidebarMenuItem>
+          )}
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent className="overflow-x-hidden">
@@ -71,8 +102,19 @@ export function AppSidebar() {
                 <SidebarMenuButton asChild>
                   <Link to="/">
                     <PlusIcon />
-                    <span>New Chat</span>
+                    <span className="flex-1">New Chat</span>
+                    <span className="text-xs text-muted-foreground">⇧⌘O</span>
                   </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  onClick={() => setOpenSearch(true)}
+                  className="cursor-pointer"
+                >
+                  <SearchIcon />
+                  <span className="flex-1">Search</span>
+                  <span className="text-xs text-muted-foreground">⌘K</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>

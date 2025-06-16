@@ -6,7 +6,16 @@ const store = new Store({
   openReasoningIds: [] as string[],
   reasoningDurations: {} as Record<string, number>,
   tool: undefined as Tool | undefined,
+  openSearch: false as boolean,
 });
+
+export function useOpenSearch() {
+  return useStore(store, (state) => state.openSearch);
+}
+
+export function setOpenSearch(open: boolean) {
+  store.setState((prev) => ({ ...prev, openSearch: open }));
+}
 
 export function useTool() {
   return useStore(store, (state) => state.tool);

@@ -13,7 +13,13 @@ import {
   useSuspenseQuery,
 } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
-import { Badge } from "@/components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const userQuery = convexQuery(api.users.getCurrent, {});
 export const Route = createFileRoute("/settings/appearance")({
@@ -102,8 +108,7 @@ function RouteComponent() {
       </FormSection>
       <Separator />
       <FormSection title="Theme" description="Select your theme.">
-        <RadioGroup
-          className="grid gap-4"
+        <Select
           value={theme}
           disabled={updateAppearance.isPending}
           onValueChange={(value) => {
@@ -115,31 +120,42 @@ function RouteComponent() {
             });
           }}
         >
-          {themes.map((theme) => (
-            <RadioCard
-              key={theme.value}
-              id={theme.value}
-              value={theme.value}
-              className="col-span-1 flex-row justify-start"
-            >
-              <div
-                className={cn(theme.value, "size-3 rounded-[3px] bg-primary")}
-              />
-              <div
-                className={cn(theme.value, "size-3 rounded-[3px] bg-secondary")}
-              />
-              <div
-                className={cn(theme.value, "size-3 rounded-[3px] bg-accent")}
-              />
-              <span className="flex-1">{theme.name}</span>
-              {theme.value === user?.appearance?.theme && (
-                <Badge variant="outline" className="rounded-full px-2 py-1">
-                  Selected
-                </Badge>
-              )}
-            </RadioCard>
-          ))}
-        </RadioGroup>
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Select a theme" />
+          </SelectTrigger>
+          <SelectContent className="bg-sidebar">
+            {themes.map((theme) => (
+              <SelectItem key={theme.value} value={theme.value}>
+                <div className="flex items-center gap-2">
+                  <div className="flex gap-1">
+                    <div
+                      className={cn(
+                        theme.value,
+                        mode,
+                        "size-3 rounded-[3px] bg-primary"
+                      )}
+                    />
+                    <div
+                      className={cn(
+                        theme.value,
+                        mode,
+                        "size-3 rounded-[3px] bg-secondary"
+                      )}
+                    />
+                    <div
+                      className={cn(
+                        theme.value,
+                        mode,
+                        "size-3 rounded-[3px] bg-accent"
+                      )}
+                    />
+                  </div>
+                  <span>{theme.name}</span>
+                </div>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </FormSection>
     </div>
   );

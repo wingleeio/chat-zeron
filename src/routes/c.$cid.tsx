@@ -80,7 +80,6 @@ function RouteComponent() {
     return <Navigate to="/" />;
   }
 
-  console.log(messages);
   return (
     <Fragment key={cid}>
       <ChatContainerRoot
