@@ -62,6 +62,8 @@ export default defineSchema({
     icon: v.string(),
     capabilities: v.optional(v.array(vCapabilities)),
     description: v.optional(v.string()),
+    isPremium: v.optional(v.boolean()),
+    isDisabled: v.optional(v.boolean()),
   })
     .index("by_name", ["name"])
     .index("by_model", ["model"]),

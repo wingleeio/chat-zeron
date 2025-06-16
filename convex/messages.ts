@@ -39,6 +39,13 @@ export const send = action({
     if (!user.model) {
       throw new Error("Model not selected");
     }
+    const model = await ctx.runQuery(internal.models.read, {
+      id: user.model,
+    });
+
+    if (model?.isPremium && !user.isPremium) {
+      throw new Error("Model is premium and user is not premium");
+    }
 
     const chat = await match(args.chatId)
       .with(P.nullish, async () => {

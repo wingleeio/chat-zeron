@@ -38,6 +38,8 @@ import { useUploadFile } from "@convex-dev/r2/react";
 import { useQuery } from "convex/react";
 import { CircularLoader } from "@/components/chat/loaders";
 import { toast } from "sonner";
+import { useCanUseModel } from "@/hooks/use-can-use-model";
+import { match } from "ts-pattern";
 
 type PromptInputContextType = {
   isLoading: boolean;
@@ -197,7 +199,7 @@ function PromptInputAction({
   return (
     <Tooltip {...props}>
       <TooltipTrigger asChild disabled={disabled}>
-        {children}
+        <div>{children}</div>
       </TooltipTrigger>
       <TooltipContent side={side} className={className}>
         {tooltip}
@@ -260,10 +262,12 @@ function PromptInputWithActions() {
   const [tool, setTool] = useState<Tool | undefined>(undefined);
   const supportsVision = useModelSupports("vision");
   const supportsTools = useModelSupports("tools");
+  const canUseModel = useCanUseModel();
   const navigate = useNavigate();
   const uploadFile = useUploadFile(api.files);
   const params = useParams({ from: "/c/$cid", shouldThrow: false });
   const queryClient = useQueryClient();
+
   const chatQuery = convexQuery(api.chats.getById, {
     id: params?.cid as Id<"chats">,
   });
@@ -341,7 +345,7 @@ function PromptInputWithActions() {
       sendMessage.mutate({
         chatId: chat?._id,
         prompt: input,
-        tool,
+        tool: supportsTools ? tool : undefined,
         files: files.map((file) => file.key),
       });
       queryClient.setQueryData(chatQuery.queryKey, (old: Doc<"chats">) => {
@@ -371,6 +375,34 @@ function PromptInputWithActions() {
     });
     setFiles((prev) => prev.filter((file) => file.key !== key));
   };
+
+  function matchOn<T>(callbacks: {
+    onPendingUpload: () => T;
+    onCannotUseModel: () => T;
+    onCannotUploadFiles: () => T;
+    onGenerating: () => T;
+    onOtherwise: () => T;
+  }) {
+    return match({
+      isGenerating: isLoading,
+      isPending: upload.isPending,
+      canUploadFile: supportsVision && files.length > 0,
+      hasFiles: files.length > 0,
+      canUseModel,
+    })
+      .with({ isPending: true }, callbacks.onPendingUpload)
+      .with({ canUseModel: false }, callbacks.onCannotUseModel)
+      .with(
+        {
+          canUploadFile: false,
+          isPending: false,
+          hasFiles: true,
+        },
+        callbacks.onCannotUploadFiles
+      )
+      .with({ isGenerating: true }, callbacks.onGenerating)
+      .otherwise(callbacks.onOtherwise);
+  }
 
   return (
     <PromptInput
@@ -443,13 +475,25 @@ function PromptInputWithActions() {
         <div className="flex-1" />
 
         <PromptInputAction
-          tooltip={isLoading ? "Stop generation" : "Send message"}
+          tooltip={matchOn({
+            onPendingUpload: () => "Waiting for files to upload",
+            onCannotUseModel: () => "You must be a pro user to use this model",
+            onCannotUploadFiles: () => "This model does not support files",
+            onGenerating: () => "Stop generation",
+            onOtherwise: () => "Send message",
+          })}
         >
           <Button
             variant="default"
             size="icon"
             className="h-8 w-8 rounded-full"
-            disabled={upload.isPending || (!supportsVision && files.length > 0)}
+            disabled={matchOn<boolean>({
+              onPendingUpload: () => true,
+              onCannotUseModel: () => true,
+              onCannotUploadFiles: () => true,
+              onGenerating: () => false,
+              onOtherwise: () => false,
+            })}
             onClick={() => {
               if (isLoading) {
                 if (chat?._id) {

@@ -4,6 +4,7 @@ import { httpAction, internalQuery, query } from "convex/_generated/server";
 import { match } from "ts-pattern";
 import { Webhook } from "svix";
 import type { WebhookEvent } from "@clerk/tanstack-start/server";
+import { polar } from "convex/polar";
 
 export const clerkWebhook = httpAction(async (ctx, request) => {
   const bodyText = await request.text();
@@ -70,7 +71,11 @@ export const clerkWebhook = httpAction(async (ctx, request) => {
 });
 
 export const authenticate = internalQuery({
-  handler: async (ctx): Promise<Doc<"users"> | null> => {
+  handler: async (
+    ctx
+  ): Promise<
+    (Doc<"users"> & { isFree: boolean; isPremium: boolean }) | null
+  > => {
     const identity = await ctx.auth.getUserIdentity();
 
     if (!identity) {
@@ -85,7 +90,15 @@ export const authenticate = internalQuery({
       return null;
     }
 
-    return user;
+    const subscription = await polar.getCurrentSubscription(ctx, {
+      userId: user._id,
+    });
+
+    return {
+      ...user,
+      isFree: !subscription,
+      isPremium: !!subscription,
+    };
   },
 });
 

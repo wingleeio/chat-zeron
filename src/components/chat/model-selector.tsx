@@ -21,22 +21,28 @@ import ModelIcon, { type ModelType } from "@/components/chat/model-icon";
 import type { Doc } from "convex/_generated/dataModel";
 import { Badge } from "@/components/ui/badge";
 import { match } from "ts-pattern";
+import { useCurrentUser } from "@/hooks/use-current-user";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export function ModelSelector() {
   const [open, setOpen] = useState(false);
   const [hoveredModel, setHoveredModel] = useState<Doc<"models"> | null>(null);
   const models = useQuery(api.models.list);
-  const user = useQuery(api.auth.current);
+  const { data: user } = useCurrentUser();
   const selectModel = useMutation(api.models.select).withOptimisticUpdate(
     (store, args) => {
-      const user = store.getQuery(api.auth.current);
+      const user = store.getQuery(api.users.getCurrent);
 
       if (!user) {
         return;
       }
 
       store.setQuery(
-        api.auth.current,
+        api.users.getCurrent,
         {},
         {
           ...user,
@@ -77,7 +83,7 @@ export function ModelSelector() {
           <ChevronsUpDownIcon className="opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[200px] p-0 border-none">
+      <PopoverContent className="w-[250px] p-0 border-none" align="start">
         <div className="absolute top-0 right-0 translate-x-full pl-2 hidden md:block">
           {hoveredModel && (
             <div className="rounded-md p-2 bg-sidebar flex flex-col gap-2 w-64">
@@ -137,7 +143,7 @@ export function ModelSelector() {
                     setHoveredModel(model);
                   }}
                 >
-                  <span className="flex items-center gap-2">
+                  <span className="flex items-center gap-2 flex-1">
                     {model.icon && (
                       <ModelIcon
                         className="fill-primary"
@@ -146,6 +152,18 @@ export function ModelSelector() {
                     )}
                     {model.name}
                   </span>
+                  {model.isPremium && !user?.isPremium && (
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <Badge variant="outline" className="text-xs px-2">
+                          Pro
+                        </Badge>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>This model is only available to pro users.</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  )}
                 </CommandItem>
               ))}
             </CommandGroup>

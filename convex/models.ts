@@ -8,7 +8,11 @@ import schema from "convex/schema";
 import { vModel } from "convex/ai/provider";
 
 export const list = query(async (ctx) => {
-  return await ctx.db.query("models").withIndex("by_name").collect();
+  return await ctx.db
+    .query("models")
+    .withIndex("by_name")
+    .collect()
+    .then((models) => models.filter((model) => !model.isDisabled));
 });
 
 export const select = mutation({

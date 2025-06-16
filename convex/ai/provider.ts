@@ -11,6 +11,8 @@ export const models = [
     icon: "deepseek",
     capabilities: ["tools"] as Infer<typeof vCapabilities>[],
     description: "Smaller model by DeepSeek with fewer capabilities.",
+    isPremium: false,
+    isDisabled: false,
   },
   {
     name: "DeepSeek R1",
@@ -19,6 +21,8 @@ export const models = [
     icon: "deepseek",
     capabilities: ["thinking"] as Infer<typeof vCapabilities>[],
     description: "Flagship model by DeepSeek.",
+    isPremium: false,
+    isDisabled: false,
   },
   {
     name: "Claude Sonnet 3.7",
@@ -29,6 +33,8 @@ export const models = [
       typeof vCapabilities
     >[],
     description: "Sonnet 3.7 model by Anthropic.",
+    isPremium: true,
+    isDisabled: false,
   },
   {
     name: "Claude Sonnet 4",
@@ -39,8 +45,9 @@ export const models = [
       typeof vCapabilities
     >[],
     description: "Latest Sonnet model by Anthropic.",
+    isPremium: true,
+    isDisabled: false,
   },
-
   {
     name: "Claude Opus 4",
     model: "anthropic/claude-opus-4",
@@ -50,6 +57,8 @@ export const models = [
       typeof vCapabilities
     >[],
     description: "Latest Opus model by Anthropic.",
+    isPremium: true,
+    isDisabled: true,
   },
   {
     name: "Gemini 2.0 Flash",
@@ -58,6 +67,8 @@ export const models = [
     icon: "gemini",
     capabilities: ["vision", "tools"] as Infer<typeof vCapabilities>[],
     description: "Fast model tuned for low latency.",
+    isPremium: false,
+    isDisabled: false,
   },
   {
     name: "Gemini 2.5 Flash",
@@ -69,6 +80,8 @@ export const models = [
     >[],
     description:
       "Preview of next generation Gemini Flash with more capabilities.",
+    isPremium: false,
+    isDisabled: false,
   },
   {
     name: "Gemini 2.5 Pro",
@@ -80,6 +93,8 @@ export const models = [
     >[],
     description:
       "Preview of latest Pro model by Gemini with more capabilities.",
+    isPremium: true,
+    isDisabled: false,
   },
   {
     name: "GPT 4o",
@@ -89,6 +104,8 @@ export const models = [
     capabilities: ["vision", "tools"] as Infer<typeof vCapabilities>[],
     description:
       "Second largest chat model from OpenAI, great for most questions.",
+    isPremium: true,
+    isDisabled: false,
   },
   {
     name: "GPT 4o-mini",
@@ -97,6 +114,8 @@ export const models = [
     icon: "openai",
     capabilities: ["vision", "tools"] as Infer<typeof vCapabilities>[],
     description: "Faster, less accurate version of GPT-4o.",
+    isPremium: false,
+    isDisabled: false,
   },
   {
     name: "GPT 4.1",
@@ -105,6 +124,8 @@ export const models = [
     icon: "openai",
     capabilities: ["vision", "tools"] as Infer<typeof vCapabilities>[],
     description: "Model from OpenAI tuned for coding tasks.",
+    isPremium: true,
+    isDisabled: false,
   },
   {
     name: "GPT 4.1-mini",
@@ -113,6 +134,8 @@ export const models = [
     icon: "openai",
     capabilities: ["vision", "tools"] as Infer<typeof vCapabilities>[],
     description: "Faster, less accurate version of GPT-4.1.",
+    isPremium: false,
+    isDisabled: false,
   },
   {
     name: "o4-mini",
@@ -123,6 +146,8 @@ export const models = [
       typeof vCapabilities
     >[],
     description: "Smaller, faster version of o4.",
+    isPremium: true,
+    isDisabled: false,
   },
 ] as const;
 

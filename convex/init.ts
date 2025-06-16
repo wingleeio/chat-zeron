@@ -16,6 +16,8 @@ export default internalMutation(async (ctx) => {
         icon: model.icon,
         capabilities: model.capabilities,
         description: model.description,
+        isPremium: model.isPremium,
+        isDisabled: model.isDisabled,
       });
     } else {
       await ctx.db.patch(dbModel._id, {
@@ -26,6 +28,8 @@ export default internalMutation(async (ctx) => {
         icon: model.icon,
         capabilities: model.capabilities,
         description: model.description,
+        isPremium: model.isPremium,
+        isDisabled: model.isDisabled,
       });
     }
   }

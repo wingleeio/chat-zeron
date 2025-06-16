@@ -4,7 +4,7 @@ import type { Capability } from "convex/ai/provider";
 
 export function useModelSupports(capability: Capability) {
   const models = useQuery(api.models.list);
-  const user = useQuery(api.auth.current);
+  const user = useQuery(api.users.getCurrent);
   const selectedModel = models?.find((m) => m._id === user?.model);
 
   return selectedModel?.capabilities?.includes(capability) ?? false;
