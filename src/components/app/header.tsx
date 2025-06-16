@@ -56,11 +56,17 @@ export function AppHeader() {
       <div className="flex items-center gap-2 col-span-2 justify-end">
         <Authenticated>
           <ShareChatButton />
-          <Button variant="ghost" size="icon" asChild>
-            <Link to="/settings">
-              <IconSettings className="!size-4" />
-            </Link>
-          </Button>
+
+          <Tooltip>
+            <TooltipTrigger>
+              <Button variant="ghost" size="icon" asChild>
+                <Link to="/settings">
+                  <IconSettings className="!size-4" />
+                </Link>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Settings</TooltipContent>
+          </Tooltip>
           <UserButton />
         </Authenticated>
         <Unauthenticated>

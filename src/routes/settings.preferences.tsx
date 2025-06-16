@@ -14,6 +14,7 @@ import { convexQuery } from "@convex-dev/react-query";
 
 export const Route = createFileRoute("/settings/preferences")({
   component: RouteComponent,
+
   loader: async ({ context }) => {
     const user = await context.queryClient.fetchQuery(
       convexQuery(api.users.getCurrent, {})
@@ -22,6 +23,14 @@ export const Route = createFileRoute("/settings/preferences")({
       user,
     };
   },
+
+  head: () => ({
+    meta: [
+      {
+        title: "Preferences | Zeron",
+      },
+    ],
+  }),
 });
 
 function RouteComponent() {

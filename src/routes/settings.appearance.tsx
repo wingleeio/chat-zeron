@@ -20,6 +20,14 @@ export const Route = createFileRoute("/settings/appearance")({
   loader: async ({ context }) => {
     await context.queryClient.ensureQueryData(userQuery);
   },
+
+  head: () => ({
+    meta: [
+      {
+        title: "Appearance | Zeron",
+      },
+    ],
+  }),
 });
 
 const themes = [
