@@ -14,7 +14,6 @@ import { ConvexQueryClient, convexQuery } from "@convex-dev/react-query";
 import {
   QueryClient,
   QueryClientProvider,
-  useQueries,
   useQuery,
 } from "@tanstack/react-query";
 
