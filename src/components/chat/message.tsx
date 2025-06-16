@@ -43,7 +43,6 @@ import { cn } from "@/lib/utils";
 import { Authenticated, useQuery } from "convex/react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { X } from "lucide-react";
-import { Route } from "@/routes/__root";
 import { env } from "@/env.client";
 import { useStream } from "@convex-dev/persistent-text-streaming/react";
 import { useParseMessage } from "@/hooks/use-parse-message";
@@ -382,15 +381,11 @@ type StreamingServerMessageProps = {
 function StreamingServerMessage({ message }: StreamingServerMessageProps) {
   const drivenIds = useDrivenIds();
   const isDriven = drivenIds.includes(message._id);
-  const context = Route.useRouteContext();
   const { text, status } = useStream(
     api.streaming.getStreamBody,
     new URL(`${env.VITE_CONVEX_SITE_URL}/stream`),
     message.responseStreamStatus === "pending" || isDriven,
-    message.responseStreamId as StreamId,
-    {
-      authToken: context.token,
-    }
+    message.responseStreamId as StreamId
   );
 
   const uiMessages = useParseMessage(text);

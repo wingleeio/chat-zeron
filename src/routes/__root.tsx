@@ -24,7 +24,6 @@ import { AppHeader } from "@/components/app/header";
 
 import { ConvexProviderWithClerk } from "convex/react-clerk";
 import { ClerkProvider, useAuth } from "@clerk/tanstack-start";
-import { fetchClerkAuth } from "@/lib/auth";
 import { api } from "convex/_generated/api";
 import { cn } from "@/lib/utils";
 
@@ -59,20 +58,7 @@ export const Route = createRootRouteWithContext<RouterContext>()({
       },
     ],
   }),
-  beforeLoad: async ({ context }) => {
-    // const auth = await fetchClerkAuth().catch(() => ({
-    //   userId: null,
-    //   token: null,
-    // }));
-    // const { userId, token } = auth;
-    // if (token) {
-    //   context.convexQueryClient.serverHttpClient?.setAuth(token);
-    // }
-    // return {
-    //   userId,
-    //   token,
-    // };
-  },
+
   loader: async ({ context }) => {
     await context.queryClient.prefetchQuery(
       convexQuery(api.users.getCurrent, {})

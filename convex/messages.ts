@@ -194,12 +194,6 @@ export const history = internalQuery({
     chatId: v.id("chats"),
   },
   handler: async (ctx, args) => {
-    const user = await ctx.runQuery(internal.auth.authenticate, {});
-
-    if (!user) {
-      throw new Error("Unauthorized");
-    }
-
     const allMessages = await ctx.db
       .query("messages")
       .withIndex("by_chat", (q) => q.eq("chatId", args.chatId))
