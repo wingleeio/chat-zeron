@@ -118,7 +118,9 @@ function ShareChatButton() {
         {chat?.isPublic && (
           <Tooltip>
             <TooltipTrigger>
-              <Badge variant="outline">Public</Badge>
+              <Badge variant="outline" className="hidden md:block">
+                Public
+              </Badge>
             </TooltipTrigger>
             <TooltipContent>
               This chat is public. Anyone can view it.
