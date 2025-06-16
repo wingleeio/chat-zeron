@@ -12,6 +12,7 @@ import {
   useQueryClient,
   useSuspenseQuery,
 } from "@tanstack/react-query";
+import { cn } from "@/lib/utils";
 
 const userQuery = convexQuery(api.users.getCurrent, {});
 export const Route = createFileRoute("/settings/appearance")({
@@ -78,6 +79,7 @@ function RouteComponent() {
         <RadioGroup
           className="grid grid-cols-2 gap-4"
           value={mode}
+          disabled={updateAppearance.isPending}
           onValueChange={(value) => {
             updateAppearance.mutate({
               appearance: {
@@ -102,6 +104,7 @@ function RouteComponent() {
         <RadioGroup
           className="grid gap-4"
           value={theme}
+          disabled={updateAppearance.isPending}
           onValueChange={(value) => {
             updateAppearance.mutate({
               appearance: {
@@ -118,6 +121,15 @@ function RouteComponent() {
               value={theme.value}
               className="col-span-1 flex-row justify-start"
             >
+              <div
+                className={cn(theme.value, "size-3 rounded-[3px] bg-primary")}
+              />
+              <div
+                className={cn(theme.value, "size-3 rounded-[3px] bg-secondary")}
+              />
+              <div
+                className={cn(theme.value, "size-3 rounded-[3px] bg-accent")}
+              />
               <span>{theme.name}</span>
             </RadioCard>
           ))}
