@@ -103,7 +103,9 @@ export function AppSidebar() {
                   <Link to="/">
                     <PlusIcon />
                     <span className="flex-1">New Chat</span>
-                    <span className="text-xs text-muted-foreground">⇧⌘O</span>
+                    <span className="text-xs text-muted-foreground hidden md:inline">
+                      ⇧⌘O
+                    </span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -114,7 +116,9 @@ export function AppSidebar() {
                 >
                   <SearchIcon />
                   <span className="flex-1">Search</span>
-                  <span className="text-xs text-muted-foreground">⌘K</span>
+                  <span className="text-xs text-muted-foreground hidden md:inline">
+                    ⌘K
+                  </span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
