@@ -1,10 +1,23 @@
 import { Store, useStore } from "@tanstack/react-store";
+import type { Tool } from "convex/ai/tools";
 
 const store = new Store({
   drivenIds: [] as string[],
   openReasoningIds: [] as string[],
   reasoningDurations: {} as Record<string, number>,
+  tool: undefined as Tool | undefined,
 });
+
+export function useTool() {
+  return useStore(store, (state) => state.tool);
+}
+
+export function setTool(tool: Tool | undefined) {
+  store.setState((prev) => ({
+    ...prev,
+    tool,
+  }));
+}
 
 export function useDrivenIds() {
   return useStore(store, (state) => state.drivenIds);

@@ -9,7 +9,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
-import { setDrivenIds } from "@/stores/chat";
+import { setDrivenIds, setTool, useTool } from "@/stores/chat";
 import {
   convexQuery,
   useConvexAction,
@@ -23,7 +23,14 @@ import {
 import { useParams, useNavigate } from "@tanstack/react-router";
 import { api } from "convex/_generated/api";
 import type { Doc, Id } from "convex/_generated/dataModel";
-import { ArrowUp, GlobeIcon, Paperclip, Square, X } from "lucide-react";
+import {
+  ArrowUp,
+  GlobeIcon,
+  Loader2Icon,
+  Paperclip,
+  Square,
+  X,
+} from "lucide-react";
 import React, {
   createContext,
   useContext,
@@ -32,7 +39,6 @@ import React, {
   useRef,
   useState,
 } from "react";
-import type { Tool } from "convex/ai/tools";
 import { useModelSupports } from "@/hooks/use-model-supports";
 import { useUploadFile } from "@convex-dev/r2/react";
 import { useQuery } from "convex/react";
@@ -259,7 +265,7 @@ function FilePreview({ files, fileUrls, onRemoveFile }: FilePreviewProps) {
 function PromptInputWithActions() {
   const [input, setInput] = useState("");
   const [files, setFiles] = useState<R2File[]>([]);
-  const [tool, setTool] = useState<Tool | undefined>(undefined);
+  const tool = useTool();
   const supportsVision = useModelSupports("vision");
   const supportsTools = useModelSupports("tools");
   const canUseModel = useCanUseModel();
@@ -377,19 +383,24 @@ function PromptInputWithActions() {
   };
 
   function matchOn<T>(callbacks: {
+    onSending: () => T;
     onPendingUpload: () => T;
     onCannotUseModel: () => T;
     onCannotUploadFiles: () => T;
     onGenerating: () => T;
+    onEmptyText: () => T;
     onOtherwise: () => T;
   }) {
     return match({
+      isSending: sendMessage.isPending,
       isGenerating: isLoading,
       isPending: upload.isPending,
       canUploadFile: supportsVision && files.length > 0,
       hasFiles: files.length > 0,
+      hasText: input.trim() !== "",
       canUseModel,
     })
+      .with({ isSending: true }, callbacks.onSending)
       .with({ isPending: true }, callbacks.onPendingUpload)
       .with({ canUseModel: false }, callbacks.onCannotUseModel)
       .with(
@@ -401,6 +412,7 @@ function PromptInputWithActions() {
         callbacks.onCannotUploadFiles
       )
       .with({ isGenerating: true }, callbacks.onGenerating)
+      .with({ hasText: false }, callbacks.onEmptyText)
       .otherwise(callbacks.onOtherwise);
   }
 
@@ -476,10 +488,12 @@ function PromptInputWithActions() {
 
         <PromptInputAction
           tooltip={matchOn({
+            onSending: () => "Sending message",
             onPendingUpload: () => "Waiting for files to upload",
             onCannotUseModel: () => "You must be a pro user to use this model",
             onCannotUploadFiles: () => "This model does not support files",
             onGenerating: () => "Stop generation",
+            onEmptyText: () => "Please enter a message",
             onOtherwise: () => "Send message",
           })}
         >
@@ -488,10 +502,12 @@ function PromptInputWithActions() {
             size="icon"
             className="h-8 w-8 rounded-full"
             disabled={matchOn<boolean>({
+              onSending: () => true,
               onPendingUpload: () => true,
               onCannotUseModel: () => true,
               onCannotUploadFiles: () => true,
               onGenerating: () => false,
+              onEmptyText: () => true,
               onOtherwise: () => false,
             })}
             onClick={() => {
@@ -506,11 +522,19 @@ function PromptInputWithActions() {
               }
             }}
           >
-            {isLoading ? (
-              <Square className="size-4 fill-current" />
-            ) : (
-              <ArrowUp className="size-4" />
-            )}
+            {matchOn({
+              onSending: () => (
+                <Loader2Icon className="size-4 animate-spin text-muted-foreground" />
+              ),
+              onPendingUpload: () => (
+                <Loader2Icon className="size-4 animate-spin text-muted-foreground" />
+              ),
+              onCannotUseModel: () => <ArrowUp className="size-4" />,
+              onCannotUploadFiles: () => <ArrowUp className="size-4" />,
+              onGenerating: () => <Square className="size-4 fill-current" />,
+              onEmptyText: () => <ArrowUp className="size-4" />,
+              onOtherwise: () => <ArrowUp className="size-4" />,
+            })}
           </Button>
         </PromptInputAction>
       </PromptInputActions>

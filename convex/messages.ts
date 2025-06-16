@@ -47,6 +47,10 @@ export const send = action({
       throw new Error("Model is premium and user is not premium");
     }
 
+    if (model?.isDisabled) {
+      throw new Error("Model is disabled");
+    }
+
     const chat = await match(args.chatId)
       .with(P.nullish, async () => {
         const newChat = await ctx.runMutation(internal.chats.create, {
