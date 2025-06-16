@@ -5,6 +5,7 @@ import { v } from "convex/values";
 import { crud } from "convex-helpers/server/crud";
 import { internal } from "convex/_generated/api";
 import type { Doc } from "convex/_generated/dataModel";
+import { polar } from "convex/polar";
 
 export const { create, destroy, update, read } = crud(
   schema,
@@ -27,16 +28,34 @@ export const getByAuthId = internalQuery({
 
 export const getCurrent = query({
   args: {},
-  handler: async (ctx): Promise<Doc<"users"> | null> => {
+  handler: async (
+    ctx
+  ): Promise<
+    (Doc<"users"> & { isFree: boolean; isPremium: boolean }) | null
+  > => {
     const identity = await ctx.auth.getUserIdentity();
 
     if (!identity) {
       return null;
     }
 
-    return await ctx.runQuery(internal.users.getByAuthId, {
+    const user = await ctx.runQuery(internal.users.getByAuthId, {
       authId: identity.subject,
     });
+
+    if (!user) {
+      return null;
+    }
+
+    const subscription = await polar.getCurrentSubscription(ctx, {
+      userId: user._id,
+    });
+
+    return {
+      ...user,
+      isFree: !subscription,
+      isPremium: !!subscription,
+    };
   },
 });
 
