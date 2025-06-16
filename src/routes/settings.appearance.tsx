@@ -13,6 +13,7 @@ import {
   useSuspenseQuery,
 } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
 
 const userQuery = convexQuery(api.users.getCurrent, {});
 export const Route = createFileRoute("/settings/appearance")({
@@ -130,7 +131,12 @@ function RouteComponent() {
               <div
                 className={cn(theme.value, "size-3 rounded-[3px] bg-accent")}
               />
-              <span>{theme.name}</span>
+              <span className="flex-1">{theme.name}</span>
+              {theme.value === user?.appearance?.theme && (
+                <Badge variant="outline" className="rounded-full px-2 py-1">
+                  Selected
+                </Badge>
+              )}
             </RadioCard>
           ))}
         </RadioGroup>
