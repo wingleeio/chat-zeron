@@ -79,6 +79,13 @@ export const send = action({
           throw new Error("Chat is not ready");
         }
 
+        await ctx.runMutation(internal.chats.update, {
+          id: existingChat._id,
+          patch: {
+            status: "submitted",
+          },
+        });
+
         return existingChat;
       })
       .exhaustive();

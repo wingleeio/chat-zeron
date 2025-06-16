@@ -523,11 +523,9 @@ function PromptInputWithActions() {
             }}
           >
             {matchOn({
-              onSending: () => (
-                <Loader2Icon className="size-4 animate-spin text-muted-foreground" />
-              ),
+              onSending: () => <Loader2Icon className="size-4 animate-spin" />,
               onPendingUpload: () => (
-                <Loader2Icon className="size-4 animate-spin text-muted-foreground" />
+                <Loader2Icon className="size-4 animate-spin" />
               ),
               onCannotUseModel: () => <ArrowUp className="size-4" />,
               onCannotUploadFiles: () => <ArrowUp className="size-4" />,
