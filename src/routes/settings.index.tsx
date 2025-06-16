@@ -48,7 +48,7 @@ function RouteComponent() {
                   productIds={products.map((product) => product.id)}
                   embed={false}
                 >
-                  Upgrade to Premium
+                  Upgrade to Pro
                 </CheckoutLink>
               </Button>
             </div>
