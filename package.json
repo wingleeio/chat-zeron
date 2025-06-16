@@ -66,6 +66,7 @@
     "tailwind-merge": "^3.0.2",
     "tailwindcss": "^4.0.6",
     "tailwindcss-animate": "^1.0.7",
+    "together-ai": "^0.16.0",
     "ts-pattern": "^5.7.1",
     "use-stick-to-bottom": "^1.1.1",
     "uuid": "^11.1.0",
