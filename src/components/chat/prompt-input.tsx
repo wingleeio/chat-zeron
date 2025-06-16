@@ -23,7 +23,14 @@ import {
 import { useParams, useNavigate } from "@tanstack/react-router";
 import { api } from "convex/_generated/api";
 import type { Doc, Id } from "convex/_generated/dataModel";
-import { ArrowUp, GlobeIcon, Paperclip, Square, X } from "lucide-react";
+import {
+  ArrowUp,
+  GlobeIcon,
+  Paperclip,
+  Square,
+  TelescopeIcon,
+  X,
+} from "lucide-react";
 import React, {
   createContext,
   useContext,
@@ -436,6 +443,29 @@ function PromptInputWithActions() {
             >
               <GlobeIcon className="size-4" />
               <span className="text-sm">Search</span>
+            </Button>
+          </PromptInputAction>
+        )}
+
+        {supportsTools && (
+          <PromptInputAction tooltip="Deep Research">
+            <Button
+              variant="outline"
+              className={cn(
+                "h-8 rounded-full",
+                tool === "deepResearch" &&
+                  "text-primary hover:text-primary border-primary!"
+              )}
+              onClick={() => {
+                if (tool === "deepResearch") {
+                  setTool(undefined);
+                } else {
+                  setTool("deepResearch");
+                }
+              }}
+            >
+              <TelescopeIcon className="size-4" />
+              <span className="text-sm">Deep Research</span>
             </Button>
           </PromptInputAction>
         )}
