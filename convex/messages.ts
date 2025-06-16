@@ -220,12 +220,16 @@ export const history = internalQuery({
           .collect();
 
         const filePromises =
-          files?.map(async (file) => ({
-            type: "image",
-            image: await r2.getUrl(file.key, {
+          files?.map(async (file) => {
+            const url = await r2.getUrl(file.key, {
               expiresIn: 60,
-            }),
-          })) ?? [];
+            });
+
+            return {
+              type: "image",
+              image: url,
+            };
+          }) ?? [];
 
         const fileContents = await Promise.all(filePromises);
 

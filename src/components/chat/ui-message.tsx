@@ -47,6 +47,7 @@ export function UIMessage({ message }: { message: UIMessage }) {
                       message,
                       "search_completion"
                     )}
+                    animate={message.parts[index + 1] === undefined}
                   />
                 ))
                 .otherwise(() => null)

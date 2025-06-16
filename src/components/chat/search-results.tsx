@@ -34,12 +34,13 @@ export type ChatSearchResultsProps = {
   result?: ConciseSearchResult[];
   queries: string[];
   annotations: SearchAnnotation[];
+  animate?: boolean;
 };
 
 function NonMemoizedChatSearchResults(props: ChatSearchResultsProps) {
   const [isExpanded, setIsExpanded] = useState(true);
 
-  const { result, queries, annotations } = props;
+  const { result, queries, annotations, animate = true } = props;
 
   const toggleExpanded = () => {
     setIsExpanded((expanded) => !expanded);
@@ -104,8 +105,8 @@ function NonMemoizedChatSearchResults(props: ChatSearchResultsProps) {
           {queries.map((query, i) => (
             <motion.div
               key={`${query}-${i}`}
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
+              initial={animate ? { opacity: 0, x: 20 } : false}
+              animate={animate ? { opacity: 1, x: 0 } : false}
               transition={{ duration: 0.3, delay: i * 0.1 }}
             >
               <Badge
@@ -127,8 +128,8 @@ function NonMemoizedChatSearchResults(props: ChatSearchResultsProps) {
               search?.results?.map((result, resultIndex) => (
                 <motion.div
                   key={result.url}
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
+                  initial={animate ? { opacity: 0, x: 20 } : false}
+                  animate={animate ? { opacity: 1, x: 0 } : false}
                   transition={{ duration: 0.3, delay: resultIndex * 0.1 }}
                 >
                   <SearchResultCard result={result} />
