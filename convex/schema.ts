@@ -51,7 +51,6 @@ export default defineSchema({
     responseStreamId: StreamIdValidator,
     tool: v.optional(vTool),
     error: v.optional(v.union(v.boolean(), v.string())),
-    files: v.optional(v.array(v.string())),
   })
     .index("by_chat", ["chatId"])
     .index("by_stream", ["responseStreamId"]),
