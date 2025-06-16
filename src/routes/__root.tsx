@@ -60,20 +60,18 @@ export const Route = createRootRouteWithContext<RouterContext>()({
     ],
   }),
   beforeLoad: async ({ context }) => {
-    const auth = await fetchClerkAuth().catch(() => ({
-      userId: null,
-      token: null,
-    }));
-    const { userId, token } = auth;
-
-    if (token) {
-      context.convexQueryClient.serverHttpClient?.setAuth(token);
-    }
-
-    return {
-      userId,
-      token,
-    };
+    // const auth = await fetchClerkAuth().catch(() => ({
+    //   userId: null,
+    //   token: null,
+    // }));
+    // const { userId, token } = auth;
+    // if (token) {
+    //   context.convexQueryClient.serverHttpClient?.setAuth(token);
+    // }
+    // return {
+    //   userId,
+    //   token,
+    // };
   },
   loader: async ({ context }) => {
     await context.queryClient.prefetchQuery(
