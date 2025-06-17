@@ -32,7 +32,8 @@ export default defineSchema({
   })
     .index("by_user", ["userId"])
     .index("by_key", ["key"])
-    .index("by_message", ["messageId"]),
+    .index("by_message", ["messageId"])
+    .index("by_user_role", ["userId", "role"]),
   chats: defineTable({
     title: v.string(),
     userId: v.id("users"),
