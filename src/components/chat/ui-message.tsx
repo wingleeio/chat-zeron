@@ -4,6 +4,13 @@ import { ChatSearchResults } from "@/components/chat/search-results";
 import type { UIMessage } from "ai";
 import { Fragment } from "react/jsx-runtime";
 import { match } from "ts-pattern";
+import { ChatImageResult } from "./chat-image-result";
+
+function getFromAnnotations(message: UIMessage, type: string) {
+  return (message.annotations?.filter(
+    (annotation) => (annotation as any)?.type === type
+  ) ?? []) as any;
+}
 
 function TextPart({ text }: { text: string }) {
   return (
@@ -13,13 +20,12 @@ function TextPart({ text }: { text: string }) {
   );
 }
 
-function getFromAnnotations(message: UIMessage, type: string) {
-  return (message.annotations?.filter(
-    (annotation) => (annotation as any)?.type === type
-  ) ?? []) as any;
-}
-
 export function UIMessage({ message }: { message: UIMessage }) {
+  const hasImageToolInvocation = message.parts.some(
+    (part) =>
+      part.type === "tool-invocation" &&
+      part.toolInvocation.toolName === "image"
+  );
   return (
     <Fragment>
       {message.parts.map((part, index) => (
@@ -50,9 +56,26 @@ export function UIMessage({ message }: { message: UIMessage }) {
                     animate={message.parts[index + 1] === undefined}
                   />
                 ))
+                .with({ toolName: "image" }, (toolInvocation) => (
+                  <ChatImageResult
+                    key={part.toolInvocation.toolCallId}
+                    result={
+                      "result" in part.toolInvocation
+                        ? part.toolInvocation.result
+                        : undefined
+                    }
+                    annotations={getFromAnnotations(
+                      message,
+                      "image_generation_completion"
+                    )}
+                    animate={message.parts[index + 1] === undefined}
+                  />
+                ))
                 .otherwise(() => null)
             )
-            .with({ type: "text" }, (part) => <TextPart text={part.text} />)
+            .with({ type: "text" }, (part) =>
+              hasImageToolInvocation ? null : <TextPart text={part.text} />
+            )
             .otherwise(() => null)}
         </Fragment>
       ))}
