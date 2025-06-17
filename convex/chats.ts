@@ -451,6 +451,13 @@ export const branch = mutation({
       });
     }
 
+    await ctx.runMutation(internal.chats.update, {
+      id: branchedChat,
+      patch: {
+        status: "ready",
+      },
+    });
+
     return branchedChat;
   },
 });
