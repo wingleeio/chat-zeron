@@ -2,9 +2,12 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Check, Copy } from "lucide-react";
 import React, { useEffect, useState } from "react";
-import { createHighlighter } from "shiki";
+import {
+  createHighlighter,
+  type BundledTheme,
+  type HighlighterGeneric,
+} from "shiki";
 import { createCssVariablesTheme } from "shiki/core";
-import { bundledLanguages } from "shiki/langs";
 
 const myTheme = createCssVariablesTheme({
   name: "css-variables",
@@ -40,6 +43,9 @@ export type CodeBlockCodeProps = {
   className?: string;
 } & React.HTMLProps<HTMLDivElement>;
 
+let highlighter: HighlighterGeneric<BundledLanguage, BundledTheme> | null =
+  null;
+
 function CodeBlockCode({
   code,
   language = "tsx",
@@ -56,10 +62,37 @@ function CodeBlockCode({
         setHighlightedHtml("<pre><code></code></pre>");
         return;
       }
-      const highlighter = await createHighlighter({
-        langs: Object.keys(bundledLanguages),
-        themes: [myTheme],
-      });
+      if (!highlighter) {
+        highlighter = await createHighlighter({
+          langs: [
+            "typescript",
+            "javascript",
+            "tsx",
+            "jsx",
+            "rust",
+            "python",
+            "go",
+            "java",
+            "c",
+            "cpp",
+            "csharp",
+            "ruby",
+            "php",
+            "swift",
+            "kotlin",
+            "scala",
+            "html",
+            "css",
+            "json",
+            "yaml",
+            "markdown",
+            "bash",
+            "shell",
+            "sql",
+          ],
+          themes: [myTheme],
+        });
+      }
 
       const html = highlighter.codeToHtml(code, {
         lang: language,
