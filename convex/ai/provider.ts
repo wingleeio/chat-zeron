@@ -172,7 +172,19 @@ export function getModel(
       return azure(model);
     })
     .with("openrouter", () => {
-      return openrouter(model);
+      return match(model)
+        .with("anthropic/claude-4-sonnet-20250522", () => {
+          return openrouter(model, {
+            extraBody: {
+              reasoning: {
+                enabled: true,
+              },
+            },
+          });
+        })
+        .otherwise(() => {
+          return openrouter(model);
+        });
     })
     .exhaustive();
 }
