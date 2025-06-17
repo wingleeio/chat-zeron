@@ -5,7 +5,6 @@ import { Authenticated, Unauthenticated } from "convex/react";
 import { Fragment } from "react/jsx-runtime";
 import { Button } from "@/components/ui/button";
 import { SignInButton } from "@clerk/tanstack-start";
-import { ImageGeneration } from "@/app/image-generation";
 
 export const Route = createFileRoute("/")({
   component: App,
@@ -18,7 +17,6 @@ function App() {
         <div className="flex flex-col gap-6 items-center justify-center h-full pb-64 px-4">
           <h2 className="text-2xl">What's on your mind</h2>
           <PromptInputWithActions />
-          <ImageGeneration />
         </div>
       </Authenticated>
       <Unauthenticated>
