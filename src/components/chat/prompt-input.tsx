@@ -484,6 +484,7 @@ function PromptInputWithActions() {
             className={cn(
               "h-8 rounded-full",
               tool === "search" &&
+                supportsTools &&
                 "text-primary hover:text-primary border-primary!"
             )}
             disabled={!supportsTools}
