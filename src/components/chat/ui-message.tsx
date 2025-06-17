@@ -32,28 +32,28 @@ export function UIMessage({ message }: { message: UIMessage }) {
               match(part.toolInvocation)
                 .with({ toolName: "search" }, (toolInvocation) => (
                   <ChatSearchResults
-                    key={part.toolInvocation.toolCallId}
+                    key={toolInvocation.toolCallId}
                     result={
-                      "result" in part.toolInvocation
-                        ? part.toolInvocation.result
+                      "result" in toolInvocation
+                        ? toolInvocation.result
                         : undefined
                     }
                     queries={toolInvocation.args.queries}
                     annotations={getFromAnnotations(
                       message,
                       "search_completion",
-                      part.toolInvocation.toolCallId
+                      toolInvocation.toolCallId
                     )}
                     animate={message.parts[index + 1] === undefined}
                   />
                 ))
-                .with({ toolName: "image" }, (_toolInvocation) => (
+                .with({ toolName: "image" }, (toolInvocation) => (
                   <ChatImageResult
-                    key={part.toolInvocation.toolCallId}
+                    key={toolInvocation.toolCallId}
                     annotations={getFromAnnotations(
                       message,
                       "image_generation_completion",
-                      part.toolInvocation.toolCallId
+                      toolInvocation.toolCallId
                     )}
                   />
                 ))

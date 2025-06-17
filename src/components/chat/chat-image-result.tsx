@@ -10,7 +10,7 @@ type ChatImageResultProps = {
 };
 
 export function ChatImageResult({ annotations }: ChatImageResultProps) {
-  const annotation = annotations[0];
+  const annotation = annotations[annotations.length - 1];
   const [isOpen, setIsOpen] = useState(false);
 
   return (

@@ -82,6 +82,14 @@ export function getTools(
       }),
       execute: async ({ prompt }, { toolCallId }) => {
         try {
+          opts.writer.writeMessageAnnotation({
+            type: "image_generation_completion",
+            data: {
+              prompt,
+              status: "generating",
+              toolCallId,
+            },
+          });
           const { imageUrl, key } = await opts.ctx.runAction(
             internal.together.generate,
             {
@@ -155,6 +163,10 @@ export type ImageGenerationAnnotation = {
     | {
         prompt: string;
         status: "failed";
+      }
+    | {
+        prompt: string;
+        status: "generating";
       };
 };
 
