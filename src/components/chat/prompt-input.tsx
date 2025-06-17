@@ -439,51 +439,63 @@ function PromptInputWithActions() {
       />
 
       <PromptInputActions className="flex items-center justify-between gap-2 pt-2">
-        {supportsVision && (
-          <PromptInputAction tooltip="Attach files">
-            <Button
-              asChild
-              variant="outline"
-              size="icon"
-              className="h-8 w-8 rounded-full"
-            >
-              <label htmlFor="file-upload">
-                <input
-                  type="file"
-                  multiple
-                  onChange={handleFileChange}
-                  className="hidden"
-                  accept="image/*"
-                  id="file-upload"
-                />
-                <Paperclip className="size-4" />
-              </label>
-            </Button>
-          </PromptInputAction>
-        )}
+        <PromptInputAction
+          tooltip={
+            supportsVision
+              ? "Attach files"
+              : "This model does not support attachments"
+          }
+        >
+          <Button
+            asChild
+            variant="outline"
+            size="icon"
+            className={cn(
+              "h-8 w-8 rounded-full",
+              !supportsVision && "opacity-50 pointer-events-none"
+            )}
+            disabled={!supportsVision}
+          >
+            <label htmlFor="file-upload">
+              <input
+                type="file"
+                multiple
+                onChange={handleFileChange}
+                className="hidden"
+                accept="image/*"
+                id="file-upload"
+                disabled={!supportsVision}
+              />
+              <Paperclip className="size-4" />
+            </label>
+          </Button>
+        </PromptInputAction>
 
-        {supportsTools && (
-          <PromptInputAction tooltip="Search">
-            <Button
-              variant="outline"
-              className={cn(
-                "h-8 rounded-full",
-                tool === "search" &&
-                  "text-primary hover:text-primary border-primary!"
-              )}
-              onClick={() => {
-                if (tool === "search") {
-                  setTool(undefined);
-                } else {
-                  setTool("search");
-                }
-              }}
-            >
-              <GlobeIcon className="size-4" />
-              <span className="text-sm">Search</span>
-            </Button>
-          </PromptInputAction>
-        )}
+        <PromptInputAction
+          tooltip={
+            supportsTools ? "Search" : "This model does not support search"
+          }
+        >
+          <Button
+            variant="outline"
+            className={cn(
+              "h-8 rounded-full",
+              tool === "search" &&
+                "text-primary hover:text-primary border-primary!"
+            )}
+            disabled={!supportsTools}
+            onClick={() => {
+              if (tool === "search") {
+                setTool(undefined);
+              } else {
+                setTool("search");
+              }
+            }}
+          >
+            <GlobeIcon className="size-4" />
+            <span className="text-sm">Search</span>
+          </Button>
+        </PromptInputAction>
 
         <div className="flex-1" />
 
