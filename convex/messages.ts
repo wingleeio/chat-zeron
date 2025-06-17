@@ -11,7 +11,6 @@ import { streamingComponent } from "convex/streaming";
 import { v } from "convex/values";
 import { match, P } from "ts-pattern";
 import schema from "convex/schema";
-import { convertToCoreMessages } from "ai";
 import { vTool } from "convex/ai/tools";
 import { r2 } from "convex/r2";
 
@@ -275,63 +274,10 @@ export const history = internalQuery({
     chatId: v.id("chats"),
   },
   handler: async (ctx, args) => {
-    const allMessages = await ctx.db
+    return await ctx.db
       .query("messages")
       .withIndex("by_chat", (q) => q.eq("chatId", args.chatId))
       .collect();
-
-    const messagesWithStreamBody = await Promise.all(
-      allMessages.map(async (userMessage) => {
-        return {
-          userMessage,
-          agentMessages: userMessage.uiMessages
-            ? JSON.parse(userMessage.uiMessages)
-            : [],
-        };
-      })
-    );
-
-    const messages = await Promise.all(
-      messagesWithStreamBody.map(async (message) => {
-        const files = await ctx.db
-          .query("files")
-          .withIndex("by_message", (q) =>
-            q.eq("messageId", message.userMessage._id)
-          )
-          .collect();
-
-        const filePromises =
-          files?.map(async (file) => {
-            const url = await r2.getUrl(file.key, {
-              expiresIn: 60,
-            });
-
-            return {
-              type: "image",
-              image: url,
-            };
-          }) ?? [];
-
-        const fileContents = await Promise.all(filePromises);
-
-        const userMessage = {
-          role: "user",
-          content: [
-            {
-              type: "text",
-              text: message.userMessage.prompt,
-            },
-            ...fileContents,
-          ],
-        };
-
-        const agentMessages = convertToCoreMessages(message.agentMessages);
-
-        return [userMessage, ...agentMessages];
-      })
-    ).then((results) => results.flat());
-
-    return messages;
   },
 });
 

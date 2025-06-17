@@ -12,12 +12,19 @@ import {
 } from "convex/_generated/server";
 import { getPrompt } from "convex/ai/prompt";
 import { getModel } from "convex/ai/provider";
-import { getTools } from "convex/ai/tools";
+import { getTools, type Tool } from "convex/ai/tools";
 import { mutation, internalMutation } from "convex/functions";
 import schema from "convex/schema";
 import { paginationOptsValidator, type PaginationResult } from "convex/server";
 import { streamingComponent } from "convex/streaming";
 import { v } from "convex/values";
+import type {
+  CoreMessage,
+  ToolCallPart,
+  ToolResultPart,
+  JSONValue,
+  AssistantContent,
+} from "ai";
 
 export const streamChat = httpAction(async (ctx, request) => {
   const body: {
@@ -49,9 +56,99 @@ export const streamChat = httpAction(async (ctx, request) => {
         throw new Error("User not found");
       }
 
-      const messages: any = await ctx.runQuery(internal.messages.history, {
-        chatId: message.chatId,
-      });
+      const messageHistory: any = await ctx.runQuery(
+        internal.messages.history,
+        {
+          chatId: message.chatId,
+        }
+      );
+
+      const messages: CoreMessage[] = messageHistory.flatMap(
+        (m: Doc<"messages">) => {
+          const turn: CoreMessage[] = [];
+
+          // User message for this turn
+          turn.push({ role: "user", content: m.prompt });
+
+          // Assistant/tool messages for this turn
+          if (m.uiMessages && m.uiMessages.trim() !== "") {
+            try {
+              const parsedUIMessages = parseRawTextIntoUIMessages(m.uiMessages);
+              for (const uiMessage of parsedUIMessages) {
+                if (uiMessage.role === "assistant") {
+                  const toolCalls: ToolCallPart[] = [];
+                  const textParts: string[] = [];
+                  const toolResults: ToolResultPart[] = [];
+
+                  for (const part of uiMessage.parts) {
+                    if (part.type === "text") {
+                      textParts.push(part.text);
+                    } else if (part.type === "tool-invocation") {
+                      if (part.toolInvocation.state === "call") {
+                        toolCalls.push({
+                          type: "tool-call",
+                          toolCallId: part.toolInvocation.toolCallId,
+                          toolName: part.toolInvocation.toolName,
+                          args: part.toolInvocation.args as any,
+                        });
+                      } else if (part.toolInvocation.state === "result") {
+                        toolResults.push({
+                          type: "tool-result",
+                          toolCallId: part.toolInvocation.toolCallId,
+                          toolName: part.toolInvocation.toolName,
+                          result: part.toolInvocation.result as JSONValue,
+                        });
+                      }
+                    }
+                  }
+
+                  if (textParts.length > 0 || toolCalls.length > 0) {
+                    const assistantContent: AssistantContent = [];
+                    if (textParts.length > 0) {
+                      assistantContent.push({
+                        type: "text",
+                        text: textParts.join(""),
+                      });
+                    }
+                    assistantContent.push(...toolCalls);
+
+                    turn.push({
+                      role: "assistant",
+                      content: assistantContent,
+                    });
+                  }
+
+                  if (toolResults.length > 0) {
+                    turn.push({
+                      role: "tool",
+                      content: toolResults,
+                    });
+                  }
+                }
+              }
+            } catch (error) {
+              console.error(
+                `Failed to parse uiMessages for message ${m._id}:`,
+                error
+              );
+              // Fallback for simple text responses if parsing fails
+              if (m.content) {
+                turn.push({ role: "assistant", content: m.content });
+              }
+            }
+          } else if (m.content) {
+            // Fallback for simple text responses
+            turn.push({ role: "assistant", content: m.content });
+          }
+
+          return turn;
+        }
+      );
+
+      console.log(
+        "Constructed message history:",
+        JSON.stringify(messages, null, 2)
+      );
 
       const model = await ctx.runQuery(internal.models.read, {
         id: message.modelId,
@@ -62,9 +159,25 @@ export const streamChat = httpAction(async (ctx, request) => {
       }
 
       const abortController = new AbortController();
-      const activeTools = message.tool ? [message.tool] : [];
+      const activeTools: Tool[] = [];
+      if (message.tool) {
+        activeTools.push(message.tool);
+      } else {
+        // If no tool is manually selected, make the image tool available.
+        activeTools.push("image");
+      }
+
       const stream = createDataStream({
         execute: async (writer) => {
+          const tools = getTools(
+            { ctx, writer, model, user, abortController },
+            activeTools
+          );
+          console.log(
+            "Constructed message history:",
+            JSON.stringify(messages, null, 2)
+          );
+          console.log("Active tools:", Object.keys(tools));
           const result = streamText({
             model: getModel(model.provider, model.model),
             experimental_transform: smoothStream({
@@ -73,7 +186,7 @@ export const streamChat = httpAction(async (ctx, request) => {
             temperature: 0.8,
             messages,
             abortSignal: abortController.signal,
-            tools: getTools({ ctx, writer, model }, activeTools),
+            tools,
             system: getPrompt({ ctx, user }),
             maxSteps: 3,
             onFinish: async ({ text }) => {
