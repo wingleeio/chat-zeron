@@ -113,7 +113,7 @@ function RouteComponent() {
           ))}
         </ChatContainerContent>
 
-        <div className="w-full px-4 pb-4 relative">
+        <div className="w-full md:px-4 md:pb-4 relative">
           <div className="absolute -top-10 left-[50%] -translate-x-1/2">
             <ScrollButton variant="default">
               <span className="text-xs">Scroll to bottom</span>

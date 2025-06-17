@@ -4,6 +4,8 @@ import { ChatSearchResults } from "@/components/chat/search-results";
 import type { UIMessage } from "ai";
 import { Fragment } from "react/jsx-runtime";
 import { match } from "ts-pattern";
+import { ChatImageResult } from "./chat-image-result";
+import { getFromAnnotations } from "@/lib/utils";
 
 function TextPart({ text }: { text: string }) {
   return (
@@ -11,12 +13,6 @@ function TextPart({ text }: { text: string }) {
       {text}
     </MessageContent>
   );
-}
-
-function getFromAnnotations(message: UIMessage, type: string) {
-  return (message.annotations?.filter(
-    (annotation) => (annotation as any)?.type === type
-  ) ?? []) as any;
 }
 
 export function UIMessage({ message }: { message: UIMessage }) {
@@ -45,9 +41,20 @@ export function UIMessage({ message }: { message: UIMessage }) {
                     queries={toolInvocation.args.queries}
                     annotations={getFromAnnotations(
                       message,
-                      "search_completion"
+                      "search_completion",
+                      part.toolInvocation.toolCallId
                     )}
                     animate={message.parts[index + 1] === undefined}
+                  />
+                ))
+                .with({ toolName: "image" }, (_toolInvocation) => (
+                  <ChatImageResult
+                    key={part.toolInvocation.toolCallId}
+                    annotations={getFromAnnotations(
+                      message,
+                      "image_generation_completion",
+                      part.toolInvocation.toolCallId
+                    )}
                   />
                 ))
                 .otherwise(() => null)

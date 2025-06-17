@@ -24,6 +24,7 @@ import type * as models from "../models.js";
 import type * as polar from "../polar.js";
 import type * as r2 from "../r2.js";
 import type * as streaming from "../streaming.js";
+import type * as together from "../together.js";
 import type * as users from "../users.js";
 import type * as validators_chat from "../validators/chat.js";
 
@@ -58,6 +59,7 @@ declare const fullApi: ApiFromModules<{
   polar: typeof polar;
   r2: typeof r2;
   streaming: typeof streaming;
+  together: typeof together;
   users: typeof users;
   "validators/chat": typeof validators_chat;
 }>;

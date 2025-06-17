@@ -3,8 +3,9 @@ import type { Doc } from "convex/_generated/dataModel";
 import type { GenericActionCtx } from "convex/server";
 import { v, type Infer } from "convex/values";
 import { z } from "zod";
+import { internal } from "convex/_generated/api";
 
-export const vTool = v.union(v.literal("search"));
+export const vTool = v.union(v.literal("search"), v.literal("image"));
 export type Tool = Infer<typeof vTool>;
 
 export function getTools(
@@ -12,6 +13,8 @@ export function getTools(
     ctx: GenericActionCtx<any>;
     writer: DataStreamWriter;
     model: Doc<"models">;
+    user: Doc<"users">;
+    message: Doc<"messages">;
   },
   activeTools: Tool[]
 ) {
@@ -28,7 +31,7 @@ export function getTools(
           .array(z.string())
           .describe("Array of search queries to look up on the web"),
       }),
-      execute: async ({ queries }) => {
+      execute: async ({ queries }, { toolCallId }) => {
         const promises = queries.map(async (query, index) => {
           await new Promise((resolve) =>
             setTimeout(resolve, 1000 * (index + 1))
@@ -51,6 +54,7 @@ export function getTools(
               index,
               status: "completed",
               resultsCount: data.organic.length ?? 0,
+              toolCallId,
             },
           });
 
@@ -69,6 +73,44 @@ export function getTools(
         const searches = await Promise.all(promises);
 
         return searches;
+      },
+    }),
+    image: tool({
+      description: "Generate an image from a text prompt.",
+      parameters: z.object({
+        prompt: z.string().describe("The prompt to generate the image from."),
+      }),
+      execute: async ({ prompt }, { toolCallId }) => {
+        try {
+          const { imageUrl, key } = await opts.ctx.runAction(
+            internal.together.generate,
+            {
+              prompt,
+              userId: opts.user._id,
+              messageId: opts.message._id,
+            }
+          );
+          opts.writer.writeMessageAnnotation({
+            type: "image_generation_completion",
+            data: {
+              prompt,
+              status: "completed",
+              imageUrl,
+              key,
+              toolCallId,
+            },
+          });
+          return "Image was successfully generated.";
+        } catch (error) {
+          opts.writer.writeMessageAnnotation({
+            type: "image_generation_completion",
+            data: {
+              prompt,
+              status: "failed",
+            },
+          });
+          return "Image generation failed.";
+        }
       },
     }),
   };
@@ -99,6 +141,21 @@ export type SearchAnnotation = {
     status: "completed";
     resultsCount: number;
   };
+};
+
+export type ImageGenerationAnnotation = {
+  type: "image_generation_completion";
+  data:
+    | {
+        prompt: string;
+        status: "completed";
+        imageUrl: string;
+        key: string;
+      }
+    | {
+        prompt: string;
+        status: "failed";
+      };
 };
 
 export type SearchResult = {

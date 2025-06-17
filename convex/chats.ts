@@ -12,7 +12,7 @@ import {
 } from "convex/_generated/server";
 import { getPrompt } from "convex/ai/prompt";
 import { getModel } from "convex/ai/provider";
-import { getTools } from "convex/ai/tools";
+import { getTools, type Tool } from "convex/ai/tools";
 import { mutation, internalMutation } from "convex/functions";
 import schema from "convex/schema";
 import { paginationOptsValidator, type PaginationResult } from "convex/server";
@@ -62,9 +62,19 @@ export const streamChat = httpAction(async (ctx, request) => {
       }
 
       const abortController = new AbortController();
-      const activeTools = message.tool ? [message.tool] : [];
+      const activeTools: Tool[] = [];
+      if (message.tool) {
+        activeTools.push(message.tool);
+      } else {
+        activeTools.push("image");
+      }
+
       const stream = createDataStream({
         execute: async (writer) => {
+          const tools = getTools(
+            { ctx, writer, model, user, message },
+            activeTools
+          );
           const result = streamText({
             model: getModel(model.provider, model.model),
             experimental_transform: smoothStream({
@@ -73,7 +83,7 @@ export const streamChat = httpAction(async (ctx, request) => {
             temperature: 0.8,
             messages,
             abortSignal: abortController.signal,
-            tools: getTools({ ctx, writer, model }, activeTools),
+            tools,
             system: getPrompt({ ctx, user }),
             maxSteps: 3,
             onFinish: async ({ text }) => {

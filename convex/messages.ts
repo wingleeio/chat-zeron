@@ -1,5 +1,6 @@
 import {
   StreamIdValidator,
+  type StreamBody,
   type StreamId,
 } from "@convex-dev/persistent-text-streaming";
 import { crud } from "convex-helpers/server/crud";
@@ -11,9 +12,10 @@ import { streamingComponent } from "convex/streaming";
 import { v } from "convex/values";
 import { match, P } from "ts-pattern";
 import schema from "convex/schema";
-import { convertToCoreMessages } from "ai";
 import { vTool } from "convex/ai/tools";
 import { r2 } from "convex/r2";
+import type { UIMessage } from "ai";
+import { convertToCoreMessages } from "ai";
 
 export const { create, read, update } = crud(
   schema,
@@ -298,7 +300,8 @@ export const history = internalQuery({
           .withIndex("by_message", (q) =>
             q.eq("messageId", message.userMessage._id)
           )
-          .collect();
+          .collect()
+          .then((files) => files.filter((file) => file.role === "user"));
 
         const filePromises =
           files?.map(async (file) => {
@@ -335,11 +338,19 @@ export const history = internalQuery({
   },
 });
 
+export type MessageWithUIMessages = Omit<Doc<"messages">, "uiMessages"> & {
+  uiMessages: UIMessage[];
+  uploadedFiles: string[];
+  responseStreamStatus: StreamBody["status"];
+  responseStreamContent: string;
+  model: Doc<"models">;
+};
+
 export const list = query({
   args: {
     chatId: v.id("chats"),
   },
-  handler: async (ctx, args) => {
+  handler: async (ctx, args): Promise<MessageWithUIMessages[] | null> => {
     const user = await ctx.runQuery(internal.auth.authenticate, {});
 
     const chat = await ctx.runQuery(internal.chats.read, {
@@ -374,7 +385,8 @@ export const list = query({
             const files = await ctx.db
               .query("files")
               .withIndex("by_message", (q) => q.eq("messageId", message._id))
-              .collect();
+              .collect()
+              .then((files) => files.filter((file) => file.role === "user"));
 
             const uploadedFiles = await Promise.all(
               files.map(
@@ -386,12 +398,51 @@ export const list = query({
             );
 
             const content = stream.status === "done" ? stream.text : "";
+
+            const uiMessages: UIMessage[] = await Promise.all(
+              JSON.parse(message.uiMessages ?? "[]").map(
+                async (uiMessage: UIMessage) => {
+                  return {
+                    ...uiMessage,
+                    annotations: await Promise.all(
+                      (uiMessage.annotations ?? []).map(
+                        async (annotation: any) => {
+                          if (
+                            annotation.type === "image_generation_completion"
+                          ) {
+                            if (!annotation.data.key) {
+                              return annotation;
+                            }
+                            const imageUrl = await r2.getUrl(
+                              annotation.data.key,
+                              {
+                                expiresIn: 60 * 60 * 3,
+                              }
+                            );
+                            return {
+                              ...annotation,
+                              data: {
+                                ...annotation.data,
+                                imageUrl,
+                              },
+                            };
+                          }
+                          return annotation;
+                        }
+                      )
+                    ),
+                  };
+                }
+              )
+            );
+
             return {
               ...message,
               uploadedFiles,
               responseStreamStatus: stream.status,
               responseStreamContent: content,
               model: model,
+              uiMessages,
             };
           })
         );

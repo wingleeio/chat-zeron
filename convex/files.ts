@@ -23,6 +23,7 @@ export const { generateUploadUrl, syncMetadata } = r2.clientApi({
     await ctx.db.insert("files", {
       key,
       userId: user._id,
+      role: "user",
     });
   },
 });
