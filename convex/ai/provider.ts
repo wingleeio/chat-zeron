@@ -75,11 +75,22 @@ export const models = [
     model: "google/gemini-2.5-flash-preview-05-20",
     provider: "openrouter",
     icon: "gemini",
+    capabilities: ["vision", "tools"] as Infer<typeof vCapabilities>[],
+    description:
+      "Preview of next generation Gemini Flash with more capabilities.",
+    isPremium: false,
+    isDisabled: false,
+  },
+  {
+    name: "Gemini 2.5 Flash (Thinking)",
+    model: "google/gemini-2.5-flash-preview-05-20:thinking",
+    provider: "openrouter",
+    icon: "gemini",
     capabilities: ["thinking", "vision", "tools"] as Infer<
       typeof vCapabilities
     >[],
     description:
-      "Preview of next generation Gemini Flash with more capabilities.",
+      "Preview of next generation Gemini Flash with more capabilities and reasoning.",
     isPremium: false,
     isDisabled: false,
   },
