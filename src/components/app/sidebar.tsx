@@ -64,7 +64,7 @@ export function AppSidebar() {
   return (
     <Sidebar>
       <SidebarHeader>
-        <SidebarMenu className="flex-row items-center justify-between">
+        <SidebarMenu className="flex-row items-center justify-between pr-3">
           <SidebarMenuItem>
             <Button variant="ghost" size="icon" asChild>
               <SidebarMenuButton
@@ -103,7 +103,7 @@ export function AppSidebar() {
                   <Link to="/">
                     <PlusIcon />
                     <span className="flex-1">New Chat</span>
-                    <span className="text-xs text-muted-foreground hidden md:inline">
+                    <span className="text-xs text-muted-foreground hidden md:inline bg-muted px-1 py-0.5 rounded-sm">
                       ⇧⌘O
                     </span>
                   </Link>
@@ -116,7 +116,7 @@ export function AppSidebar() {
                 >
                   <SearchIcon />
                   <span className="flex-1">Search</span>
-                  <span className="text-xs text-muted-foreground hidden md:inline">
+                  <span className="text-xs text-muted-foreground hidden md:inline bg-muted px-1 py-0.5 rounded-sm">
                     ⌘K
                   </span>
                 </SidebarMenuButton>
