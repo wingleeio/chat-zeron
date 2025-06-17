@@ -10,6 +10,7 @@
 
 import type * as ai_prompt from "../ai/prompt.js";
 import type * as ai_provider from "../ai/provider.js";
+import type * as ai_research from "../ai/research.js";
 import type * as ai_tools from "../ai/tools.js";
 import type * as auth from "../auth.js";
 import type * as chats from "../chats.js";
@@ -45,6 +46,7 @@ import type {
 declare const fullApi: ApiFromModules<{
   "ai/prompt": typeof ai_prompt;
   "ai/provider": typeof ai_provider;
+  "ai/research": typeof ai_research;
   "ai/tools": typeof ai_tools;
   auth: typeof auth;
   chats: typeof chats;

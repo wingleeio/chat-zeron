@@ -8,16 +8,15 @@ import { internal } from "convex/_generated/api";
 export const vTool = v.union(v.literal("search"), v.literal("image"));
 export type Tool = Infer<typeof vTool>;
 
-export function getTools(
-  opts: {
-    ctx: GenericActionCtx<any>;
-    writer: DataStreamWriter;
-    model: Doc<"models">;
-    user: Doc<"users">;
-    message: Doc<"messages">;
-  },
-  activeTools: Tool[]
-) {
+export type GetToolsOpts = {
+  ctx: GenericActionCtx<any>;
+  writer: DataStreamWriter;
+  model: Doc<"models">;
+  user: Doc<"users">;
+  message: Doc<"messages">;
+};
+
+export function getTools(opts: GetToolsOpts, activeTools: Tool[]) {
   if (!opts.model.capabilities?.includes("tools")) {
     return {};
   }
