@@ -71,7 +71,7 @@ export function ModelSelector() {
           aria-expanded={open}
           className="w-[200px] justify-between hover:text-foreground"
         >
-          <span className="flex items-center gap-2">
+          <span className="flex items-center gap-2 w-0 flex-1 whitespace-nowrap overflow-hidden text-ellipsis">
             {selectedModel && (
               <ModelIcon
                 className="fill-primary"
