@@ -3,8 +3,9 @@ import type { Doc } from "convex/_generated/dataModel";
 import type { GenericActionCtx } from "convex/server";
 import { v, type Infer } from "convex/values";
 import { z } from "zod";
+import { api } from "convex/_generated/api";
 
-export const vTool = v.union(v.literal("search"));
+export const vTool = v.union(v.literal("search"), v.literal("image"));
 export type Tool = Infer<typeof vTool>;
 
 export function getTools(
@@ -12,6 +13,8 @@ export function getTools(
     ctx: GenericActionCtx<any>;
     writer: DataStreamWriter;
     model: Doc<"models">;
+    user: Doc<"users">;
+    abortController: AbortController;
   },
   activeTools: Tool[]
 ) {
@@ -71,15 +74,49 @@ export function getTools(
         return searches;
       },
     }),
+    image: tool({
+      description: "Generate an image from a text prompt.",
+      parameters: z.object({
+        prompt: z.string().describe("The prompt to generate the image from."),
+      }),
+      execute: async ({ prompt }) => {
+        try {
+          const imageUrl = await opts.ctx.runAction(api.together.generate, {
+            prompt,
+            userId: opts.user._id,
+          });
+          opts.writer.writeMessageAnnotation({
+            type: "image_generation_completion",
+            data: {
+              prompt,
+              status: "completed",
+              imageUrl,
+            },
+          });
+          opts.abortController.abort();
+          return {
+            prompt,
+            imageUrl,
+          };
+        } catch (error) {
+          opts.writer.writeMessageAnnotation({
+            type: "image_generation_completion",
+            data: {
+              prompt,
+              status: "failed",
+            },
+          });
+          opts.abortController.abort();
+          throw error;
+        }
+      },
+    }),
   };
 
-  return activeTools.reduce(
-    (acc, tool) => {
-      acc[tool] = tools[tool]!;
-      return acc;
-    },
-    {} as Record<Tool, any>
-  );
+  return activeTools.reduce((acc, tool) => {
+    acc[tool] = tools[tool]!;
+    return acc;
+  }, {} as Record<Tool, any>);
 }
 
 export type ConciseSearchResult = {
@@ -98,6 +135,15 @@ export type SearchAnnotation = {
     index: number;
     status: "completed";
     resultsCount: number;
+  };
+};
+
+export type ImageGenerationAnnotation = {
+  type: "image_generation_completion";
+  data: {
+    prompt: string;
+    status: "completed" | "failed";
+    imageUrl?: string;
   };
 };
 
