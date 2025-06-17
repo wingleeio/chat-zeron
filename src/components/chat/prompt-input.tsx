@@ -423,7 +423,10 @@ function PromptInputWithActions() {
       onValueChange={setInput}
       isLoading={isLoading}
       onSubmit={handleSubmit}
-      className="w-full max-w-(--breakpoint-md) mx-auto p-3 rounded-none rounded-t-3xl md:rounded-3xl"
+      className={cn(
+        "w-full max-w-(--breakpoint-md) mx-auto p-3 md:rounded-3xl",
+        params?.cid && "rounded-none rounded-t-3xl "
+      )}
     >
       {files.length > 0 && (
         <FilePreview

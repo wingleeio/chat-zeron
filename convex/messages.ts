@@ -413,6 +413,12 @@ export const list = query({
                             if (!annotation.data.key) {
                               return annotation;
                             }
+                            if (
+                              message._creationTime >
+                              Date.now() - 2 * 60 * 60 * 1000
+                            ) {
+                              return annotation;
+                            }
                             const imageUrl = await r2.getUrl(
                               annotation.data.key,
                               {
