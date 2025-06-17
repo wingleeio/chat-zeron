@@ -30,7 +30,7 @@ function RouteComponent() {
               key={item.to}
               size="sm"
               asChild
-              className="bg-muted text-foreground hover:bg-accent/50 hover:text-accent-foreground dark:hover:bg-accent/50 shadow-none"
+              className="bg-muted text-foreground hover:bg-primary/50 dark:hover:bg-primary/50 shadow-none"
             >
               <Link
                 to={item.to}
