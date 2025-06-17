@@ -56,7 +56,7 @@ export function UIMessage({ message }: { message: UIMessage }) {
                     animate={message.parts[index + 1] === undefined}
                   />
                 ))
-                .with({ toolName: "image" }, (toolInvocation) => (
+                .with({ toolName: "image" }, (_toolInvocation) => (
                   <ChatImageResult
                     key={part.toolInvocation.toolCallId}
                     result={
