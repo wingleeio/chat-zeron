@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Loader, CircularLoader } from "@/components/chat/loaders";
-import { setDrivenIds, useDrivenIds } from "@/stores/chat";
+import { setDrivenIds, useDrivenIds, useTool } from "@/stores/chat";
 import {
   useMutation,
   useQueryClient,
@@ -43,6 +43,7 @@ import { env } from "@/env.client";
 import { useStream } from "@convex-dev/persistent-text-streaming/react";
 import { useParseMessage } from "@/hooks/use-parse-message";
 import type { MessageWithUIMessages } from "convex/messages";
+import { motion } from "framer-motion";
 
 type CompletedServerMessageProps = {
   message: MessageWithUIMessages;
@@ -58,6 +59,7 @@ function CompletedServerMessage({ message }: CompletedServerMessageProps) {
   const navigate = useNavigate();
 
   const me = useQuery(api.auth.current);
+  const tool = useTool();
 
   const regenerate = useMutation({
     mutationFn: useConvexAction(api.messages.regenerate),
@@ -93,78 +95,87 @@ function CompletedServerMessage({ message }: CompletedServerMessageProps) {
         <UIMessage key={message.id} message={message} />
       ))}
       <MessageActions>
-        <MessageAction tooltip="Copy" side="bottom">
+        <motion.div
+          initial={{ opacity: 0, x: 10 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5 }}
+          className="flex items-center gap-1"
+        >
+          <MessageAction tooltip="Copy" side="bottom">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => {
+                navigator.clipboard.writeText(
+                  uiMessages
+                    .map((m) =>
+                      m.parts
+                        .filter((p) => p.type === "text")
+                        .map((p) => p.text)
+                        .join("")
+                    )
+                    .join("\n")
+                );
+                toast.success("Copied to clipboard");
+              }}
+            >
+              <CopyIcon className="size-3" />
+            </Button>
+          </MessageAction>
+          {me?._id === chat?.userId && (
+            <MessageAction
+              tooltip="Regenerate"
+              side="bottom"
+              className={cn("hidden", me?._id === chat?.userId && "block")}
+            >
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() =>
+                  regenerate.mutate({ messageId: message._id, tool })
+                }
+                disabled={regenerate.isPending}
+              >
+                {regenerate.isPending ? (
+                  <Loader2Icon className="size-3 animate-spin" />
+                ) : (
+                  <RefreshCcwIcon className="size-3" />
+                )}
+              </Button>
+            </MessageAction>
+          )}
+          <Authenticated>
+            <MessageAction tooltip="Branch" side="bottom">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() =>
+                  branch.mutate({
+                    chatId: params.cid as Id<"chats">,
+                    messageId: message._id,
+                  })
+                }
+              >
+                <GitBranchIcon className="size-3" />
+              </Button>
+            </MessageAction>
+          </Authenticated>
           <Button
             variant="ghost"
-            size="icon"
-            onClick={() => {
-              navigator.clipboard.writeText(
-                uiMessages
-                  .map((m) =>
-                    m.parts
-                      .filter((p) => p.type === "text")
-                      .map((p) => p.text)
-                      .join("")
-                  )
-                  .join("\n")
-              );
-              toast.success("Copied to clipboard");
-            }}
+            className="hover:bg-transparent! cursor-default"
+            asChild
           >
-            <CopyIcon className="size-3" />
+            <div>
+              <ModelIcon
+                className="fill-primary"
+                model={message.model.icon as ModelType}
+              />
+              <span className="text-xs text-muted-foreground font-normal">
+                {message.model.name}
+              </span>
+            </div>
           </Button>
-        </MessageAction>
-        {me?._id === chat?.userId && (
-          <MessageAction
-            tooltip="Regenerate"
-            side="bottom"
-            className={cn("hidden", me?._id === chat?.userId && "block")}
-          >
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => regenerate.mutate({ messageId: message._id })}
-              disabled={regenerate.isPending}
-            >
-              {regenerate.isPending ? (
-                <Loader2Icon className="size-3 animate-spin" />
-              ) : (
-                <RefreshCcwIcon className="size-3" />
-              )}
-            </Button>
-          </MessageAction>
-        )}
-        <Authenticated>
-          <MessageAction tooltip="Branch" side="bottom">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() =>
-                branch.mutate({
-                  chatId: params.cid as Id<"chats">,
-                  messageId: message._id,
-                })
-              }
-            >
-              <GitBranchIcon className="size-3" />
-            </Button>
-          </MessageAction>
-        </Authenticated>
-        <Button
-          variant="ghost"
-          className="hover:bg-transparent! cursor-default"
-          asChild
-        >
-          <div>
-            <ModelIcon
-              className="fill-primary"
-              model={message.model.icon as ModelType}
-            />
-            <span className="text-xs text-muted-foreground font-normal">
-              {message.model.name}
-            </span>
-          </div>
-        </Button>
+        </motion.div>
       </MessageActions>
     </Message>
   );

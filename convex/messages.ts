@@ -154,6 +154,7 @@ export const regenerate = action({
   args: {
     messageId: v.id("messages"),
     prompt: v.optional(v.string()),
+    tool: v.optional(vTool),
   },
   handler: async (ctx, args) => {
     const user = await ctx.runQuery(internal.auth.authenticate, {});
@@ -195,6 +196,7 @@ export const regenerate = action({
         modelId: user.model,
         uiMessages: "[]",
         prompt: args.prompt || messageToRegenerate.prompt,
+        tool: args.tool,
       },
     });
     await ctx.runMutation(internal.messages.deleteMessagesAfterCreationTime, {
