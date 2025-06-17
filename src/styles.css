@@ -96,6 +96,17 @@ code {
     0px 4px 6px 0px hsl(240 30% 25% / 0.12),
     0px 8px 10px -1px hsl(240 30% 25% / 0.12);
   --shadow-2xl: 0px 4px 6px 0px hsl(240 30% 25% / 0.3);
+  --shiki-color-text: oklch(0.4355 0.043 279.325);
+  --shiki-color-background: oklch(0.9578 0.0058 264.5321);
+  --shiki-token-constant: oklch(0.682 0.1448 235.3822);
+  --shiki-token-string: oklch(0.625 0.1772 140.4448);
+  --shiki-token-comment: oklch(0.5471 0.0343 279.0837);
+  --shiki-token-keyword: oklch(0.5547 0.2503 297.0156);
+  --shiki-token-parameter: oklch(0.4355 0.043 279.325);
+  --shiki-token-function: oklch(0.682 0.1448 235.3822);
+  --shiki-token-string-expression: oklch(0.625 0.1772 140.4448);
+  --shiki-token-punctuation: oklch(0.5471 0.0343 279.0837);
+  --shiki-token-link: oklch(0.5547 0.2503 297.0156);
 }
 
 .dark {
@@ -153,6 +164,17 @@ code {
     0px 4px 6px 0px hsl(240 30% 25% / 0.12),
     0px 8px 10px -1px hsl(240 30% 25% / 0.12);
   --shadow-2xl: 0px 4px 6px 0px hsl(240 30% 25% / 0.3);
+  --shiki-color-text: oklch(0.8787 0.0426 272.28);
+  --shiki-color-background: oklch(0.2903 0.0226 272.28);
+  --shiki-token-constant: oklch(0.7948 0.1186 64.77);
+  --shiki-token-string: oklch(0.8804 0.1292 138.5);
+  --shiki-token-comment: oklch(0.7481 0.0335 272.28);
+  --shiki-token-keyword: oklch(0.8242 0.0989 304.77);
+  --shiki-token-parameter: oklch(0.7818 0.0911 14.82);
+  --shiki-token-function: oklch(0.7711 0.1066 261.02);
+  --shiki-token-string-expression: oklch(0.8601 0.0881 328.71);
+  --shiki-token-punctuation: oklch(0.6787 0.0279 272.28);
+  --shiki-token-link: oklch(0.8741 0.0818 208.71);
 }
 
 @theme inline {
@@ -459,6 +481,17 @@ code {
     0px 4px 6px 0px hsl(240 30% 25% / 0.12),
     0px 8px 10px -1px hsl(240 30% 25% / 0.12);
   --shadow-2xl: 0px 4px 6px 0px hsl(240 30% 25% / 0.3);
+  --shiki-color-text: oklch(0.4355 0.043 279.325);
+  --shiki-color-background: oklch(0.9578 0.0058 264.5321);
+  --shiki-token-constant: oklch(0.682 0.1448 235.3822);
+  --shiki-token-string: oklch(0.625 0.1772 140.4448);
+  --shiki-token-comment: oklch(0.5471 0.0343 279.0837);
+  --shiki-token-keyword: oklch(0.5547 0.2503 297.0156);
+  --shiki-token-parameter: oklch(0.4355 0.043 279.325);
+  --shiki-token-function: oklch(0.682 0.1448 235.3822);
+  --shiki-token-string-expression: oklch(0.625 0.1772 140.4448);
+  --shiki-token-punctuation: oklch(0.5471 0.0343 279.0837);
+  --shiki-token-link: oklch(0.5547 0.2503 297.0156);
 }
 
 .default.dark {
@@ -516,6 +549,17 @@ code {
     0px 4px 6px 0px hsl(240 30% 25% / 0.12),
     0px 8px 10px -1px hsl(240 30% 25% / 0.12);
   --shadow-2xl: 0px 4px 6px 0px hsl(240 30% 25% / 0.3);
+  --shiki-color-text: oklch(0.95 0.02 272.2767);
+  --shiki-color-background: oklch(0.2155 0.0254 284.0647);
+  --shiki-token-constant: oklch(0.8467 0.0833 210.2545);
+  --shiki-token-string: oklch(0.8577 0.1092 142.7153);
+  --shiki-token-comment: oklch(0.751 0.0396 273.932);
+  --shiki-token-keyword: oklch(0.7871 0.1187 304.7693);
+  --shiki-token-parameter: oklch(0.8787 0.0426 272.2767);
+  --shiki-token-function: oklch(0.8467 0.0833 210.2545);
+  --shiki-token-string-expression: oklch(0.8577 0.1092 142.7153);
+  --shiki-token-punctuation: oklch(0.751 0.0396 273.932);
+  --shiki-token-link: oklch(0.7871 0.1187 304.7693);
 }
 
 .default @theme inline {
@@ -623,6 +667,17 @@ code {
   --shadow-xl:
     0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 8px 10px -1px hsl(0 0% 0% / 0.1);
   --shadow-2xl: 0 1px 3px 0px hsl(0 0% 0% / 0.25);
+  --shiki-color-text: oklch(0.25 0.15 325.0372);
+  --shiki-color-background: oklch(0.9754 0.0084 325.6414);
+  --shiki-token-constant: oklch(0.35 0.25 300.6246);
+  --shiki-token-string: oklch(0.3 0.08 226.1538);
+  --shiki-token-comment: oklch(0.4 0.15 324.4523);
+  --shiki-token-keyword: oklch(0.55 0.25 355.1999);
+  --shiki-token-parameter: oklch(0.25 0.15 325.0372);
+  --shiki-token-function: oklch(0.35 0.25 300.6246);
+  --shiki-token-string-expression: oklch(0.3 0.08 226.1538);
+  --shiki-token-punctuation: oklch(0.4 0.15 324.4523);
+  --shiki-token-link: oklch(0.55 0.25 355.1999);
 }
 
 .t3-chat.dark {
@@ -677,6 +732,17 @@ code {
   --shadow-xl:
     0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 8px 10px -1px hsl(0 0% 0% / 0.1);
   --shadow-2xl: 0 1px 3px 0px hsl(0 0% 0% / 0.25);
+  --shiki-color-text: oklch(0.95 0.05 309.5391);
+  --shiki-color-background: oklch(0.2409 0.0201 307.5346);
+  --shiki-token-constant: oklch(0.9 0.22 306.8561);
+  --shiki-token-string: oklch(0.95 0.18 60.5799);
+  --shiki-token-comment: oklch(0.85 0.05 307.1032);
+  --shiki-token-keyword: oklch(0.98 0.25 4.0994);
+  --shiki-token-parameter: oklch(0.95 0.05 309.5391);
+  --shiki-token-function: oklch(0.9 0.22 306.8561);
+  --shiki-token-string-expression: oklch(0.95 0.18 60.5799);
+  --shiki-token-punctuation: oklch(0.85 0.05 307.1032);
+  --shiki-token-link: oklch(0.98 0.25 4.0994);
 }
 
 .t3-chat @theme inline {
@@ -787,6 +853,17 @@ code {
     2px 2px 10px 4px hsl(240 4% 60% / 0.18),
     2px 8px 10px 3px hsl(240 4% 60% / 0.18);
   --shadow-2xl: 2px 2px 10px 4px hsl(240 4% 60% / 0.45);
+  --shiki-color-text: oklch(0.2 0.05 260.031);
+  --shiki-color-background: oklch(0.9232 0.0026 48.7171);
+  --shiki-token-constant: oklch(0.35 0.15 45.1234);
+  --shiki-token-string: oklch(0.3 0.12 120.4567);
+  --shiki-token-comment: oklch(0.45 0.03 264.3637);
+  --shiki-token-keyword: oklch(0.4 0.18 355.1999);
+  --shiki-token-parameter: oklch(0.2 0.05 260.031);
+  --shiki-token-function: oklch(0.35 0.15 45.1234);
+  --shiki-token-string-expression: oklch(0.3 0.12 120.4567);
+  --shiki-token-punctuation: oklch(0.45 0.03 264.3637);
+  --shiki-token-link: oklch(0.4 0.18 355.1999);
 }
 
 .claymorphism.dark {
@@ -839,6 +916,17 @@ code {
   --shadow-xl:
     2px 2px 10px 4px hsl(0 0% 0% / 0.18), 2px 8px 10px 3px hsl(0 0% 0% / 0.18);
   --shadow-2xl: 2px 2px 10px 4px hsl(0 0% 0% / 0.45);
+  --shiki-color-text: oklch(0.95 0.02 255.5078);
+  --shiki-color-background: oklch(0.2244 0.0074 67.437);
+  --shiki-token-constant: oklch(0.9 0.15 45.1234);
+  --shiki-token-string: oklch(0.85 0.12 120.4567);
+  --shiki-token-comment: oklch(0.8 0.03 261.3246);
+  --shiki-token-keyword: oklch(0.95 0.18 355.1999);
+  --shiki-token-parameter: oklch(0.95 0.02 255.5078);
+  --shiki-token-function: oklch(0.9 0.15 45.1234);
+  --shiki-token-string-expression: oklch(0.85 0.12 120.4567);
+  --shiki-token-punctuation: oklch(0.8 0.03 261.3246);
+  --shiki-token-link: oklch(0.95 0.18 355.1999);
 }
 
 .claymorphism @theme inline {
@@ -946,6 +1034,17 @@ code {
   --shadow-xl:
     0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 8px 10px -1px hsl(0 0% 0% / 0.1);
   --shadow-2xl: 0 1px 3px 0px hsl(0 0% 0% / 0.25);
+  --shiki-color-text: oklch(0.3438 0.0269 95.7226);
+  --shiki-color-background: oklch(0.9818 0.0054 95.0986);
+  --shiki-token-constant: oklch(0.5583 0.1276 42.9956);
+  --shiki-token-string: oklch(0.6898 0.1581 290.4107);
+  --shiki-token-comment: oklch(0.6059 0.0075 97.4233);
+  --shiki-token-keyword: oklch(0.6171 0.1375 39.0427);
+  --shiki-token-parameter: oklch(0.3438 0.0269 95.7226);
+  --shiki-token-function: oklch(0.5583 0.1276 42.9956);
+  --shiki-token-string-expression: oklch(0.6898 0.1581 290.4107);
+  --shiki-token-punctuation: oklch(0.6059 0.0075 97.4233);
+  --shiki-token-link: oklch(0.6171 0.1375 39.0427);
 }
 
 .claude.dark {
@@ -1002,6 +1101,17 @@ code {
   --shadow-xl:
     0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 8px 10px -1px hsl(0 0% 0% / 0.1);
   --shadow-2xl: 0 1px 3px 0px hsl(0 0% 0% / 0.25);
+  --shiki-color-text: oklch(0.8074 0.0142 93.0137);
+  --shiki-color-background: oklch(0.2679 0.0036 106.6427);
+  --shiki-token-constant: oklch(0.5583 0.1276 42.9956);
+  --shiki-token-string: oklch(0.6898 0.1581 290.4107);
+  --shiki-token-comment: oklch(0.7713 0.0169 99.0657);
+  --shiki-token-keyword: oklch(0.6724 0.1308 38.7559);
+  --shiki-token-parameter: oklch(0.8074 0.0142 93.0137);
+  --shiki-token-function: oklch(0.5583 0.1276 42.9956);
+  --shiki-token-string-expression: oklch(0.6898 0.1581 290.4107);
+  --shiki-token-punctuation: oklch(0.7713 0.0169 99.0657);
+  --shiki-token-link: oklch(0.6724 0.1308 38.7559);
 }
 
 .claude @theme inline {
@@ -1107,6 +1217,17 @@ code {
   --shadow-xl:
     0px 2px 0px 0px hsl(0 0% 20% / 0.15), 0px 8px 10px -1px hsl(0 0% 20% / 0.15);
   --shadow-2xl: 0px 2px 0px 0px hsl(0 0% 20% / 0.38);
+  --shiki-color-text: oklch(0.3211 0 0);
+  --shiki-color-background: oklch(0.9551 0 0);
+  --shiki-token-constant: oklch(0.4863 0.0361 196.0278);
+  --shiki-token-string: oklch(0.6534 0 0);
+  --shiki-token-comment: oklch(0.5103 0 0);
+  --shiki-token-keyword: oklch(0.4891 0 0);
+  --shiki-token-parameter: oklch(0.3211 0 0);
+  --shiki-token-function: oklch(0.4863 0.0361 196.0278);
+  --shiki-token-string-expression: oklch(0.6534 0 0);
+  --shiki-token-punctuation: oklch(0.5103 0 0);
+  --shiki-token-link: oklch(0.4891 0 0);
 }
 
 .graphite.dark {
@@ -1159,6 +1280,17 @@ code {
   --shadow-xl:
     0px 2px 0px 0px hsl(0 0% 20% / 0.15), 0px 8px 10px -1px hsl(0 0% 20% / 0.15);
   --shadow-2xl: 0px 2px 0px 0px hsl(0 0% 20% / 0.38);
+  --shiki-color-text: oklch(0.8853 0 0);
+  --shiki-color-background: oklch(0.2178 0 0);
+  --shiki-token-constant: oklch(0.6714 0.0339 206.3482);
+  --shiki-token-string: oklch(0.5452 0 0);
+  --shiki-token-comment: oklch(0.5999 0 0);
+  --shiki-token-keyword: oklch(0.7058 0 0);
+  --shiki-token-parameter: oklch(0.8853 0 0);
+  --shiki-token-function: oklch(0.6714 0.0339 206.3482);
+  --shiki-token-string-expression: oklch(0.5452 0 0);
+  --shiki-token-punctuation: oklch(0.5999 0 0);
+  --shiki-token-link: oklch(0.7058 0 0);
 }
 
 .graphite @theme inline {

@@ -2,7 +2,21 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Check, Copy } from "lucide-react";
 import React, { useEffect, useState } from "react";
-import { codeToHtml } from "shiki";
+import { createHighlighter } from "shiki";
+import { createCssVariablesTheme } from "shiki/core";
+import { bundledLanguages } from "shiki/langs";
+
+const myTheme = createCssVariablesTheme({
+  name: "css-variables",
+  variablePrefix: "--shiki-",
+  variableDefaults: {},
+  fontStyle: true,
+});
+
+const highlighter = await createHighlighter({
+  langs: Object.keys(bundledLanguages),
+  themes: [myTheme],
+});
 
 export type CodeBlockProps = {
   children?: React.ReactNode;
@@ -34,7 +48,7 @@ export type CodeBlockCodeProps = {
 function CodeBlockCode({
   code,
   language = "tsx",
-  theme = "catppuccin-mocha",
+  theme = "css-variables",
   className,
   ...props
 }: CodeBlockCodeProps) {
@@ -48,7 +62,11 @@ function CodeBlockCode({
         return;
       }
 
-      const html = await codeToHtml(code, { lang: language, theme });
+      const html = await highlighter.codeToHtml(code, {
+        lang: language,
+        theme,
+      });
+      console.log(html);
       setHighlightedHtml(html);
     }
     highlight();

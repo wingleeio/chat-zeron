@@ -12,6 +12,7 @@ type ChatImageResultProps = {
 export function ChatImageResult({ annotations }: ChatImageResultProps) {
   const annotation = annotations[annotations.length - 1];
   const [isOpen, setIsOpen] = useState(false);
+  const [isImageLoading, setIsImageLoading] = useState(true);
 
   return (
     <>
@@ -19,13 +20,20 @@ export function ChatImageResult({ annotations }: ChatImageResultProps) {
         .with({ status: "completed" }, ({ imageUrl, prompt }) => (
           <div className="h-75 w-100 max-w-full flex items-center justify-center gap-2 bg-muted rounded-md">
             <div
-              className="w-full h-full cursor-pointer"
+              className="w-full h-full cursor-pointer relative"
               onClick={() => setIsOpen(true)}
             >
+              {isImageLoading && (
+                <div className="absolute inset-0 flex items-center justify-center bg-muted">
+                  <Loader2Icon className="size-6 animate-spin" />
+                </div>
+              )}
               <img
                 src={imageUrl}
                 alt={prompt}
                 className="rounded-md w-full h-full object-cover"
+                onLoad={() => setIsImageLoading(false)}
+                onError={() => setIsImageLoading(false)}
               />
             </div>
           </div>
@@ -52,10 +60,17 @@ export function ChatImageResult({ annotations }: ChatImageResultProps) {
               >
                 <X className="size-4" />
               </Button>
+              {isImageLoading && (
+                <div className="absolute inset-0 flex items-center justify-center bg-muted">
+                  <Loader2Icon className="size-6 animate-spin" />
+                </div>
+              )}
               <img
                 src={annotation.data.imageUrl}
                 alt={annotation.data.prompt}
                 className="w-full h-full object-contain"
+                onLoad={() => setIsImageLoading(false)}
+                onError={() => setIsImageLoading(false)}
               />
             </div>
           </DialogContent>

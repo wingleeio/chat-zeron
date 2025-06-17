@@ -438,10 +438,11 @@ function DeleteChatDialog({
             variant="destructive"
             onClick={async () => {
               if (!chat) return;
-              await deleteChatMutation({ chatId: chat._id });
               if (params?.cid === chat._id) {
                 navigate({ to: "/" });
               }
+              await deleteChatMutation({ chatId: chat._id });
+
               setDeleteChat(null);
             }}
           >
