@@ -73,9 +73,7 @@ export function UIMessage({ message }: { message: UIMessage }) {
                 ))
                 .otherwise(() => null)
             )
-            .with({ type: "text" }, (part) =>
-              hasImageToolInvocation ? null : <TextPart text={part.text} />
-            )
+            .with({ type: "text" }, (part) => <TextPart text={part.text} />)
             .otherwise(() => null)}
         </Fragment>
       ))}

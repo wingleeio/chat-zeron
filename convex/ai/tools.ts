@@ -14,7 +14,6 @@ export function getTools(
     writer: DataStreamWriter;
     model: Doc<"models">;
     user: Doc<"users">;
-    abortController: AbortController;
   },
   activeTools: Tool[]
 ) {
@@ -93,7 +92,6 @@ export function getTools(
               imageUrl,
             },
           });
-          opts.abortController.abort();
           return {
             prompt,
             imageUrl,
@@ -106,7 +104,6 @@ export function getTools(
               status: "failed",
             },
           });
-          opts.abortController.abort();
           throw error;
         }
       },

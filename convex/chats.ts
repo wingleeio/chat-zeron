@@ -169,10 +169,7 @@ export const streamChat = httpAction(async (ctx, request) => {
 
       const stream = createDataStream({
         execute: async (writer) => {
-          const tools = getTools(
-            { ctx, writer, model, user, abortController },
-            activeTools
-          );
+          const tools = getTools({ ctx, writer, model, user }, activeTools);
           console.log(
             "Constructed message history:",
             JSON.stringify(messages, null, 2)
