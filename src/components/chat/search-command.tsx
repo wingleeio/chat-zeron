@@ -77,7 +77,7 @@ export function SearchCommand() {
       className="border py-1 bg-sidebar"
     >
       <CommandInput
-        placeholder="Type a command or search..."
+        placeholder="Type your search query..."
         value={searchQuery}
         onValueChange={setSearchQuery}
       />

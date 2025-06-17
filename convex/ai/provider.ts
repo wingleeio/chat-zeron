@@ -82,6 +82,19 @@ export const models = [
     isDisabled: false,
   },
   {
+    name: "Gemini 2.5 Flash Lite",
+    model: "google/gemini-2.5-flash-lite-preview-06-17",
+    provider: "openrouter",
+    icon: "gemini",
+    capabilities: ["thinking", "vision", "tools"] as Infer<
+      typeof vCapabilities
+    >[],
+    description:
+      "Lightweight reasoning model, with faster token generation than other Gemini models.",
+    isPremium: false,
+    isDisabled: false,
+  },
+  {
     name: "Gemini 2.5 Flash (Thinking)",
     model: "google/gemini-2.5-flash-preview-05-20:thinking",
     provider: "openrouter",

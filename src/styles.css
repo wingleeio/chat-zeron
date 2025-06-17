@@ -97,7 +97,7 @@ code {
     0px 8px 10px -1px hsl(240 30% 25% / 0.12);
   --shadow-2xl: 0px 4px 6px 0px hsl(240 30% 25% / 0.3);
   --shiki-color-text: oklch(0.4355 0.043 279.325);
-  --shiki-color-background: oklch(0.9578 0.0058 264.5321);
+  --shiki-color-background: oklch(0.9078 0.0058 264.5321);
   --shiki-token-constant: oklch(0.682 0.1448 235.3822);
   --shiki-token-string: oklch(0.625 0.1772 140.4448);
   --shiki-token-comment: oklch(0.5471 0.0343 279.0837);
