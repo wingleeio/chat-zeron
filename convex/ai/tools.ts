@@ -3,7 +3,7 @@ import type { Doc } from "convex/_generated/dataModel";
 import type { GenericActionCtx } from "convex/server";
 import { v, type Infer } from "convex/values";
 import { z } from "zod";
-import { api } from "convex/_generated/api";
+import { internal } from "convex/_generated/api";
 
 export const vTool = v.union(v.literal("search"), v.literal("image"));
 export type Tool = Infer<typeof vTool>;
@@ -80,22 +80,23 @@ export function getTools(
       }),
       execute: async ({ prompt }) => {
         try {
-          const imageUrl = await opts.ctx.runAction(api.together.generate, {
-            prompt,
-            userId: opts.user._id,
-          });
+          const { imageUrl, key } = await opts.ctx.runAction(
+            internal.together.generate,
+            {
+              prompt,
+              userId: opts.user._id,
+            }
+          );
           opts.writer.writeMessageAnnotation({
             type: "image_generation_completion",
             data: {
               prompt,
               status: "completed",
               imageUrl,
+              key,
             },
           });
-          return {
-            prompt,
-            imageUrl,
-          };
+          return "Image was successfully generated.";
         } catch (error) {
           opts.writer.writeMessageAnnotation({
             type: "image_generation_completion",
@@ -104,16 +105,19 @@ export function getTools(
               status: "failed",
             },
           });
-          throw error;
+          return "Image generation failed.";
         }
       },
     }),
   };
 
-  return activeTools.reduce((acc, tool) => {
-    acc[tool] = tools[tool]!;
-    return acc;
-  }, {} as Record<Tool, any>);
+  return activeTools.reduce(
+    (acc, tool) => {
+      acc[tool] = tools[tool]!;
+      return acc;
+    },
+    {} as Record<Tool, any>
+  );
 }
 
 export type ConciseSearchResult = {
@@ -137,11 +141,17 @@ export type SearchAnnotation = {
 
 export type ImageGenerationAnnotation = {
   type: "image_generation_completion";
-  data: {
-    prompt: string;
-    status: "completed" | "failed";
-    imageUrl?: string;
-  };
+  data:
+    | {
+        prompt: string;
+        status: "completed";
+        imageUrl: string;
+        key: string;
+      }
+    | {
+        prompt: string;
+        status: "failed";
+      };
 };
 
 export type SearchResult = {

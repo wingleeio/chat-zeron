@@ -1,62 +1,66 @@
-import { AnimatePresence, motion } from "framer-motion";
 import type { ImageGenerationAnnotation } from "convex/ai/tools";
+import { match } from "ts-pattern";
+import { Loader2Icon, X } from "lucide-react";
+import { useState } from "react";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 type ChatImageResultProps = {
-  result?: {
-    prompt: string;
-    imageUrl: string;
-  };
   annotations: ImageGenerationAnnotation[];
-  animate?: boolean;
 };
 
-export function ChatImageResult({
-  result,
-  annotations,
-  animate,
-}: ChatImageResultProps) {
+export function ChatImageResult({ annotations }: ChatImageResultProps) {
   const annotation = annotations[0];
-  const imageUrl = result?.imageUrl ?? annotation?.data.imageUrl;
+  const [isOpen, setIsOpen] = useState(false);
 
-  if (!imageUrl) {
-    return (
-      <div className="relative mb-4 flex w-full flex-col gap-2 rounded-xl bg-muted p-4">
-        <div className="flex items-center gap-2">
-          <div className="flex flex-col">
-            <div className="font-medium">Generating Image...</div>
+  return (
+    <>
+      {match(annotation?.data)
+        .with({ status: "completed" }, ({ imageUrl, prompt }) => (
+          <div className="h-75 w-100 max-w-full flex items-center justify-center gap-2 bg-muted rounded-md">
+            <div
+              className="w-full h-full cursor-pointer"
+              onClick={() => setIsOpen(true)}
+            >
+              <img
+                src={imageUrl}
+                alt={prompt}
+                className="rounded-md w-full h-full object-cover"
+              />
+            </div>
           </div>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <div className="h-64 w-64 animate-pulse rounded-md bg-muted-foreground/20"></div>
-        </div>
-      </div>
-    );
-  }
-  const content = (
-    <div className="relative mb-4 flex w-full flex-col gap-2 rounded-xl p-4">
-      <div className="flex items-center gap-2">
-        <div className="flex flex-col">
-          <div className="font-medium">Image Generated</div>
-        </div>
-      </div>
-      <div className="flex flex-wrap gap-2">
-        <img src={imageUrl} alt={result?.prompt} className="rounded-md" />
-      </div>
-    </div>
-  );
+        ))
+        .with({ status: "failed" }, () => null)
+        .otherwise(() => (
+          <div className="h-48 w-64 flex items-center justify-center gap-2 bg-muted rounded-md">
+            <Loader2Icon className="size-6 animate-spin" />
+          </div>
+        ))}
 
-  return animate ? (
-    <AnimatePresence>
-      <motion.div
-        layout
-        initial={{ opacity: 0, scale: 0.8, y: 50 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.8, y: 50 }}
-      >
-        {content}
-      </motion.div>
-    </AnimatePresence>
-  ) : (
-    content
+      {annotation?.data.status === "completed" && (
+        <Dialog open={isOpen} onOpenChange={setIsOpen}>
+          <DialogContent
+            className="max-w-[95vw] max-h-[95vh] p-0 bg-transparent border-none"
+            showCloseButton={false}
+          >
+            <div className="relative w-full h-full">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute top-4 right-4 z-50 bg-background/80 hover:bg-background"
+                onClick={() => setIsOpen(false)}
+              >
+                <X className="size-4" />
+              </Button>
+              <img
+                src={annotation.data.imageUrl}
+                alt={annotation.data.prompt}
+                className="w-full h-full object-contain"
+              />
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
+    </>
   );
 }

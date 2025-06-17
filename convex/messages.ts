@@ -1,5 +1,6 @@
 import {
   StreamIdValidator,
+  type StreamBody,
   type StreamId,
 } from "@convex-dev/persistent-text-streaming";
 import { crud } from "convex-helpers/server/crud";
@@ -13,6 +14,8 @@ import { match, P } from "ts-pattern";
 import schema from "convex/schema";
 import { vTool } from "convex/ai/tools";
 import { r2 } from "convex/r2";
+import type { UIMessage } from "ai";
+import { convertToCoreMessages } from "ai";
 
 export const { create, read, update } = crud(
   schema,
@@ -274,18 +277,79 @@ export const history = internalQuery({
     chatId: v.id("chats"),
   },
   handler: async (ctx, args) => {
-    return await ctx.db
+    const allMessages = await ctx.db
       .query("messages")
       .withIndex("by_chat", (q) => q.eq("chatId", args.chatId))
       .collect();
+
+    const messagesWithStreamBody = await Promise.all(
+      allMessages.map(async (userMessage) => {
+        return {
+          userMessage,
+          agentMessages: userMessage.uiMessages
+            ? JSON.parse(userMessage.uiMessages)
+            : [],
+        };
+      })
+    );
+
+    const messages = await Promise.all(
+      messagesWithStreamBody.map(async (message) => {
+        const files = await ctx.db
+          .query("files")
+          .withIndex("by_message", (q) =>
+            q.eq("messageId", message.userMessage._id)
+          )
+          .collect();
+
+        const filePromises =
+          files?.map(async (file) => {
+            const url = await r2.getUrl(file.key, {
+              expiresIn: 60,
+            });
+
+            return {
+              type: "image",
+              image: url,
+            };
+          }) ?? [];
+
+        const fileContents = await Promise.all(filePromises);
+
+        const userMessage = {
+          role: "user",
+          content: [
+            {
+              type: "text",
+              text: message.userMessage.prompt,
+            },
+            ...fileContents,
+          ],
+        };
+
+        const agentMessages = convertToCoreMessages(message.agentMessages);
+
+        return [userMessage, ...agentMessages];
+      })
+    ).then((results) => results.flat());
+
+    return messages;
   },
 });
+
+export type MessageWithUIMessages = Omit<Doc<"messages">, "uiMessages"> & {
+  uiMessages: UIMessage[];
+  uploadedFiles: string[];
+  responseStreamStatus: StreamBody["status"];
+  responseStreamContent: string;
+  model: Doc<"models">;
+};
 
 export const list = query({
   args: {
     chatId: v.id("chats"),
   },
-  handler: async (ctx, args) => {
+  handler: async (ctx, args): Promise<MessageWithUIMessages[] | null> => {
     const user = await ctx.runQuery(internal.auth.authenticate, {});
 
     const chat = await ctx.runQuery(internal.chats.read, {
@@ -332,12 +396,51 @@ export const list = query({
             );
 
             const content = stream.status === "done" ? stream.text : "";
+
+            const uiMessages: UIMessage[] = await Promise.all(
+              JSON.parse(message.uiMessages ?? "[]").map(
+                async (uiMessage: UIMessage) => {
+                  return {
+                    ...uiMessage,
+                    annotations: await Promise.all(
+                      (uiMessage.annotations ?? []).map(
+                        async (annotation: any) => {
+                          if (
+                            annotation.type === "image_generation_completion"
+                          ) {
+                            if (!annotation.data.key) {
+                              return annotation;
+                            }
+                            const imageUrl = await r2.getUrl(
+                              annotation.data.key,
+                              {
+                                expiresIn: 60 * 60 * 3,
+                              }
+                            );
+                            return {
+                              ...annotation,
+                              data: {
+                                ...annotation.data,
+                                imageUrl,
+                              },
+                            };
+                          }
+                          return annotation;
+                        }
+                      )
+                    ),
+                  };
+                }
+              )
+            );
+
             return {
               ...message,
               uploadedFiles,
               responseStreamStatus: stream.status,
               responseStreamContent: content,
               model: model,
+              uiMessages,
             };
           })
         );

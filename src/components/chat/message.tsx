@@ -26,7 +26,6 @@ import {
 } from "@convex-dev/react-query";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import { toast } from "sonner";
-import type { UIMessage as UIMessageType } from "ai";
 
 import { Fragment, useMemo, useState } from "react";
 import {
@@ -46,13 +45,10 @@ import { X } from "lucide-react";
 import { env } from "@/env.client";
 import { useStream } from "@convex-dev/persistent-text-streaming/react";
 import { useParseMessage } from "@/hooks/use-parse-message";
+import type { MessageWithUIMessages } from "convex/messages";
 
 type CompletedServerMessageProps = {
-  message: Doc<"messages"> & {
-    responseStreamStatus: StreamBody["status"];
-    responseStreamContent: string;
-    model: Doc<"models">;
-  };
+  message: MessageWithUIMessages;
 };
 
 function CompletedServerMessage({ message }: CompletedServerMessageProps) {
@@ -92,7 +88,7 @@ function CompletedServerMessage({ message }: CompletedServerMessageProps) {
     },
   });
 
-  const uiMessages: UIMessageType[] = JSON.parse(message.uiMessages ?? "[]");
+  const { uiMessages } = message;
 
   return (
     <Message id={`m-${message._id}`} className="flex-col w-full">

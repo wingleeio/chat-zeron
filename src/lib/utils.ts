@@ -350,7 +350,7 @@ export function parseRawTextIntoUIMessages(text: string) {
           messages.push(currentMessage);
         }
       })
-      .with({ type: "finish_message" }, (raw) => {
+      .with({ type: "finish_message" }, () => {
         if (currentMessage) {
           if (messageAnnotations.length > 0) {
             currentMessage.annotations = messageAnnotations;
@@ -368,4 +368,10 @@ export function parseRawTextIntoUIMessages(text: string) {
   );
 
   return messages;
+}
+
+export function getFromAnnotations(message: UIMessage, type: string) {
+  return (message.annotations?.filter(
+    (annotation) => (annotation as any)?.type === type
+  ) ?? []) as any;
 }
