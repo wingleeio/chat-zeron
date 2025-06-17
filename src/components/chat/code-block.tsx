@@ -13,11 +13,6 @@ const myTheme = createCssVariablesTheme({
   fontStyle: true,
 });
 
-const highlighter = await createHighlighter({
-  langs: Object.keys(bundledLanguages),
-  themes: [myTheme],
-});
-
 export type CodeBlockProps = {
   children?: React.ReactNode;
   className?: string;
@@ -61,12 +56,16 @@ function CodeBlockCode({
         setHighlightedHtml("<pre><code></code></pre>");
         return;
       }
+      const highlighter = await createHighlighter({
+        langs: Object.keys(bundledLanguages),
+        themes: [myTheme],
+      });
 
-      const html = await highlighter.codeToHtml(code, {
+      const html = highlighter.codeToHtml(code, {
         lang: language,
         theme,
       });
-      console.log(html);
+
       setHighlightedHtml(html);
     }
     highlight();
