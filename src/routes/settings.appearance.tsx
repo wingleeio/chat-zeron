@@ -51,6 +51,14 @@ const themes = [
     name: "Claymorphism",
     value: "claymorphism",
   },
+  {
+    name: "Claude",
+    value: "claude",
+  },
+  {
+    name: "Graphite",
+    value: "graphite",
+  },
 ];
 
 function RouteComponent() {

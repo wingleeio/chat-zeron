@@ -1,4 +1,6 @@
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { Check, Copy } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { codeToHtml } from "shiki";
 
@@ -37,6 +39,7 @@ function CodeBlockCode({
   ...props
 }: CodeBlockCodeProps) {
   const [highlightedHtml, setHighlightedHtml] = useState<string | null>(null);
+  const [isCopied, setIsCopied] = useState(false);
 
   useEffect(() => {
     async function highlight() {
@@ -51,23 +54,52 @@ function CodeBlockCode({
     highlight();
   }, [code, language, theme]);
 
+  function handleCopy() {
+    if (isCopied) return;
+    navigator.clipboard.writeText(code).then(() => {
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 2000);
+    });
+  }
+
   const classNames = cn(
     "w-full overflow-x-auto text-[13px] [&>pre]:px-4 [&>pre]:py-4 shadow-xl",
     className
   );
 
-  // SSR fallback: render plain code if not hydrated yet
-  return highlightedHtml ? (
-    <div
-      className={classNames}
-      dangerouslySetInnerHTML={{ __html: highlightedHtml }}
-      {...props}
-    />
-  ) : (
-    <div className={classNames} {...props}>
-      <pre>
-        <code>{code}</code>
-      </pre>
+  return (
+    <div className="relative">
+      <div className="flex gap-2 items-center absolute right-2 top-2">
+        <div className="text-xs text-muted-foreground font-mono">
+          {language}
+        </div>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleCopy}
+          className="rounded-sm"
+        >
+          {isCopied ? (
+            <Check className="size-3" />
+          ) : (
+            <Copy className="size-3" />
+          )}
+        </Button>
+      </div>
+      {/* SSR fallback: render plain code if not hydrated yet */}
+      {highlightedHtml ? (
+        <div
+          className={classNames}
+          dangerouslySetInnerHTML={{ __html: highlightedHtml }}
+          {...props}
+        />
+      ) : (
+        <div className={classNames} {...props}>
+          <pre>
+            <code>{code}</code>
+          </pre>
+        </div>
+      )}
     </div>
   );
 }
