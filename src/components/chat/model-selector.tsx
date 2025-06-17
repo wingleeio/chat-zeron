@@ -69,7 +69,7 @@ export function ModelSelector() {
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-[250px] justify-between hover:text-foreground"
+          className="w-[200px] justify-between hover:text-foreground"
         >
           <span className="flex items-center gap-2">
             {selectedModel && (
@@ -150,7 +150,7 @@ export function ModelSelector() {
                         model={model.icon as ModelType}
                       />
                     )}
-                    {model.name}
+                    <span className="truncate">{model.name}</span>
                   </span>
                   {model.isPremium && !user?.isPremium && (
                     <Tooltip>
