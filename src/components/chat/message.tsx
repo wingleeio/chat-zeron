@@ -1,7 +1,4 @@
-import type {
-  StreamBody,
-  StreamId,
-} from "@convex-dev/persistent-text-streaming";
+import type { StreamId } from "@convex-dev/persistent-text-streaming";
 import type { Doc, Id } from "convex/_generated/dataModel";
 import { api } from "convex/_generated/api";
 import {
@@ -173,11 +170,7 @@ function CompletedServerMessage({ message }: CompletedServerMessageProps) {
   );
 }
 
-function UserMessage({
-  message,
-}: {
-  message: Doc<"messages"> & { uploadedFiles: string[] };
-}) {
+function UserMessage({ message }: { message: MessageWithUIMessages }) {
   const [isEditing, setIsEditing] = useState(false);
   const [prompt, setPrompt] = useState(message.prompt);
   const params = useParams({ from: "/c/$cid" });
@@ -208,13 +201,15 @@ function UserMessage({
 
   return (
     <Message className="flex-col items-end group/user-message">
-      {message.uploadedFiles?.map((file, index) => (
-        <UploadedFile
-          key={index}
-          src={file}
-          alt={`Uploaded file ${index + 1}`}
-        />
-      ))}
+      <div className="flex flex-wrap gap-2">
+        {message.uploadedFiles?.map((file, index) => (
+          <UploadedFile
+            key={index}
+            src={file}
+            alt={`Uploaded file ${index + 1}`}
+          />
+        ))}
+      </div>
       {isEditing ? (
         <Textarea
           className="rounded-xl px-4 bg-muted min-h-[60px] resize-none"
@@ -369,9 +364,7 @@ function UploadedFile({
 }
 
 type StreamingServerMessageProps = {
-  message: Doc<"messages"> & {
-    responseStreamStatus: StreamBody["status"];
-  };
+  message: MessageWithUIMessages;
 };
 
 function StreamingServerMessage({ message }: StreamingServerMessageProps) {

@@ -28,6 +28,7 @@ export default defineSchema({
     key: v.string(),
     userId: v.id("users"),
     messageId: v.optional(v.id("messages")),
+    role: v.optional(v.union(v.literal("agent"), v.literal("user"))),
   })
     .index("by_user", ["userId"])
     .index("by_key", ["key"])

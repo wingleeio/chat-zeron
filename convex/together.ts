@@ -12,8 +12,9 @@ export const generate = internalAction({
   args: {
     prompt: v.string(),
     userId: v.id("users"),
+    messageId: v.id("messages"),
   },
-  handler: async (ctx, { prompt, userId }) => {
+  handler: async (ctx, { prompt, userId, messageId }) => {
     const response = await together.images.create({
       model: "black-forest-labs/FLUX.1-schnell",
       prompt,
@@ -35,10 +36,7 @@ export const generate = internalAction({
     const key = await r2.store(ctx, imageUint8Array, {
       type: imageBlob.type,
     });
-    await ctx.runMutation(internal.files.create, {
-      key,
-      userId: userId,
-    });
+
     const r2Url = await r2.getUrl(key, {
       expiresIn: 60 * 60 * 3,
     });
@@ -48,6 +46,8 @@ export const generate = internalAction({
     await ctx.runMutation(internal.files.create, {
       key,
       userId: userId,
+      messageId,
+      role: "agent",
     });
     return {
       imageUrl: r2Url,

@@ -32,7 +32,7 @@ export function ChatImageResult({ annotations }: ChatImageResultProps) {
         ))
         .with({ status: "failed" }, () => null)
         .otherwise(() => (
-          <div className="h-48 w-64 flex items-center justify-center gap-2 bg-muted rounded-md">
+          <div className="h-75 w-100 flex items-center justify-center gap-2 bg-muted rounded-md">
             <Loader2Icon className="size-6 animate-spin" />
           </div>
         ))}

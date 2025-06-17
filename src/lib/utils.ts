@@ -370,8 +370,14 @@ export function parseRawTextIntoUIMessages(text: string) {
   return messages;
 }
 
-export function getFromAnnotations(message: UIMessage, type: string) {
+export function getFromAnnotations(
+  message: UIMessage,
+  type: string,
+  toolCallId?: string
+) {
   return (message.annotations?.filter(
-    (annotation) => (annotation as any)?.type === type
+    (annotation) =>
+      (annotation as any)?.type === type &&
+      (toolCallId ? (annotation as any)?.data?.toolCallId === toolCallId : true)
   ) ?? []) as any;
 }

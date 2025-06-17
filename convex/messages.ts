@@ -300,7 +300,8 @@ export const history = internalQuery({
           .withIndex("by_message", (q) =>
             q.eq("messageId", message.userMessage._id)
           )
-          .collect();
+          .collect()
+          .then((files) => files.filter((file) => file.role === "user"));
 
         const filePromises =
           files?.map(async (file) => {
@@ -384,7 +385,8 @@ export const list = query({
             const files = await ctx.db
               .query("files")
               .withIndex("by_message", (q) => q.eq("messageId", message._id))
-              .collect();
+              .collect()
+              .then((files) => files.filter((file) => file.role === "user"));
 
             const uploadedFiles = await Promise.all(
               files.map(

@@ -71,7 +71,10 @@ export const streamChat = httpAction(async (ctx, request) => {
 
       const stream = createDataStream({
         execute: async (writer) => {
-          const tools = getTools({ ctx, writer, model, user }, activeTools);
+          const tools = getTools(
+            { ctx, writer, model, user, message },
+            activeTools
+          );
           const result = streamText({
             model: getModel(model.provider, model.model),
             experimental_transform: smoothStream({

@@ -41,7 +41,8 @@ export function UIMessage({ message }: { message: UIMessage }) {
                     queries={toolInvocation.args.queries}
                     annotations={getFromAnnotations(
                       message,
-                      "search_completion"
+                      "search_completion",
+                      part.toolInvocation.toolCallId
                     )}
                     animate={message.parts[index + 1] === undefined}
                   />
@@ -51,7 +52,8 @@ export function UIMessage({ message }: { message: UIMessage }) {
                     key={part.toolInvocation.toolCallId}
                     annotations={getFromAnnotations(
                       message,
-                      "image_generation_completion"
+                      "image_generation_completion",
+                      part.toolInvocation.toolCallId
                     )}
                   />
                 ))
