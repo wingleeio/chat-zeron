@@ -5,6 +5,7 @@ import React, { useEffect, useState } from "react";
 import {
   createHighlighter,
   type BundledTheme,
+  type BundledLanguage,
   type HighlighterGeneric,
 } from "shiki";
 import { createCssVariablesTheme } from "shiki/core";
