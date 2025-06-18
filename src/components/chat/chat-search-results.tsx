@@ -135,7 +135,7 @@ export function ChatSearchResults({
                 transition={{ duration: 0.3 }}
                 className="flex gap-2"
               >
-                <div className="py-1 text-muted-foreground">
+                <div className="py-1">
                   {match(search.status)
                     .with("searching", () => <PulseLoader className="size-3" />)
                     .with("reading", () => <PulseLoader className="size-3" />)
