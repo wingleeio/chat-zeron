@@ -48,6 +48,8 @@ import { setOpenSearch } from "@/stores/chat";
 import { ZeronIcon } from "@/components/icons/zeron";
 import { IconPhoto } from "@tabler/icons-react";
 import { CreditsBadge } from "@/components/app/credits-badge";
+import { useMutation as useMutationReactQuery } from "@tanstack/react-query";
+import { useConvexMutation } from "@convex-dev/react-query";
 
 export function AppSidebar() {
   const { data: user } = useCurrentUser();
@@ -431,7 +433,17 @@ function DeleteChatDialog({
   setDeleteChat: (chat: Doc<"chats"> | null) => void;
 }) {
   const params = useParams({ from: "/c/$cid", shouldThrow: false });
-  const deleteChatMutation = useMutation(api.chats.deleteChat);
+  const deleteChat = useMutationReactQuery({
+    mutationFn: useConvexMutation(api.chats.deleteChat),
+    onMutate: () => {
+      if (params?.cid === chat?._id) {
+        navigate({ to: "/" });
+      }
+    },
+    onSuccess: () => {
+      setDeleteChat(null);
+    },
+  });
   const navigate = useNavigate();
 
   return (
@@ -455,17 +467,17 @@ function DeleteChatDialog({
           <Button
             type="button"
             variant="destructive"
+            disabled={deleteChat.isPending}
             onClick={async () => {
               if (!chat) return;
-              if (params?.cid === chat._id) {
-                navigate({ to: "/" });
-              }
-              await deleteChatMutation({ chatId: chat._id });
 
-              setDeleteChat(null);
+              deleteChat.mutate({ chatId: chat._id });
             }}
           >
-            Delete
+            <span>Delete</span>
+            {deleteChat.isPending && (
+              <Loader2Icon className="w-4 h-4 animate-spin" />
+            )}
           </Button>
         </DialogFooter>
       </DialogContent>

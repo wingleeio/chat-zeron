@@ -40,7 +40,10 @@ export function setDrivenIds(fn: (prev: string[]) => string[]) {
 }
 
 export function useIsOpenReasoning(id: string) {
-  return useStore(store, (state) => state.openReasoningIds.includes(id));
+  return useStore(
+    store,
+    (state) => state.openReasoningIds.includes(id) || undefined
+  );
 }
 
 export function openReasoning(id: string) {

@@ -164,11 +164,11 @@ function ReasoningPart({
   part: ReasoningUIPart;
   done: boolean;
 }) {
-  const isOpen = useIsOpenReasoning(id);
-  const [isManuallyToggled, setIsManuallyToggled] = useState(false);
-  const initialTextRef = useRef<string | null>(null);
+  const _isOpen = useIsOpenReasoning(id);
+  const isOpen = _isOpen === undefined ? !done : _isOpen;
   const thinkingTime = useReasoningDuration(id);
-  const thinkingStartRef = useRef<number | null>(null);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const startTimeRef = useRef<number | null>(null);
 
   const text = useMemo(() => {
     return part.details
@@ -178,31 +178,36 @@ function ReasoningPart({
   }, [part.details]);
 
   useEffect(() => {
-    if (initialTextRef.current === null) {
-      initialTextRef.current = text;
-      return;
+    if (!startTimeRef.current) {
+      startTimeRef.current = Date.now();
     }
 
-    if (text !== initialTextRef.current) {
-      if (!thinkingStartRef.current) {
-        thinkingStartRef.current = Date.now();
+    if (!done) {
+      timerRef.current = setInterval(() => {
+        if (startTimeRef.current) {
+          const elapsed = (Date.now() - startTimeRef.current) / 1000;
+          setReasoningDuration(id, elapsed);
+        }
+      }, 100);
+    } else {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
       }
-      setReasoningDuration(
-        id,
-        (Date.now() - (thinkingStartRef.current || 0)) / 1000
-      );
-
-      if (!isManuallyToggled) {
-        openReasoning(id);
+      if (startTimeRef.current) {
+        const finalTime = (Date.now() - startTimeRef.current) / 1000;
+        setReasoningDuration(id, finalTime);
       }
     }
-  }, [text, isManuallyToggled, id]);
 
-  useEffect(() => {
-    if (isOpen && !isManuallyToggled && done) {
-      closeReasoning(id);
-    }
-  }, [done, isOpen, isManuallyToggled, id]);
+    // Cleanup interval on unmount
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+    };
+  }, [done, id]);
 
   const handleOpenChange = (newOpen: boolean) => {
     if (newOpen) {
@@ -210,7 +215,6 @@ function ReasoningPart({
     } else {
       closeReasoning(id);
     }
-    setIsManuallyToggled(true);
   };
 
   return (
@@ -219,7 +223,7 @@ function ReasoningPart({
         <span className="text-sm">
           Reasoning
           <span className="text-muted-foreground">
-            {thinkingTime > 0 ? ` (${thinkingTime}s)` : ""}
+            {thinkingTime > 0 ? ` (${thinkingTime.toFixed(1)}s)` : ""}
           </span>
         </span>
       </ReasoningTrigger>

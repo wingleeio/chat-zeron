@@ -6,6 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollableHorizontalFade } from "@/components/ui/scrollable-horizontal-fade";
 import { cn } from "@/lib/utils";
 
+import { ChatSearchResults } from "@/components/chat/chat-search-results";
+
 export function ChatResearchResults({
   annotations,
   done,
@@ -29,6 +31,54 @@ export function ChatResearchResults({
     return "";
   }, [annotations]);
 
+  const searches = useMemo(() => {
+    const searchesAnnotations = annotations
+      .filter(
+        ({ data }) =>
+          data.type === "searching_completed" ||
+          data.type === "searching" ||
+          data.type === "reading_completed"
+      )
+      .reduce(
+        (acc, { data }) => {
+          if (data.type === "searching_completed") {
+            const existing = acc.find((a) => a.query === data.query);
+            if (existing) {
+              existing.results.push({
+                title: data.title ?? "",
+                url: data.url,
+              });
+              existing.status = "reading";
+            }
+          }
+
+          if (data.type === "searching") {
+            acc.push({
+              query: data.query,
+              results: [],
+              status: "searching",
+            });
+          }
+
+          if (data.type === "reading_completed") {
+            const existing = acc.find((a) => a.query === data.query);
+            if (existing) {
+              existing.status = "completed";
+            }
+          }
+
+          return acc;
+        },
+        [] as {
+          query: string;
+          results: { title: string; url: string }[];
+          status: "searching" | "reading" | "completed";
+        }[]
+      );
+
+    return searchesAnnotations;
+  }, [annotations]);
+
   const sources = useMemo(() => {
     const sourcesAnnotations = annotations.filter(
       ({ data }) => data.type === "reading_completed"
@@ -42,16 +92,12 @@ export function ChatResearchResults({
   };
 
   return (
-    <div className="py-2">
-      <div className="text-sm text-primary px-2 mb-3">
-        <div className="flex items-center gap-2">
-          <span>{status}</span>
-        </div>
-      </div>
+    <div className="py-2 px-2">
+      <ChatSearchResults done={done} status={status} searches={searches} />
       <button
         onClick={toggleExpanded}
         className={cn(
-          "group border-border text-muted-foreground flex items-center justify-between gap-2 rounded-full border px-4 py-2",
+          "group border-border text-muted-foreground flex items-center justify-between gap-2 rounded-full border px-4 py-2 mt-4",
           "hover:bg-muted/20 transition-colors",
           isExpanded && "bg-muted/50"
         )}
