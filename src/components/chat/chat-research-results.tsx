@@ -9,9 +9,11 @@ import { cn } from "@/lib/utils";
 import { ChatSearchResults } from "@/components/chat/chat-search-results";
 
 export function ChatResearchResults({
+  id,
   annotations,
   done,
 }: {
+  id: string;
   annotations: { data: ResearchAnnotation }[];
   done: boolean;
 }) {
@@ -93,7 +95,12 @@ export function ChatResearchResults({
 
   return (
     <div className="py-2 px-2">
-      <ChatSearchResults done={done} status={status} searches={searches} />
+      <ChatSearchResults
+        id={id}
+        done={done}
+        status={status}
+        searches={searches}
+      />
       <button
         onClick={toggleExpanded}
         className={cn(

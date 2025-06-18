@@ -61,6 +61,7 @@ export function UIMessage({ message }: { message: UIMessage }) {
                 .with({ toolName: "research" }, (toolInvocation) => (
                   <ChatResearchResults
                     key={toolInvocation.toolCallId}
+                    id={toolInvocation.toolCallId}
                     done={message.parts[index + 1] !== undefined}
                     annotations={getFromAnnotations(
                       message,

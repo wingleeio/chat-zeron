@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { match } from "ts-pattern";
 import { PulseLoader } from "@/components/chat/loaders";
 import { ChevronDown } from "lucide-react";
+import { useReasoningDuration, setReasoningDuration } from "@/stores/chat";
 
 type SearchResult = {
   title: string;
@@ -18,18 +19,20 @@ type Search = {
 };
 
 export function ChatSearchResults({
+  id,
   searches,
   status,
   done,
 }: {
+  id: string;
   searches: Search[];
   status: string;
   done: boolean;
 }) {
   const [_isExpanded, setIsExpanded] = useState<boolean | undefined>(undefined);
-  const [researchTime, setResearchTime] = useState(0);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const startTimeRef = useRef<number | null>(null);
+  const researchTime = useReasoningDuration(id);
 
   const toggleExpanded = () => {
     setIsExpanded((expanded) => !expanded);
@@ -48,7 +51,7 @@ export function ChatSearchResults({
       timerRef.current = setInterval(() => {
         if (startTimeRef.current) {
           const elapsed = (Date.now() - startTimeRef.current) / 1000;
-          setResearchTime(elapsed);
+          setReasoningDuration(id, elapsed);
         }
       }, 100);
     } else {
@@ -58,7 +61,7 @@ export function ChatSearchResults({
       }
       if (startTimeRef.current) {
         const finalTime = (Date.now() - startTimeRef.current) / 1000;
-        setResearchTime(finalTime);
+        setReasoningDuration(id, finalTime);
       }
     }
 
@@ -68,7 +71,7 @@ export function ChatSearchResults({
         timerRef.current = null;
       }
     };
-  }, [done]);
+  }, [done, id]);
 
   return (
     <div className="flex flex-col gap-2 bg-muted/50 rounded-2xl border">
