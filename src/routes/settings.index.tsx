@@ -6,6 +6,7 @@ import { useCurrentUser } from "@/hooks/use-current-user";
 import { convexQuery } from "@convex-dev/react-query";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { CheckoutLink, CustomerPortalLink } from "@convex-dev/polar/react";
+import { useAction } from "convex/react";
 
 const productsQuery = convexQuery(api.polar.listAllProducts, {});
 
@@ -29,6 +30,10 @@ function RouteComponent() {
   const { data: user } = useCurrentUser();
 
   const { data: products } = useSuspenseQuery(productsQuery);
+
+  const generateCustomerPortalUrl = useAction(
+    api.polar.generateCustomerPortalUrl
+  );
 
   return (
     <div className="flex flex-col gap-8 w-full">
@@ -55,15 +60,15 @@ function RouteComponent() {
               <p className="text-sm text-muted-foreground mt-1">
                 You have access to all premium features.
               </p>
-              <Button variant="outline" asChild>
-                <CustomerPortalLink
-                  polarApi={{
-                    generateCustomerPortalUrl:
-                      api.polar.generateCustomerPortalUrl,
-                  }}
-                >
-                  Manage Subscription
-                </CustomerPortalLink>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  generateCustomerPortalUrl().then(({ url }) => {
+                    window.location.href = url;
+                  });
+                }}
+              >
+                Manage Subscription
               </Button>
             </div>
           )}
