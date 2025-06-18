@@ -532,6 +532,9 @@ function PromptInputWithActions() {
           >
             <Telescope className="size-4" />
             <span className="text-sm">Research</span>
+            <span className="text-[10px] font-medium bg-primary/10 text-primary px-1.5 py-0.5 rounded-full">
+              BETA
+            </span>
           </Button>
         </PromptInputAction>
 
