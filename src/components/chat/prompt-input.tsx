@@ -29,6 +29,7 @@ import {
   Loader2Icon,
   Paperclip,
   Square,
+  Telescope,
   X,
 } from "lucide-react";
 import React, {
@@ -46,6 +47,7 @@ import { CircularLoader } from "@/components/chat/loaders";
 import { toast } from "sonner";
 import { useCanUseModel } from "@/hooks/use-can-use-model";
 import { match } from "ts-pattern";
+import { useCurrentUser } from "@/hooks/use-current-user";
 
 type PromptInputContextType = {
   isLoading: boolean;
@@ -269,6 +271,7 @@ function PromptInputWithActions() {
   const supportsVision = useModelSupports("vision");
   const supportsTools = useModelSupports("tools");
   const canUseModel = useCanUseModel();
+  const { data: user } = useCurrentUser();
   const navigate = useNavigate();
   const uploadFile = useUploadFile(api.files);
   const params = useParams({ from: "/c/$cid", shouldThrow: false });
@@ -498,6 +501,40 @@ function PromptInputWithActions() {
           >
             <GlobeIcon className="size-4" />
             <span className="text-sm">Search</span>
+          </Button>
+        </PromptInputAction>
+
+        <PromptInputAction
+          tooltip={
+            supportsTools
+              ? user?.isPremium
+                ? "Research"
+                : "Research is only available to pro users"
+              : "This model does not support research"
+          }
+        >
+          <Button
+            variant="outline"
+            className={cn(
+              "h-8 rounded-full",
+              tool === "research" &&
+                supportsTools &&
+                "text-primary hover:text-primary border-primary!"
+            )}
+            disabled={!supportsTools || !user?.isPremium}
+            onClick={() => {
+              if (tool === "research") {
+                setTool(undefined);
+              } else {
+                setTool("research");
+              }
+            }}
+          >
+            <Telescope className="size-4" />
+            <span className="text-sm">Research</span>
+            <span className="text-[10px] font-medium bg-primary/10 text-primary px-1.5 py-0.5 rounded-full">
+              BETA
+            </span>
           </Button>
         </PromptInputAction>
 

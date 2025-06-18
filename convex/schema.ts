@@ -3,7 +3,7 @@ import { vStatus } from "convex/validators/chat";
 import { v } from "convex/values";
 import { StreamIdValidator } from "@convex-dev/persistent-text-streaming";
 import { vCapabilities, vModel, vProvider } from "convex/ai/provider";
-import { vTool } from "convex/ai/tools";
+import { vTool } from "convex/ai/schema";
 
 export default defineSchema({
   users: defineTable({

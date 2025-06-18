@@ -1,28 +1,25 @@
-import { tool, type DataStreamWriter } from "ai";
+import { tool, type DataStreamWriter, type Tool as ToolType } from "ai";
 import type { Doc } from "convex/_generated/dataModel";
 import type { GenericActionCtx } from "convex/server";
-import { v, type Infer } from "convex/values";
 import { z } from "zod";
 import { internal } from "convex/_generated/api";
+import { researchTool } from "convex/ai/research";
+import type { Tool } from "convex/ai/schema";
 
-export const vTool = v.union(v.literal("search"), v.literal("image"));
-export type Tool = Infer<typeof vTool>;
+export type GetToolsOpts = {
+  ctx: GenericActionCtx<any>;
+  writer: DataStreamWriter;
+  model: Doc<"models">;
+  user: Doc<"users">;
+  message: Doc<"messages">;
+};
 
-export function getTools(
-  opts: {
-    ctx: GenericActionCtx<any>;
-    writer: DataStreamWriter;
-    model: Doc<"models">;
-    user: Doc<"users">;
-    message: Doc<"messages">;
-  },
-  activeTools: Tool[]
-) {
+export function getTools(opts: GetToolsOpts, activeTools: Tool[]) {
   if (!opts.model.capabilities?.includes("tools")) {
     return {};
   }
 
-  const tools: Record<Tool, any> = {
+  const tools: Record<Tool, ToolType> = {
     search: tool({
       description:
         "Search the web for information with one or more queries. Ask the user for more information if needed before using this tool.",
@@ -121,6 +118,7 @@ export function getTools(
         }
       },
     }),
+    research: researchTool(opts),
   };
 
   return activeTools.reduce(

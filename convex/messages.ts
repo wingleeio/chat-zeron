@@ -12,10 +12,10 @@ import { streamingComponent } from "convex/streaming";
 import { v } from "convex/values";
 import { match, P } from "ts-pattern";
 import schema from "convex/schema";
-import { vTool } from "convex/ai/tools";
 import { r2 } from "convex/r2";
 import type { UIMessage } from "ai";
 import { convertToCoreMessages } from "ai";
+import { vTool } from "convex/ai/schema";
 
 export const { create, read, update } = crud(
   schema,
@@ -47,6 +47,10 @@ export const send = action({
 
     if (model?.isPremium && !user.isPremium) {
       throw new Error("Model is premium and user is not premium");
+    }
+
+    if (args.tool === "research" && !user.isPremium) {
+      throw new Error("Research is only available to pro users");
     }
 
     if (model?.isDisabled) {
@@ -163,12 +167,35 @@ export const regenerate = action({
       throw new Error("Unauthorized");
     }
 
+    if (!user.model) {
+      throw new Error("Model not selected");
+    }
+    const model = await ctx.runQuery(internal.models.read, {
+      id: user.model,
+    });
+
     const messageToRegenerate = await ctx.runQuery(internal.messages.read, {
       id: args.messageId,
     });
 
+    if (model?.isPremium && !user.isPremium) {
+      throw new Error("Model is premium and user is not premium");
+    }
+
+    if (args.tool === "research" && !user.isPremium) {
+      throw new Error("Research is only available to pro users");
+    }
+
     if (!messageToRegenerate) {
       throw new Error("Message not found");
+    }
+
+    if (
+      messageToRegenerate.tool === "research" &&
+      !args.tool &&
+      !user.isPremium
+    ) {
+      throw new Error("Research is only available to pro users");
     }
 
     if (messageToRegenerate.userId !== user._id) {

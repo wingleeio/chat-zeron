@@ -12,7 +12,8 @@ import {
 } from "convex/_generated/server";
 import { getPrompt } from "convex/ai/prompt";
 import { getModel } from "convex/ai/provider";
-import { getTools, type Tool } from "convex/ai/tools";
+import type { Tool } from "convex/ai/schema";
+import { getTools } from "convex/ai/tools";
 import { mutation, internalMutation } from "convex/functions";
 import schema from "convex/schema";
 import { paginationOptsValidator, type PaginationResult } from "convex/server";
@@ -84,7 +85,7 @@ export const streamChat = httpAction(async (ctx, request) => {
             messages,
             abortSignal: abortController.signal,
             tools,
-            system: getPrompt({ ctx, user }),
+            system: getPrompt({ ctx, user, activeTools }),
             maxSteps: 3,
             onFinish: async ({ text }) => {
               await ctx.runMutation(internal.messages.update, {

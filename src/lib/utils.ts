@@ -36,7 +36,11 @@ export function parseDataStream(text: string) {
     .filter((line) => line.trim() !== "")
     .map((line) => {
       if (line.split(":")[1] !== "undefined") {
-        return parseDataStreamPart(line);
+        try {
+          return parseDataStreamPart(line);
+        } catch (e) {
+          return null;
+        }
       }
     })
     .filter((part) => part != null);
@@ -330,6 +334,9 @@ export function parseRawTextIntoUIMessages(text: string) {
       })
       .with({ type: "message_annotations" }, (raw) => {
         messageAnnotations.push(...raw.value);
+        if (currentMessage) {
+          currentMessage.annotations = messageAnnotations;
+        }
       })
       .with({ type: "finish_step" }, (raw) => {
         step += 1;
