@@ -43,6 +43,11 @@ export function ChatSearchResults({
   }, [_isExpanded, done]);
 
   useEffect(() => {
+    // Don't start timer if already done and we have a stored duration
+    if (done && researchTime > 0) {
+      return;
+    }
+
     if (!startTimeRef.current) {
       startTimeRef.current = Date.now();
     }
@@ -71,13 +76,13 @@ export function ChatSearchResults({
         timerRef.current = null;
       }
     };
-  }, [done, id]);
+  }, [done, id, researchTime]);
 
   return (
     <div className="flex flex-col gap-2 bg-muted/50 rounded-2xl border">
       <button
         onClick={toggleExpanded}
-        className="text-sm text-primary flex items-center justify-between gap-2 px-4 pt-3 pb-1.5"
+        className="text-sm text-primary flex items-center justify-between gap-2 px-4 pt-3 pb-1.5 text-left"
       >
         <div className="flex items-center gap-2">
           <span>{status}</span>
