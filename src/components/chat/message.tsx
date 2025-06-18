@@ -16,11 +16,7 @@ import {
   useQueryClient,
   useSuspenseQuery,
 } from "@tanstack/react-query";
-import {
-  convexQuery,
-  useConvexAction,
-  useConvexMutation,
-} from "@convex-dev/react-query";
+import { convexQuery, useConvexMutation } from "@convex-dev/react-query";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import { toast } from "sonner";
 
@@ -62,7 +58,7 @@ function CompletedServerMessage({ message }: CompletedServerMessageProps) {
   const tool = useTool();
 
   const regenerate = useMutation({
-    mutationFn: useConvexAction(api.messages.regenerate),
+    mutationFn: useConvexMutation(api.messages.regenerate),
     onMutate: () => {
       setDrivenIds((prev) => [...prev, message._id]);
       queryClient.setQueryData(chatQuery.queryKey, (old: Doc<"chats">) => {
@@ -198,7 +194,7 @@ function UserMessage({ message }: { message: MessageWithUIMessages }) {
   const queryClient = useQueryClient();
 
   const regenerate = useMutation({
-    mutationFn: useConvexAction(api.messages.regenerate),
+    mutationFn: useConvexMutation(api.messages.regenerate),
     onMutate: () => {
       setDrivenIds((prev) => [...prev, message._id]);
       queryClient.setQueryData(chatQuery.queryKey, (old: Doc<"chats">) => {

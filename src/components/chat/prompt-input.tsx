@@ -10,11 +10,7 @@ import {
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { setDrivenIds, setTool, useTool } from "@/stores/chat";
-import {
-  convexQuery,
-  useConvexAction,
-  useConvexMutation,
-} from "@convex-dev/react-query";
+import { convexQuery, useConvexMutation } from "@convex-dev/react-query";
 import {
   useMutation,
   useQueryClient,
@@ -299,7 +295,7 @@ function PromptInputWithActions() {
   const chat = params?.cid ? data : null;
 
   const sendMessage = useMutation({
-    mutationFn: useConvexAction(api.messages.send),
+    mutationFn: useConvexMutation(api.messages.send),
     onSuccess: async (message: Doc<"messages">) => {
       setDrivenIds((prev) => [...prev, message._id]);
       await navigate({

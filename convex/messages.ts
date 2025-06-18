@@ -6,8 +6,8 @@ import {
 import { crud } from "convex-helpers/server/crud";
 import { internal } from "convex/_generated/api";
 import type { Doc } from "convex/_generated/dataModel";
-import { action, internalQuery, query } from "convex/_generated/server";
-import { internalMutation } from "convex/functions";
+import { internalQuery, query } from "convex/_generated/server";
+import { internalMutation, mutation } from "convex/functions";
 import { streamingComponent } from "convex/streaming";
 import { v } from "convex/values";
 import { match, P } from "ts-pattern";
@@ -25,7 +25,7 @@ export const { create, read, update } = crud(
   internalMutation as any
 );
 
-export const send = action({
+export const send = mutation({
   args: {
     prompt: v.string(),
     chatId: v.optional(v.id("chats")),
@@ -68,7 +68,7 @@ export const send = action({
       throw new Error("Not enough credits");
     }
 
-    const chat = await match(args.chatId)
+    const chatId = await match(args.chatId)
       .with(P.nullish, async () => {
         const newChat = await ctx.runMutation(internal.chats.create, {
           userId: user._id,
@@ -81,22 +81,18 @@ export const send = action({
           chatId: newChat._id,
           prompt: args.prompt,
         });
-        return newChat;
+        return newChat._id;
       })
       .with(P.nonNullable, async (chatId) => {
-        const existingChat = await ctx.runQuery(internal.chats.read, {
+        const chat = await ctx.runQuery(internal.chats.read, {
           id: chatId,
         });
 
-        if (!existingChat) {
+        if (!chat) {
           throw new Error("Chat not found");
         }
 
-        if (existingChat.status !== "ready") {
-          throw new Error("Chat is not ready");
-        }
-
-        return existingChat;
+        return chat._id;
       })
       .exhaustive();
 
@@ -105,9 +101,9 @@ export const send = action({
     const message = await ctx.runMutation(internal.messages.create, {
       prompt: args.prompt,
       userId: user._id,
-      chatId: chat._id,
+      chatId: chatId,
       responseStreamId: streamId,
-      modelId: user.model,
+      modelId: model._id,
       tool: args.tool,
     });
 
@@ -134,38 +130,7 @@ export const send = action({
   },
 });
 
-// export const createOnChat = internalMutation({
-//   args: {
-//     chatId: v.id("chats"),
-//     userId: v.id("users"),
-//     modelId: v.id("models"),
-//     tool: v.optional(vTool),
-//     prompt: v.string(),
-//   },
-//   handler: async (ctx, args): Promise<Doc<"messages">> => {
-//     const streamId = await streamingComponent.createStream(ctx);
-
-//     const message = await ctx.runMutation(internal.messages.create, {
-//       prompt: args.prompt,
-//       userId: args.userId,
-//       chatId: args.chatId,
-//       responseStreamId: streamId,
-//       modelId: args.modelId,
-//       tool: args.tool,
-//     });
-
-//     await ctx.runMutation(internal.chats.update, {
-//       id: args.chatId,
-//       patch: {
-//         status: "submitted",
-//       },
-//     });
-
-//     return message;
-//   },
-// });
-
-export const regenerate = action({
+export const regenerate = mutation({
   args: {
     messageId: v.id("messages"),
     prompt: v.optional(v.string()),
