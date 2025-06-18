@@ -334,6 +334,7 @@ function PromptInputWithActions() {
 
   const handleSubmit = () => {
     if (isLoading) return;
+    if (!canUseModel) return;
     if (input.trim() || files.length > 0) {
       sendMessage.mutate({
         chatId: chat?._id,
