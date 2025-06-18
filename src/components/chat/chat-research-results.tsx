@@ -130,7 +130,9 @@ export function ChatResearchResults({
       <div
         className={cn(
           "flex flex-col gap-2 transition-all duration-300",
-          isExpanded ? "max-h-screen opacity-100" : "max-h-0 opacity-0"
+          isExpanded
+            ? "max-h-screen opacity-100"
+            : "max-h-0 opacity-0 pointer-events-none"
         )}
       >
         <ScrollableHorizontalFade className="pt-4 pb-2">

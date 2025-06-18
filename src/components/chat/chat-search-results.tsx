@@ -69,7 +69,6 @@ export function ChatSearchResults({
         setReasoningDuration(id, finalTime);
       }
     }
-    console.log("HELLO");
 
     return () => {
       if (timerRef.current) {
@@ -78,23 +77,24 @@ export function ChatSearchResults({
       }
     };
   }, [done, id, researchTime]);
-  console.log(researchTime);
+
   return (
     <div className="flex flex-col gap-2 bg-muted/50 rounded-2xl border">
       <button
         onClick={toggleExpanded}
         className="text-sm text-primary flex items-center justify-between gap-2 px-4 pt-3 pb-1.5 text-left"
       >
-        <div className="flex items-center gap-2">
-          <span>{status}</span>
+        <div className="flex items-center gap-2 w-full">
+          <span className="text-muted-foreground">{status}</span>
           {researchTime > 0.1 ? (
             <span className="text-muted-foreground">
               {` (${researchTime.toFixed(1)}s)`}
             </span>
           ) : null}
+          <div className="flex-1" />
           <ChevronDown
             className={cn(
-              "h-4 w-4 transition-transform duration-200 text-foreground",
+              "h-4 w-4 transition-transform duration-200 text-muted-foreground",
               isExpanded ? "rotate-180" : ""
             )}
           />
@@ -105,7 +105,7 @@ export function ChatSearchResults({
           "flex flex-col gap-2 transition-all duration-300 px-4 border-t",
           isExpanded
             ? "max-h-screen opacity-100 pt-4 pb-4"
-            : "max-h-0 opacity-0"
+            : "max-h-0 opacity-0 pointer-events-none"
         )}
       >
         {searches.length === 0 ? (
@@ -135,7 +135,7 @@ export function ChatSearchResults({
                 transition={{ duration: 0.3 }}
                 className="flex gap-2"
               >
-                <div className="py-1">
+                <div className="py-1 text-muted-foreground">
                   {match(search.status)
                     .with("searching", () => <PulseLoader className="size-3" />)
                     .with("reading", () => <PulseLoader className="size-3" />)
