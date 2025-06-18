@@ -8,12 +8,8 @@ import { SignInButton } from "@clerk/tanstack-start";
 import { motion } from "framer-motion";
 import { AppHeader } from "@/components/app/header";
 import { CodeIcon } from "lucide-react";
-import {
-  IconBrandGithub,
-  IconBrandLine,
-  IconInnerShadowTop,
-  IconTools,
-} from "@tabler/icons-react";
+import { IconBrandGithub, IconBrandLine, IconTools } from "@tabler/icons-react";
+import { ZeronIcon } from "@/components/icons/zeron";
 
 export const Route = createFileRoute("/")({
   component: App,
@@ -38,8 +34,8 @@ function App() {
       </Authenticated>
       <Unauthenticated>
         <div className="flex flex-col gap-8 items-center justify-center h-full p-4 bg-sidebar lg:bg-[url(/bg.png)] bg-repeat-none bg-left-bottom bg-no-repeat">
-          <div className="flex flex-col gap-6 items-center max-w-lg p-4">
-            <IconInnerShadowTop className="!size-8" />
+          <div className="flex flex-col gap-4 items-center max-w-lg p-4">
+            <ZeronIcon className="!size-18" />
             <div className="flex flex-col gap-2 items-center max-w-lg text-center">
               <h2 className="text-2xl font-serif">Welcome to Zeron</h2>
               <p className="text-muted-foreground text-sm">

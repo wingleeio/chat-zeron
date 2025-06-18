@@ -5,6 +5,8 @@ import { internalMutation, mutation } from "convex/functions";
 import { r2 } from "convex/r2";
 import { crud } from "convex-helpers/server/crud";
 import schema from "convex/schema";
+import { paginationOptsValidator, type PaginationResult } from "convex/server";
+import type { Doc } from "convex/_generated/dataModel";
 
 export const { generateUploadUrl, syncMetadata } = r2.clientApi({
   checkUpload: async (ctx) => {
@@ -97,5 +99,51 @@ export const clearDangling = internalMutation({
       await ctx.db.delete(file._id);
       await r2.deleteObject(ctx, file.key);
     }
+  },
+});
+
+export const getGeneratedByAgentImagesPaginated = query({
+  args: {
+    paginationOpts: paginationOptsValidator,
+  },
+  handler: async (
+    ctx,
+    { paginationOpts }
+  ): Promise<
+    PaginationResult<
+      Doc<"files"> & {
+        message?: Doc<"messages"> | null;
+        url: string;
+      }
+    >
+  > => {
+    const user = await ctx.runQuery(internal.auth.authenticate);
+
+    if (!user) {
+      throw new Error("User not authenticated");
+    }
+
+    const files = await ctx.db
+      .query("files")
+      .withIndex("by_user_role", (q) =>
+        q.eq("userId", user._id).eq("role", "agent")
+      )
+      .paginate(paginationOpts)
+      .then(async (results) => ({
+        ...results,
+        page: await Promise.all(
+          results.page.map(async (file) => ({
+            ...file,
+            message: file.messageId
+              ? await ctx.db.get(file.messageId)
+              : undefined,
+            url: await r2.getUrl(file.key, {
+              expiresIn: 60 * 60 * 1,
+            }),
+          }))
+        ),
+      }));
+
+    return files;
   },
 });

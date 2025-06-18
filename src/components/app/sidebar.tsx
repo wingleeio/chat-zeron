@@ -24,7 +24,6 @@ import {
 import { match } from "ts-pattern";
 import type { Doc } from "convex/_generated/dataModel";
 import { Fragment } from "react/jsx-runtime";
-import { IconInnerShadowTop } from "@tabler/icons-react";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
@@ -46,6 +45,7 @@ import { useNavigate, useParams } from "@tanstack/react-router";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { Badge } from "@/components/ui/badge";
 import { setOpenSearch } from "@/stores/chat";
+import { ZeronIcon } from "@/components/icons/zeron";
 
 export function AppSidebar() {
   const { data: user } = useCurrentUser();
@@ -72,7 +72,7 @@ export function AppSidebar() {
                 className="data-[slot=sidebar-menu-button]:!p-1.5 flex-shrink"
               >
                 <Link to="/">
-                  <IconInnerShadowTop className="!size-4" />
+                  <ZeronIcon className="!size-6" />
                   <span className="sr-only">Zeron</span>
                 </Link>
               </SidebarMenuButton>
