@@ -69,6 +69,7 @@ export function ChatSearchResults({
         setReasoningDuration(id, finalTime);
       }
     }
+    console.log("HELLO");
 
     return () => {
       if (timerRef.current) {
@@ -77,7 +78,7 @@ export function ChatSearchResults({
       }
     };
   }, [done, id, researchTime]);
-
+  console.log(researchTime);
   return (
     <div className="flex flex-col gap-2 bg-muted/50 rounded-2xl border">
       <button
@@ -86,7 +87,7 @@ export function ChatSearchResults({
       >
         <div className="flex items-center gap-2">
           <span>{status}</span>
-          {researchTime > 0 ? (
+          {researchTime > 0.1 ? (
             <span className="text-muted-foreground">
               {` (${researchTime.toFixed(1)}s)`}
             </span>
