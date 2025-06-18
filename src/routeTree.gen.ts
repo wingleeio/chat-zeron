@@ -12,6 +12,7 @@
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as SettingsImport } from './routes/settings'
+import { Route as LibraryImport } from './routes/library'
 import { Route as IndexImport } from './routes/index'
 import { Route as SettingsIndexImport } from './routes/settings.index'
 import { Route as SettingsPreferencesImport } from './routes/settings.preferences'
@@ -23,6 +24,12 @@ import { Route as CCidImport } from './routes/c.$cid'
 const SettingsRoute = SettingsImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const LibraryRoute = LibraryImport.update({
+  id: '/library',
+  path: '/library',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -65,6 +72,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/library': {
+      id: '/library'
+      path: '/library'
+      fullPath: '/library'
+      preLoaderRoute: typeof LibraryImport
       parentRoute: typeof rootRoute
     }
     '/settings': {
@@ -125,6 +139,7 @@ const SettingsRouteWithChildren = SettingsRoute._addFileChildren(
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/library': typeof LibraryRoute
   '/settings': typeof SettingsRouteWithChildren
   '/c/$cid': typeof CCidRoute
   '/settings/appearance': typeof SettingsAppearanceRoute
@@ -134,6 +149,7 @@ export interface FileRoutesByFullPath {
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/library': typeof LibraryRoute
   '/c/$cid': typeof CCidRoute
   '/settings/appearance': typeof SettingsAppearanceRoute
   '/settings/preferences': typeof SettingsPreferencesRoute
@@ -143,6 +159,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
+  '/library': typeof LibraryRoute
   '/settings': typeof SettingsRouteWithChildren
   '/c/$cid': typeof CCidRoute
   '/settings/appearance': typeof SettingsAppearanceRoute
@@ -154,6 +171,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/library'
     | '/settings'
     | '/c/$cid'
     | '/settings/appearance'
@@ -162,6 +180,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/library'
     | '/c/$cid'
     | '/settings/appearance'
     | '/settings/preferences'
@@ -169,6 +188,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/library'
     | '/settings'
     | '/c/$cid'
     | '/settings/appearance'
@@ -179,12 +199,14 @@ export interface FileRouteTypes {
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  LibraryRoute: typeof LibraryRoute
   SettingsRoute: typeof SettingsRouteWithChildren
   CCidRoute: typeof CCidRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  LibraryRoute: LibraryRoute,
   SettingsRoute: SettingsRouteWithChildren,
   CCidRoute: CCidRoute,
 }
@@ -200,12 +222,16 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
+        "/library",
         "/settings",
         "/c/$cid"
       ]
     },
     "/": {
       "filePath": "index.tsx"
+    },
+    "/library": {
+      "filePath": "library.tsx"
     },
     "/settings": {
       "filePath": "settings.tsx",

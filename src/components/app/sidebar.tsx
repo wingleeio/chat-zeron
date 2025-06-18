@@ -46,6 +46,7 @@ import { useCurrentUser } from "@/hooks/use-current-user";
 import { Badge } from "@/components/ui/badge";
 import { setOpenSearch } from "@/stores/chat";
 import { ZeronIcon } from "@/components/icons/zeron";
+import { IconPhoto } from "@tabler/icons-react";
 
 export function AppSidebar() {
   const { data: user } = useCurrentUser();
@@ -119,6 +120,14 @@ export function AppSidebar() {
                   <span className="text-xs text-muted-foreground hidden md:inline bg-muted px-1 py-0.5 rounded-sm">
                     ⌘K
                   </span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <Link to="/library">
+                    <IconPhoto />
+                    <span className="flex-1">Library</span>
+                  </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>

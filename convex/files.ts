@@ -128,6 +128,7 @@ export const getGeneratedByAgentImagesPaginated = query({
       .withIndex("by_user_role", (q) =>
         q.eq("userId", user._id).eq("role", "agent")
       )
+      .order("desc")
       .paginate(paginationOpts)
       .then(async (results) => ({
         ...results,

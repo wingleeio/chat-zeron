@@ -9,6 +9,7 @@ import {
   internalMutation as rawInternalMutation,
 } from "convex/_generated/server";
 import { match } from "ts-pattern";
+import { r2 } from "convex/r2";
 
 const triggers = new Triggers<DataModel>();
 
@@ -33,6 +34,16 @@ triggers.register("messages", async (ctx, change) => {
         await ctx.db.patch(change.newDoc._id, {
           searchContent: `${chat.title} ${change.newDoc.content}`,
         });
+      }
+    })
+    .with({ operation: "delete" }, async (change) => {
+      const files = await ctx.db
+        .query("files")
+        .withIndex("by_message", (q) => q.eq("messageId", change.oldDoc._id))
+        .collect();
+      for (const file of files) {
+        await ctx.db.delete(file._id);
+        await r2.deleteObject(ctx, file.key);
       }
     })
     .otherwise((_) => {
