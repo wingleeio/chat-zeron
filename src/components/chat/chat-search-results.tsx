@@ -99,57 +99,76 @@ export function ChatSearchResults({
             : "max-h-0 opacity-0"
         )}
       >
-        {searches.map((search) => {
-          return (
-            <motion.div
-              key={search.query.replace(" ", "-")}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-              className="flex gap-2"
-            >
-              <div className="py-1">
-                {match(search.status)
-                  .with("searching", () => <PulseLoader className="size-3" />)
-                  .with("reading", () => <PulseLoader className="size-3" />)
-                  .with("completed", () => <SearchIcon className="size-3" />)
-                  .exhaustive()}
+        {searches.length === 0 ? (
+          <div className="flex gap-2">
+            <div className="py-1">
+              <div className="size-3 bg-muted-foreground/20 rounded-full animate-pulse" />
+            </div>
+            <div className="flex-1">
+              <div className="h-4 bg-muted-foreground/20 rounded mb-2 animate-pulse" />
+              <div className="grid grid-cols-3 gap-2">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="h-6 bg-muted-foreground/20 rounded-full animate-pulse"
+                  />
+                ))}
               </div>
-              <div className="flex-1">
-                <div className="text-sm mb-2">{search.query}</div>
-                <div className="grid grid-cols-3 gap-2">
-                  {search.results.map((result) => {
-                    const hostname = new URL(result.url).hostname;
-                    return (
-                      <div
-                        key={result.url}
-                        className="flex items-center gap-2 bg-muted/50 border border-border rounded-full px-3 py-1.5 hover:bg-muted/70 transition-colors"
-                      >
-                        <img
-                          src={`https://www.google.com/s2/favicons?sz=128&domain=${hostname}`}
-                          alt=""
-                          className="h-3 w-3 object-contain"
-                          onError={(e) => {
-                            e.currentTarget.src =
-                              "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cline x1='12' y1='8' x2='12' y2='16'/%3E%3Cline x1='8' y1='12' x2='16' y2='12'%3E%3C/svg%3E";
-                          }}
-                        />
-                        <a
-                          href={result.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-xs text-muted-foreground hover:text-foreground transition-colors line-clamp-1 max-w-[200px]"
-                        >
-                          {result.title}
-                        </a>
-                      </div>
-                    );
-                  })}
+            </div>
+          </div>
+        ) : (
+          searches.map((search) => {
+            return (
+              <motion.div
+                key={search.query.replace(" ", "-")}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+                className="flex gap-2"
+              >
+                <div className="py-1">
+                  {match(search.status)
+                    .with("searching", () => <PulseLoader className="size-3" />)
+                    .with("reading", () => <PulseLoader className="size-3" />)
+                    .with("completed", () => <SearchIcon className="size-3" />)
+                    .exhaustive()}
                 </div>
-              </div>
-            </motion.div>
-          );
-        })}
+                <div className="flex-1">
+                  <div className="text-sm mb-2">{search.query}</div>
+                  <div className="grid grid-cols-3 gap-2">
+                    {search.results.map((result) => {
+                      const hostname = new URL(result.url).hostname;
+                      return (
+                        <div
+                          key={result.url}
+                          className="flex items-center gap-2 bg-muted/50 border border-border rounded-full px-3 py-1.5 hover:bg-muted/70 transition-colors"
+                        >
+                          <img
+                            src={`https://www.google.com/s2/favicons?sz=128&domain=${hostname}`}
+                            alt=""
+                            className="h-3 w-3 object-contain"
+                            onError={(e) => {
+                              e.currentTarget.src =
+                                "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cline x1='12' y1='8' x2='12' y2='16'/%3E%3Cline x1='8' y1='12' x2='16' y2='12'%3E%3C/svg%3E";
+                            }}
+                          />
+                          <a
+                            href={result.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-xs text-muted-foreground hover:text-foreground transition-colors line-clamp-1 max-w-[200px]"
+                          >
+                            {result.title}
+                          </a>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </motion.div>
+            );
+          })
+        )}
       </div>
     </div>
   );
