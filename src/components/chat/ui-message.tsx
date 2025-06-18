@@ -6,6 +6,7 @@ import { Fragment } from "react/jsx-runtime";
 import { match } from "ts-pattern";
 import { ChatImageResult } from "./chat-image-result";
 import { getFromAnnotations } from "@/lib/utils";
+import { ChatResearchResults } from "@/components/chat/chat-research-results";
 
 function TextPart({ text }: { text: string }) {
   return (
@@ -53,6 +54,17 @@ export function UIMessage({ message }: { message: UIMessage }) {
                     annotations={getFromAnnotations(
                       message,
                       "image_generation_completion",
+                      toolInvocation.toolCallId
+                    )}
+                  />
+                ))
+                .with({ toolName: "research" }, (toolInvocation) => (
+                  <ChatResearchResults
+                    key={toolInvocation.toolCallId}
+                    done={message.parts[index + 1] !== undefined}
+                    annotations={getFromAnnotations(
+                      message,
+                      "research_completion",
                       toolInvocation.toolCallId
                     )}
                   />

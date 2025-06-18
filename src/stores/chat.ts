@@ -1,5 +1,5 @@
 import { Store, useStore } from "@tanstack/react-store";
-import type { Tool } from "convex/ai/tools";
+import type { Tool } from "convex/ai/schema";
 
 const store = new Store({
   drivenIds: [] as string[],
