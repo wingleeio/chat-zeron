@@ -1,6 +1,6 @@
 import type { ResearchAnnotation } from "convex/ai/research";
 import { ChevronDown, ExternalLink, Globe, Loader2 } from "lucide-react";
-import { memo, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { ScrollableHorizontalFade } from "@/components/ui/scrollable-horizontal-fade";
