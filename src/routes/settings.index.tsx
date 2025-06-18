@@ -5,7 +5,7 @@ import { api } from "convex/_generated/api";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { convexQuery } from "@convex-dev/react-query";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { CheckoutLink, CustomerPortalLink } from "@convex-dev/polar/react";
+import { CheckoutLink } from "@convex-dev/polar/react";
 import { useAction } from "convex/react";
 
 const productsQuery = convexQuery(api.polar.listAllProducts, {});

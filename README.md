@@ -32,3 +32,11 @@ Yesterday got a lot of bugs fixed and finished image uploads. Waiting to see if 
 Today I built out a lot of the setting UI, ultimately decided against BYOK for now as I do not want to encrypt users keys.
 
 I really enjoy using Convex so far, it's a great experience.
+
+### Jun 18, 2025 Notes
+
+Ended up removing the Clerk authentication check on the backend as that was slowing down the site significantly. Unfortunately this means we can't load data on the server
+side, but now that I think about it more, it's not necessary for an application like this. We can still provide og metadata for public chats, so overall it's
+not much of a loss and performance in routing between chats has improved drastically.
+
+The past few days we have added image generation tool, search tool, research tool, themes, subscriptions, and user preferences.

@@ -84,6 +84,7 @@ const performResearch = async (
   prompt: string
 ) => {
   const maxSteps = plan.reduce((acc, curr) => acc + curr.todos.length, 0) + 2;
+  console.log(maxSteps);
   const state = {
     sources: [] as {
       title: string | null | undefined;

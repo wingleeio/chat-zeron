@@ -37,7 +37,7 @@ function App() {
         </div>
       </Authenticated>
       <Unauthenticated>
-        <div className="flex flex-col gap-8 items-center justify-center h-full p-4 bg-sidebar">
+        <div className="flex flex-col gap-8 items-center justify-center h-full p-4 bg-sidebar lg:bg-[url(/bg.png)] bg-repeat-none bg-left-bottom bg-no-repeat">
           <div className="flex flex-col gap-6 items-center max-w-lg p-4">
             <IconInnerShadowTop className="!size-8" />
             <div className="flex flex-col gap-2 items-center max-w-lg text-center">
