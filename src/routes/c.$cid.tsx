@@ -1,3 +1,4 @@
+import { AppHeader } from "@/components/app/header";
 import {
   ChatContainerContent,
   ChatContainerRoot,
@@ -82,6 +83,7 @@ function RouteComponent() {
 
   return (
     <Fragment key={cid}>
+      <AppHeader />
       <ChatContainerRoot
         className="w-full flex-1 flex-col overflow-x-hidden"
         initial="instant"

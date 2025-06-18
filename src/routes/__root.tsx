@@ -20,7 +20,6 @@ import {
 import { Toaster } from "@/components/ui/sonner";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app/sidebar";
-import { AppHeader } from "@/components/app/header";
 
 import { ConvexProviderWithClerk } from "convex/react-clerk";
 import { ClerkProvider, useAuth } from "@clerk/tanstack-start";
@@ -71,7 +70,6 @@ export const Route = createRootRouteWithContext<RouterContext>()({
         <Unauthenticated>
           <main className="flex-1 relative">
             <div className="flex flex-col absolute inset-0">
-              <AppHeader />
               <Outlet />
             </div>
           </main>
@@ -82,7 +80,6 @@ export const Route = createRootRouteWithContext<RouterContext>()({
             <AppSidebar />
             <main className="flex-1 relative">
               <div className="flex flex-col absolute inset-0">
-                <AppHeader />
                 <Outlet />
               </div>
             </main>
