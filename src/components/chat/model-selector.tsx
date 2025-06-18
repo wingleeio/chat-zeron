@@ -13,7 +13,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { BrainIcon, ChevronsUpDownIcon, WrenchIcon } from "lucide-react";
-import { IconPhoto } from "@tabler/icons-react";
+import { IconDiamondsFilled, IconPhoto } from "@tabler/icons-react";
 import { useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "convex/_generated/api";
@@ -120,6 +120,10 @@ export function ModelSelector() {
                     </span>
                   </Badge>
                 ))}
+              </div>
+              <div className="text-xs text-muted-foreground flex gap-1 items-center pt-4">
+                <IconDiamondsFilled className="!size-3 text-primary" />{" "}
+                {hoveredModel.cost} credit(s) per message
               </div>
             </div>
           )}

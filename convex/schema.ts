@@ -23,6 +23,7 @@ export default defineSchema({
         theme: v.optional(v.string()),
       })
     ),
+    creditsUsed: v.optional(v.number()),
   }).index("by_auth_id", ["authId"]),
   files: defineTable({
     key: v.string(),
@@ -76,6 +77,7 @@ export default defineSchema({
     description: v.optional(v.string()),
     isPremium: v.optional(v.boolean()),
     isDisabled: v.optional(v.boolean()),
+    cost: v.optional(v.number()),
   })
     .index("by_name", ["name"])
     .index("by_model", ["model"]),

@@ -16,6 +16,7 @@ import { r2 } from "convex/r2";
 import type { UIMessage } from "ai";
 import { convertToCoreMessages } from "ai";
 import { vTool } from "convex/ai/schema";
+import { checkUserCredits } from "convex/users";
 
 export const { create, read, update } = crud(
   schema,
@@ -55,6 +56,16 @@ export const send = action({
 
     if (model?.isDisabled) {
       throw new Error("Model is disabled");
+    }
+
+    if (!model) {
+      throw new Error("Model not found");
+    }
+
+    const hasEnoughCredits = checkUserCredits(ctx, user, model.cost ?? 0);
+
+    if (!hasEnoughCredits) {
+      throw new Error("Not enough credits");
     }
 
     const chat = await match(args.chatId)
@@ -184,6 +195,16 @@ export const regenerate = action({
 
     if (args.tool === "research" && !user.isPremium) {
       throw new Error("Research is only available to pro users");
+    }
+
+    if (!model) {
+      throw new Error("Model not found");
+    }
+
+    const hasEnoughCredits = checkUserCredits(ctx, user, model.cost ?? 0);
+
+    if (!hasEnoughCredits) {
+      throw new Error("Not enough credits");
     }
 
     if (!messageToRegenerate) {

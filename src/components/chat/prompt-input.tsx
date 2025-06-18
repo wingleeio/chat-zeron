@@ -48,6 +48,7 @@ import { toast } from "sonner";
 import { useCanUseModel } from "@/hooks/use-can-use-model";
 import { match } from "ts-pattern";
 import { useCurrentUser } from "@/hooks/use-current-user";
+import { useCanAffordModel } from "@/hooks/use-can-afford-model";
 
 type PromptInputContextType = {
   isLoading: boolean;
@@ -278,6 +279,7 @@ function PromptInputWithActions() {
   const supportsVision = useModelSupports("vision");
   const supportsTools = useModelSupports("tools");
   const canUseModel = useCanUseModel();
+  const canAffordModel = useCanAffordModel();
   const { data: user } = useCurrentUser();
   const navigate = useNavigate();
   const uploadFile = useUploadFile(api.files);
@@ -342,6 +344,7 @@ function PromptInputWithActions() {
   const handleSubmit = () => {
     if (isLoading) return;
     if (!canUseModel) return;
+    if (!canAffordModel) return;
     if (input.trim() || files.length > 0) {
       sendMessage.mutate({
         chatId: chat?._id,
@@ -402,6 +405,7 @@ function PromptInputWithActions() {
     onGenerating: () => T;
     onEmptyText: () => T;
     onOtherwise: () => T;
+    onCannotAffordModel: () => T;
   }) {
     return match({
       isSending: sendMessage.isPending,
@@ -411,7 +415,9 @@ function PromptInputWithActions() {
       hasFiles: files.length > 0,
       hasText: input.trim() !== "",
       canUseModel,
+      canAffordModel,
     })
+      .with({ canAffordModel: false }, callbacks.onCannotAffordModel)
       .with({ isSending: true }, callbacks.onSending)
       .with({ isPending: true }, callbacks.onPendingUpload)
       .with({ canUseModel: false }, callbacks.onCannotUseModel)
@@ -559,6 +565,7 @@ function PromptInputWithActions() {
             onGenerating: () => "Stop generation",
             onEmptyText: () => "Please enter a message",
             onOtherwise: () => "Send message",
+            onCannotAffordModel: () => "You have reached your credit limit",
           })}
         >
           <Button
@@ -573,6 +580,7 @@ function PromptInputWithActions() {
               onGenerating: () => false,
               onEmptyText: () => true,
               onOtherwise: () => false,
+              onCannotAffordModel: () => true,
             })}
             onClick={() => {
               if (isLoading) {
@@ -596,6 +604,7 @@ function PromptInputWithActions() {
               onGenerating: () => <Square className="size-4 fill-current" />,
               onEmptyText: () => <ArrowUp className="size-4" />,
               onOtherwise: () => <ArrowUp className="size-4" />,
+              onCannotAffordModel: () => <ArrowUp className="size-4" />,
             })}
           </Button>
         </PromptInputAction>

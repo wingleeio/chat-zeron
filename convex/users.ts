@@ -1,4 +1,8 @@
-import { query, internalQuery } from "convex/_generated/server";
+import {
+  query,
+  internalQuery,
+  type GenericCtx,
+} from "convex/_generated/server";
 import { internalMutation, mutation } from "convex/functions";
 import schema from "convex/schema";
 import { v } from "convex/values";
@@ -6,6 +10,7 @@ import { crud } from "convex-helpers/server/crud";
 import { internal } from "convex/_generated/api";
 import type { Doc } from "convex/_generated/dataModel";
 import { polar } from "convex/polar";
+import { FREE_CREDITS, PRO_CREDITS } from "@/lib/constants";
 
 export const { create, destroy, update, read } = crud(
   schema,
@@ -13,6 +18,29 @@ export const { create, destroy, update, read } = crud(
   internalQuery,
   internalMutation as any
 );
+
+export const readWithMetadata = internalQuery({
+  args: {
+    id: v.id("users"),
+  },
+  handler: async (ctx, args): Promise<UserWithMetadata | null> => {
+    const user = await ctx.runQuery(internal.users.read, { id: args.id });
+
+    if (!user) {
+      return null;
+    }
+
+    const subscription = await polar.getCurrentSubscription(ctx, {
+      userId: user._id,
+    });
+
+    return {
+      ...user,
+      isFree: !subscription,
+      isPremium: !!subscription,
+    };
+  },
+});
 
 export const getByAuthId = internalQuery({
   args: {
@@ -26,13 +54,14 @@ export const getByAuthId = internalQuery({
   },
 });
 
+export type UserWithMetadata = Doc<"users"> & {
+  isFree: boolean;
+  isPremium: boolean;
+};
+
 export const getCurrent = query({
   args: {},
-  handler: async (
-    ctx
-  ): Promise<
-    (Doc<"users"> & { isFree: boolean; isPremium: boolean }) | null
-  > => {
+  handler: async (ctx): Promise<UserWithMetadata | null> => {
     const identity = await ctx.auth.getUserIdentity();
 
     if (!identity) {
@@ -99,3 +128,36 @@ export const updateAppearance = mutation({
     });
   },
 });
+
+export const resetCredits = internalMutation({
+  args: {},
+  handler: async (ctx) => {
+    const users = await ctx.db.query("users").collect();
+    for (const user of users) {
+      await ctx.db.patch(user._id, {
+        creditsUsed: 0,
+      });
+    }
+  },
+});
+
+export const checkUserCredits = (
+  _: GenericCtx,
+  user: UserWithMetadata,
+  cost: number
+) => {
+  const maxCredits = user.isPremium ? PRO_CREDITS : FREE_CREDITS;
+  const creditsUsed = user.creditsUsed ?? 0;
+
+  const availableCredits = maxCredits - creditsUsed;
+
+  if (cost === 0) {
+    return true;
+  }
+
+  if (availableCredits < cost) {
+    return false;
+  }
+
+  return true;
+};

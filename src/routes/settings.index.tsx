@@ -7,8 +7,14 @@ import { convexQuery } from "@convex-dev/react-query";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { CheckoutLink } from "@convex-dev/polar/react";
 import { useAction } from "convex/react";
-import { IconCheck } from "@tabler/icons-react";
+import { IconCheck, IconDiamondsFilled } from "@tabler/icons-react";
 import { Badge } from "@/components/ui/badge";
+import { FREE_CREDITS, PRO_CREDITS } from "@/lib/constants";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const productsQuery = convexQuery(api.polar.listAllProducts, {});
 
@@ -53,6 +59,17 @@ function RouteComponent() {
             <div className="flex flex-col gap-2">
               <div className="flex flex-col gap-1">
                 <p className="text-sm text-muted-foreground flex gap-2 items-center">
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <IconDiamondsFilled className="!size-4 text-primary" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      Used for image generation, research, and chatting
+                    </TooltipContent>
+                  </Tooltip>{" "}
+                  {FREE_CREDITS} credits daily
+                </p>
+                <p className="text-sm text-muted-foreground flex gap-2 items-center">
                   <IconCheck className="!size-4 text-primary" /> Unlimited chats
                 </p>
                 <p className="text-sm text-muted-foreground flex gap-2 items-center">
@@ -79,6 +96,17 @@ function RouteComponent() {
             </div>
             <div className="flex flex-col gap-2">
               <div className="flex flex-col gap-1">
+                <p className="text-sm text-muted-foreground flex gap-2 items-center">
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <IconDiamondsFilled className="!size-4 text-primary" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      Used for image generation, research, and chatting.
+                    </TooltipContent>
+                  </Tooltip>{" "}
+                  {PRO_CREDITS} credits daily
+                </p>
                 <p className="text-sm text-muted-foreground flex gap-2 items-center">
                   <IconCheck className="!size-4 text-primary" /> Premium models
                 </p>

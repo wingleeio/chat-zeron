@@ -18,6 +18,7 @@ export default internalMutation(async (ctx) => {
         description: model.description,
         isPremium: model.isPremium,
         isDisabled: model.isDisabled,
+        cost: model.cost,
       });
     } else {
       await ctx.db.patch(dbModel._id, {
@@ -30,6 +31,7 @@ export default internalMutation(async (ctx) => {
         description: model.description,
         isPremium: model.isPremium,
         isDisabled: model.isDisabled,
+        cost: model.cost,
       });
     }
   }

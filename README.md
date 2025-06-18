@@ -1,5 +1,33 @@
 This is my entry project for the T3 Chat Cloneathon
 
+# Zeron Chat
+
+A unified ai chat app with models from Claude, OpenAI, and Gemini.
+
+# Features
+
+- Resumable Streams
+- Fast navigation between chats
+- Search Tool
+- Research Tool
+- Image Generation
+- Image Upload support
+- Chat Branching
+- Chat Sharing
+- Multiple Themes (Thanks to tweakcn)
+
+# Built With
+
+- TanStack Start
+- Convex
+- Exa
+- Vercel AI SDK
+- Shadcn/UI
+
+# License
+
+This project is licensed under the MIT License
+
 # Notes
 
 Some of the goals I wanted to achieve while building this are:

@@ -13,6 +13,7 @@ export const models = [
     description: "Smaller model by DeepSeek with fewer capabilities.",
     isPremium: false,
     isDisabled: false,
+    cost: 0,
   },
   {
     name: "DeepSeek R1",
@@ -23,6 +24,7 @@ export const models = [
     description: "Flagship model by DeepSeek.",
     isPremium: false,
     isDisabled: false,
+    cost: 0,
   },
   {
     name: "Claude Sonnet 3.7",
@@ -35,6 +37,7 @@ export const models = [
     description: "Sonnet 3.7 model by Anthropic.",
     isPremium: true,
     isDisabled: false,
+    cost: 5,
   },
   {
     name: "Claude Sonnet 4",
@@ -47,6 +50,7 @@ export const models = [
     description: "Latest Sonnet model by Anthropic.",
     isPremium: true,
     isDisabled: false,
+    cost: 5,
   },
   {
     name: "Claude Opus 4",
@@ -59,6 +63,7 @@ export const models = [
     description: "Latest Opus model by Anthropic.",
     isPremium: true,
     isDisabled: true,
+    cost: 20,
   },
   {
     name: "Gemini 2.0 Flash",
@@ -69,6 +74,7 @@ export const models = [
     description: "Fast model tuned for low latency.",
     isPremium: false,
     isDisabled: false,
+    cost: 0,
   },
   {
     name: "Gemini 2.5 Flash",
@@ -80,6 +86,7 @@ export const models = [
       "Preview of next generation Gemini Flash with more capabilities.",
     isPremium: false,
     isDisabled: false,
+    cost: 0,
   },
   {
     name: "Gemini 2.5 Flash Lite",
@@ -93,6 +100,7 @@ export const models = [
       "Lightweight reasoning model, with faster token generation than other Gemini models.",
     isPremium: false,
     isDisabled: false,
+    cost: 0,
   },
   {
     name: "Gemini 2.5 Flash (Thinking)",
@@ -106,6 +114,7 @@ export const models = [
       "Preview of next generation Gemini Flash with more capabilities and reasoning.",
     isPremium: false,
     isDisabled: false,
+    cost: 0,
   },
   {
     name: "Gemini 2.5 Pro",
@@ -119,6 +128,7 @@ export const models = [
       "Preview of latest Pro model by Gemini with more capabilities.",
     isPremium: true,
     isDisabled: false,
+    cost: 5,
   },
   {
     name: "GPT 4o",
@@ -130,6 +140,7 @@ export const models = [
       "Second largest chat model from OpenAI, great for most questions.",
     isPremium: true,
     isDisabled: false,
+    cost: 2,
   },
   {
     name: "GPT 4o-mini",
@@ -140,6 +151,7 @@ export const models = [
     description: "Faster, less accurate version of GPT-4o.",
     isPremium: false,
     isDisabled: false,
+    cost: 0,
   },
   {
     name: "GPT 4.1",
@@ -150,6 +162,7 @@ export const models = [
     description: "Model from OpenAI tuned for coding tasks.",
     isPremium: true,
     isDisabled: false,
+    cost: 2,
   },
   {
     name: "GPT 4.1-mini",
@@ -160,6 +173,7 @@ export const models = [
     description: "Faster, less accurate version of GPT-4.1.",
     isPremium: false,
     isDisabled: false,
+    cost: 0,
   },
   {
     name: "o4-mini",
@@ -172,6 +186,7 @@ export const models = [
     description: "Smaller, faster version of o4.",
     isPremium: true,
     isDisabled: false,
+    cost: 1,
   },
 ] as const;
 
@@ -193,12 +208,15 @@ export function getModel(
 ) {
   return match(provider)
     .with("azure", () => {
-      return azure(model);
+      return azure(model, {
+        parallelToolCalls: false,
+      });
     })
     .with("openrouter", () => {
       return match(model)
         .with("anthropic/claude-4-sonnet-20250522", () => {
           return openrouter(model, {
+            parallelToolCalls: false,
             extraBody: {
               reasoning: {
                 enabled: true,

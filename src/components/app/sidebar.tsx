@@ -46,7 +46,8 @@ import { useCurrentUser } from "@/hooks/use-current-user";
 import { Badge } from "@/components/ui/badge";
 import { setOpenSearch } from "@/stores/chat";
 import { ZeronIcon } from "@/components/icons/zeron";
-import { IconPhoto } from "@tabler/icons-react";
+import { IconDiamondsFilled, IconPhoto } from "@tabler/icons-react";
+import { FREE_CREDITS, PRO_CREDITS } from "@/lib/constants";
 
 export function AppSidebar() {
   const { data: user } = useCurrentUser();
@@ -65,7 +66,7 @@ export function AppSidebar() {
   return (
     <Sidebar>
       <SidebarHeader>
-        <SidebarMenu className="flex-row items-center justify-between pr-3">
+        <SidebarMenu className="flex-row items-center gap-2 pr-3">
           <SidebarMenuItem>
             <Button variant="ghost" size="icon" asChild>
               <SidebarMenuButton
@@ -80,7 +81,7 @@ export function AppSidebar() {
             </Button>
           </SidebarMenuItem>
           {user?.isPremium && (
-            <SidebarMenuItem>
+            <SidebarMenuItem className="flex items-center">
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Badge className="px-3" variant="outline">
@@ -93,6 +94,26 @@ export function AppSidebar() {
               </Tooltip>
             </SidebarMenuItem>
           )}
+          <div className="flex-1" />
+          <SidebarMenuItem className="flex items-center">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Badge className="px-3" variant="outline">
+                  <IconDiamondsFilled className="size-4 text-primary" />
+                  <span className="text-xs">
+                    {Math.max(
+                      0,
+                      (user?.isPremium ? PRO_CREDITS : FREE_CREDITS) -
+                        (user?.creditsUsed ?? 0)
+                    )}
+                  </span>
+                </Badge>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Credits are reset daily.</p>
+              </TooltipContent>
+            </Tooltip>
+          </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent className="overflow-x-hidden">
@@ -104,7 +125,7 @@ export function AppSidebar() {
                   <Link to="/">
                     <PlusIcon />
                     <span className="flex-1">New Chat</span>
-                    <span className="text-xs text-muted-foreground hidden md:inline bg-muted px-1 py-0.5 rounded-sm">
+                    <span className="text-xs text-muted-foreground hidden md:inline bg-muted px-2 py-0.5 rounded-sm">
                       ⇧⌘O
                     </span>
                   </Link>
@@ -117,7 +138,7 @@ export function AppSidebar() {
                 >
                   <SearchIcon />
                   <span className="flex-1">Search</span>
-                  <span className="text-xs text-muted-foreground hidden md:inline bg-muted px-1 py-0.5 rounded-sm">
+                  <span className="text-xs text-muted-foreground hidden md:inline bg-muted px-2 py-0.5 rounded-sm">
                     ⌘K
                   </span>
                 </SidebarMenuButton>

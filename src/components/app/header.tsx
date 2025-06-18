@@ -10,6 +10,7 @@ import {
 import { cn } from "@/lib/utils";
 import { SignInButton, UserButton } from "@clerk/tanstack-start";
 import {
+  IconDiamondsFilled,
   IconInnerShadowTop,
   IconSettings,
   IconShare2,
@@ -21,6 +22,8 @@ import { Authenticated, Unauthenticated, useQuery } from "convex/react";
 import { api } from "convex/_generated/api";
 import { Fragment } from "react/jsx-runtime";
 import { Badge } from "@/components/ui/badge";
+import { useCurrentUser } from "@/hooks/use-current-user";
+import { FREE_CREDITS, PRO_CREDITS } from "@/lib/constants";
 
 export function AppHeader() {
   const params = useParams({ from: "/c/$cid", shouldThrow: false });
@@ -55,6 +58,8 @@ export function AppHeader() {
 
       <div className="flex items-center gap-2 col-span-2 justify-end">
         <Authenticated>
+          <CreditsBadge />
+
           <ShareChatButton />
 
           <Tooltip>
@@ -139,5 +144,29 @@ function ShareChatButton() {
         </Tooltip>
       </Fragment>
     )
+  );
+}
+
+function CreditsBadge() {
+  const { data: user } = useCurrentUser();
+  const sidebar = useSidebar();
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild className={cn(sidebar.open && "hidden")}>
+        <Badge className="px-3" variant="outline">
+          <IconDiamondsFilled className="size-4 text-primary" />
+          <span className="text-xs">
+            {Math.max(
+              0,
+              (user?.isPremium ? PRO_CREDITS : FREE_CREDITS) -
+                (user?.creditsUsed ?? 0)
+            )}
+          </span>
+        </Badge>
+      </TooltipTrigger>
+      <TooltipContent>
+        <p>Credits are reset daily.</p>
+      </TooltipContent>
+    </Tooltip>
   );
 }

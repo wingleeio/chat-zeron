@@ -20,6 +20,10 @@ import { paginationOptsValidator, type PaginationResult } from "convex/server";
 import { streamingComponent } from "convex/streaming";
 import { v } from "convex/values";
 
+export type ChatState = {
+  toolCost: number;
+};
+
 export const streamChat = httpAction(async (ctx, request) => {
   const body: {
     streamId: StreamId;
@@ -42,7 +46,7 @@ export const streamChat = httpAction(async (ctx, request) => {
         throw new Error("Message not found");
       }
 
-      const user = await ctx.runQuery(internal.users.read, {
+      const user = await ctx.runQuery(internal.users.readWithMetadata, {
         id: message.userId,
       });
 
@@ -72,8 +76,12 @@ export const streamChat = httpAction(async (ctx, request) => {
 
       const stream = createDataStream({
         execute: async (writer) => {
+          const state = {
+            toolCost: 0,
+          };
+
           const tools = getTools(
-            { ctx, writer, model, user, message },
+            { ctx, writer, model, user, message, state },
             activeTools
           );
           const result = streamText({
@@ -87,12 +95,16 @@ export const streamChat = httpAction(async (ctx, request) => {
             tools,
             system: getPrompt({ ctx, user, activeTools }),
             maxSteps: 3,
-            onFinish: async ({ text }) => {
-              await ctx.runMutation(internal.messages.update, {
-                id: message._id,
-                patch: {
-                  content: text,
-                },
+            onFinish: async ({ text, usage }) => {
+              await ctx.scheduler.runAfter(0, internal.chats.postChatTask, {
+                userId: user._id,
+                modelId: model._id,
+                messageId: message._id,
+                text,
+                promptTokens: usage.promptTokens,
+                completionTokens: usage.completionTokens,
+                totalTokens: usage.totalTokens,
+                toolCost: state.toolCost,
               });
             },
           });
@@ -460,5 +472,60 @@ export const branch = mutation({
     });
 
     return branchedChat;
+  },
+});
+
+export const postChatTask = internalMutation({
+  args: {
+    userId: v.id("users"),
+    modelId: v.id("models"),
+    messageId: v.id("messages"),
+    text: v.string(),
+    promptTokens: v.number(),
+    completionTokens: v.number(),
+    totalTokens: v.number(),
+    toolCost: v.number(),
+  },
+  handler: async (ctx, args) => {
+    const user = await ctx.runQuery(internal.users.read, {
+      id: args.userId,
+    });
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+    const model = await ctx.runQuery(internal.models.read, {
+      id: args.modelId,
+    });
+
+    if (!model) {
+      throw new Error("Model not found");
+    }
+
+    const message = await ctx.runQuery(internal.messages.read, {
+      id: args.messageId,
+    });
+
+    if (!message) {
+      throw new Error("Message not found");
+    }
+
+    await ctx.runMutation(internal.messages.update, {
+      id: args.messageId,
+      patch: {
+        content: args.text,
+        promptTokens: args.promptTokens,
+        completionTokens: args.completionTokens,
+        totalTokens: args.totalTokens,
+      },
+    });
+
+    await ctx.runMutation(internal.users.update, {
+      id: args.userId,
+      patch: {
+        creditsUsed:
+          (user.creditsUsed ?? 0) + (model.cost ?? 0) + args.toolCost,
+      },
+    });
   },
 });

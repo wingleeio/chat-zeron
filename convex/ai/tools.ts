@@ -5,13 +5,17 @@ import { z } from "zod";
 import { internal } from "convex/_generated/api";
 import { researchTool } from "convex/ai/research";
 import type { Tool } from "convex/ai/schema";
+import { IMAGE_GENERATION_COST, SEARCH_COST } from "@/lib/constants";
+import { checkUserCredits, type UserWithMetadata } from "convex/users";
+import type { ChatState } from "convex/chats";
 
 export type GetToolsOpts = {
   ctx: GenericActionCtx<any>;
   writer: DataStreamWriter;
   model: Doc<"models">;
-  user: Doc<"users">;
+  user: UserWithMetadata;
   message: Doc<"messages">;
+  state: ChatState;
 };
 
 export function getTools(opts: GetToolsOpts, activeTools: Tool[]) {
@@ -29,6 +33,16 @@ export function getTools(opts: GetToolsOpts, activeTools: Tool[]) {
           .describe("Array of search queries to look up on the web"),
       }),
       execute: async ({ queries }, { toolCallId }) => {
+        const hasEnoughCredits = checkUserCredits(
+          opts.ctx,
+          opts.user,
+          SEARCH_COST
+        );
+
+        if (!hasEnoughCredits) {
+          return "User has reached their credit limit";
+        }
+
         const promises = queries.map(async (query, index) => {
           await new Promise((resolve) =>
             setTimeout(resolve, 1000 * (index + 1))
@@ -69,6 +83,8 @@ export function getTools(opts: GetToolsOpts, activeTools: Tool[]) {
 
         const searches = await Promise.all(promises);
 
+        opts.state.toolCost += SEARCH_COST;
+
         return searches;
       },
     }),
@@ -78,6 +94,16 @@ export function getTools(opts: GetToolsOpts, activeTools: Tool[]) {
         prompt: z.string().describe("The prompt to generate the image from."),
       }),
       execute: async ({ prompt }, { toolCallId }) => {
+        const hasEnoughCredits = checkUserCredits(
+          opts.ctx,
+          opts.user,
+          SEARCH_COST
+        );
+
+        if (!hasEnoughCredits) {
+          return "User has reached their credit limit";
+        }
+
         try {
           opts.writer.writeMessageAnnotation({
             type: "image_generation_completion",
@@ -105,6 +131,7 @@ export function getTools(opts: GetToolsOpts, activeTools: Tool[]) {
               toolCallId,
             },
           });
+          opts.state.toolCost += IMAGE_GENERATION_COST;
           return "Image was successfully generated.";
         } catch (error) {
           opts.writer.writeMessageAnnotation({

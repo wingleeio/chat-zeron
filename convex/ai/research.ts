@@ -4,6 +4,8 @@ import { type GetToolsOpts } from "./tools";
 import { getModel } from "convex/ai/provider";
 import { getResearchPlanPrompt, getResearchPrompt } from "./prompt";
 import Exa from "exa-js";
+import { RESEARCH_COST } from "@/lib/constants";
+import { checkUserCredits } from "convex/users";
 
 const exa = new Exa(process.env.EXA_API_KEY);
 
@@ -235,6 +237,16 @@ export const researchTool = (opts: GetToolsOpts) => {
         ),
     }),
     execute: async ({ prompt }, { toolCallId }) => {
+      const hasEnoughCredits = checkUserCredits(
+        opts.ctx,
+        opts.user,
+        RESEARCH_COST
+      );
+
+      if (!hasEnoughCredits) {
+        return "User has reached their credit limit";
+      }
+
       sendResearchAnnotation(opts, {
         type: "status",
         message: "Creating a research plan",
@@ -244,6 +256,8 @@ export const researchTool = (opts: GetToolsOpts) => {
       const plan = await createResearchPlan(prompt);
 
       const research = await performResearch(opts, toolCallId, plan, prompt);
+
+      opts.state.toolCost += RESEARCH_COST;
 
       return { research };
     },
