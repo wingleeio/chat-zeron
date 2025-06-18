@@ -45,7 +45,7 @@ export function ChatResearchResults({
     <div className="py-2">
       <div className="text-sm text-primary px-2 mb-3">
         <div className="flex items-center gap-2">
-          <span>{status}</span>
+          <span className={cn(!done && "shine-text")}>{status}</span>
         </div>
       </div>
       <button

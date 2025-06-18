@@ -479,7 +479,9 @@ function PromptInputWithActions() {
 
         <PromptInputAction
           tooltip={
-            supportsTools ? "Search" : "This model does not support search"
+            supportsTools
+              ? "Search the web"
+              : "This model does not support search"
           }
         >
           <Button
@@ -508,7 +510,7 @@ function PromptInputWithActions() {
           tooltip={
             supportsTools
               ? user?.isPremium
-                ? "Research"
+                ? "Research and create report"
                 : "Research is only available to pro users"
               : "This model does not support research"
           }
