@@ -128,7 +128,7 @@ function CodeBlockCode({
           variant="ghost"
           size="sm"
           onClick={handleCopy}
-          className="rounded-sm h-6 w-6 hover:bg-sidebar/50"
+          className="rounded-lg h-6 w-6 hover:bg-sidebar/50"
         >
           {isCopied ? (
             <Check className="size-3" />
