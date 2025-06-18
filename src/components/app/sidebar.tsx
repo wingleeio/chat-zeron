@@ -129,7 +129,12 @@ export function AppSidebar() {
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <Link to="/library">
+                  <Link
+                    to="/library"
+                    activeProps={{
+                      className: "bg-muted",
+                    }}
+                  >
                     <IconPhoto />
                     <span className="flex-1">Library</span>
                   </Link>
