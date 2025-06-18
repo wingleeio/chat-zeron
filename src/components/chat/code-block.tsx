@@ -120,7 +120,7 @@ function CodeBlockCode({
 
   return (
     <div className="relative">
-      <div className="flex gap-2 items-center absolute right-2 top-2">
+      <div className="flex gap-2 items-center absolute right-2 top-2 bg-sidebar rounded-lg pl-3 pr-2 py-1">
         <div className="text-xs text-muted-foreground font-mono">
           {language}
         </div>
@@ -128,7 +128,7 @@ function CodeBlockCode({
           variant="ghost"
           size="sm"
           onClick={handleCopy}
-          className="rounded-sm"
+          className="rounded-sm h-6 w-6 hover:bg-sidebar/50"
         >
           {isCopied ? (
             <Check className="size-3" />

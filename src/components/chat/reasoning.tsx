@@ -223,7 +223,9 @@ function ReasoningPart({
           </span>
         </span>
       </ReasoningTrigger>
-      <ReasoningContent className="ml-2 border-l-1 pb-1 pl-2">
+      <ReasoningContent
+        className={cn("ml-2 pb-1 pl-2", isOpen && "border-l-1")}
+      >
         <Markdown className="text-sm text-muted-foreground">{text}</Markdown>
       </ReasoningContent>
     </Reasoning>
