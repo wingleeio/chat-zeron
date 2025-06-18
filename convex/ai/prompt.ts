@@ -93,7 +93,6 @@ export function getResearchPrompt(plan: any, totalTodos: number) {
     - Carefully follow the plan, do not skip any steps
     - Do not use the same query twice to avoid duplicates
     - Plan is limited to ${totalTodos} actions with 2 extra actions in case of errors, do not exceed this limit
-    - Only call one tool at a time, do not call multiple tools at once
 
     Research Plan: 
     ${JSON.stringify(plan)}

@@ -59,6 +59,7 @@ export default defineSchema({
     promptTokens: v.optional(v.number()),
     completionTokens: v.optional(v.number()),
     totalTokens: v.optional(v.number()),
+    creditsSpent: v.optional(v.number()),
   })
     .index("by_chat", ["chatId"])
     .index("by_stream", ["responseStreamId"])

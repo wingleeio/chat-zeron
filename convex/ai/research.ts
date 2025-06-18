@@ -69,12 +69,16 @@ const planSchema = z.object({
 
 type Plan = z.infer<typeof planSchema>["plan"];
 
-async function createResearchPlan(prompt: string) {
-  const { object } = await generateObject({
+async function createResearchPlan(opts: GetToolsOpts, prompt: string) {
+  const { object, usage } = await generateObject({
     model: getModel("azure", "gpt-4o"),
     prompt: getResearchPlanPrompt(prompt),
     schema: planSchema,
   });
+
+  opts.state.promptTokens += usage.promptTokens;
+  opts.state.completionTokens += usage.completionTokens;
+  opts.state.totalTokens += usage.totalTokens;
 
   return object.plan;
 }
@@ -97,7 +101,7 @@ const performResearch = async (
     }[],
   };
 
-  const { text } = await generateText({
+  const { text, usage } = await generateText({
     model: getModel("azure", "gpt-4o"),
     system: getResearchPrompt(plan, maxSteps),
     prompt,
@@ -214,6 +218,10 @@ const performResearch = async (
     },
   });
 
+  opts.state.promptTokens += usage.promptTokens;
+  opts.state.completionTokens += usage.completionTokens;
+  opts.state.totalTokens += usage.totalTokens;
+
   sendResearchAnnotation(opts, {
     type: "status",
     message: "Research completed",
@@ -253,7 +261,7 @@ export const researchTool = (opts: GetToolsOpts) => {
         toolCallId,
       });
 
-      const plan = await createResearchPlan(prompt);
+      const plan = await createResearchPlan(opts, prompt);
 
       const research = await performResearch(opts, toolCallId, plan, prompt);
 

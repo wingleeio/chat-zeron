@@ -90,7 +90,7 @@ export function ChatResearchResults({
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.3, delay: i * 0.1 }}
               >
-                <div className="bg-background border-border w-[300px] flex-shrink-0 rounded-xl border transition-all h-full">
+                <div className="bg-muted/50  border-border w-[300px] flex-shrink-0 rounded-xl border transition-all h-full">
                   <div className="p-4">
                     <div className="mb-3 flex items-center gap-2.5">
                       <div className="bg-muted relative flex min-h-10 min-w-10 items-center justify-center overflow-hidden rounded-lg">

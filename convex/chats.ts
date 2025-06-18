@@ -22,6 +22,9 @@ import { v } from "convex/values";
 
 export type ChatState = {
   toolCost: number;
+  completionTokens: number;
+  promptTokens: number;
+  totalTokens: number;
 };
 
 export const streamChat = httpAction(async (ctx, request) => {
@@ -78,6 +81,9 @@ export const streamChat = httpAction(async (ctx, request) => {
         execute: async (writer) => {
           const state = {
             toolCost: 0,
+            completionTokens: 0,
+            promptTokens: 0,
+            totalTokens: 0,
           };
 
           const tools = getTools(
@@ -96,14 +102,18 @@ export const streamChat = httpAction(async (ctx, request) => {
             system: getPrompt({ ctx, user, activeTools }),
             maxSteps: 3,
             onFinish: async ({ text, usage }) => {
+              state.promptTokens += usage.promptTokens;
+              state.completionTokens += usage.completionTokens;
+              state.totalTokens += usage.totalTokens;
+
               await ctx.scheduler.runAfter(0, internal.chats.postChatTask, {
                 userId: user._id,
                 modelId: model._id,
                 messageId: message._id,
                 text,
-                promptTokens: usage.promptTokens,
-                completionTokens: usage.completionTokens,
-                totalTokens: usage.totalTokens,
+                promptTokens: state.promptTokens,
+                completionTokens: state.completionTokens,
+                totalTokens: state.totalTokens,
                 toolCost: state.toolCost,
               });
             },
@@ -510,6 +520,8 @@ export const postChatTask = internalMutation({
       throw new Error("Message not found");
     }
 
+    const creditsSpent = (model.cost ?? 0) + args.toolCost;
+
     await ctx.runMutation(internal.messages.update, {
       id: args.messageId,
       patch: {
@@ -517,14 +529,14 @@ export const postChatTask = internalMutation({
         promptTokens: args.promptTokens,
         completionTokens: args.completionTokens,
         totalTokens: args.totalTokens,
+        creditsSpent,
       },
     });
 
     await ctx.runMutation(internal.users.update, {
       id: args.userId,
       patch: {
-        creditsUsed:
-          (user.creditsUsed ?? 0) + (model.cost ?? 0) + args.toolCost,
+        creditsUsed: (user.creditsUsed ?? 0) + creditsSpent,
       },
     });
   },
