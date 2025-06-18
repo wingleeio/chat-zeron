@@ -46,8 +46,8 @@ import { useCurrentUser } from "@/hooks/use-current-user";
 import { Badge } from "@/components/ui/badge";
 import { setOpenSearch } from "@/stores/chat";
 import { ZeronIcon } from "@/components/icons/zeron";
-import { IconDiamondsFilled, IconPhoto } from "@tabler/icons-react";
-import { FREE_CREDITS, PRO_CREDITS } from "@/lib/constants";
+import { IconPhoto } from "@tabler/icons-react";
+import { CreditsBadge } from "@/components/app/credits-badge";
 
 export function AppSidebar() {
   const { data: user } = useCurrentUser();
@@ -96,23 +96,7 @@ export function AppSidebar() {
           )}
           <div className="flex-1" />
           <SidebarMenuItem className="flex items-center">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Badge className="px-3" variant="outline">
-                  <IconDiamondsFilled className="size-4 text-primary" />
-                  <span className="text-xs">
-                    {Math.max(
-                      0,
-                      (user?.isPremium ? PRO_CREDITS : FREE_CREDITS) -
-                        (user?.creditsUsed ?? 0)
-                    )}
-                  </span>
-                </Badge>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Credits are reset daily.</p>
-              </TooltipContent>
-            </Tooltip>
+            <CreditsBadge isSidebar />
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>

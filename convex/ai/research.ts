@@ -71,7 +71,7 @@ type Plan = z.infer<typeof planSchema>["plan"];
 
 async function createResearchPlan(prompt: string) {
   const { object } = await generateObject({
-    model: getModel("azure", "gpt-4.1"),
+    model: getModel("azure", "gpt-4o"),
     prompt: getResearchPlanPrompt(prompt),
     schema: planSchema,
   });
@@ -98,7 +98,7 @@ const performResearch = async (
   };
 
   const { text } = await generateText({
-    model: getModel("azure", "gpt-4.1"),
+    model: getModel("azure", "gpt-4o"),
     system: getResearchPrompt(plan, maxSteps),
     prompt,
     maxSteps,

@@ -183,7 +183,7 @@ function RouteComponent() {
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="bg-background/80 hover:bg-background"
+                      className="bg-background/80 hover:bg-background dark:hover:bg-background/70"
                       onClick={handleChatNavigation}
                     >
                       <MessageSquare className="size-4" />
@@ -199,7 +199,7 @@ function RouteComponent() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="bg-background/80 hover:bg-background"
+                    className="bg-background/80 hover:bg-background dark:hover:bg-background/70"
                     onClick={() => setSelectedImage(null)}
                   >
                     <X className="size-4" />
