@@ -16,7 +16,7 @@ import { useDebounce } from "@uidotdev/usehooks";
 import { useOpenSearch } from "@/stores/chat";
 import { setOpenSearch } from "@/stores/chat";
 import { usePaginatedChats } from "@/hooks/use-paginated-chats";
-import { PlusIcon } from "lucide-react";
+import { PlusIcon, MessageSquareIcon, SearchIcon } from "lucide-react";
 
 type SearchResult = {
   id: Id<"messages">;
@@ -53,9 +53,9 @@ function getSnippet(
 
 function SearchResultSkeleton() {
   return (
-    <div className="flex flex-col gap-1 p-2">
-      <Skeleton className="h-4 w-3/4" />
-      <Skeleton className="h-3 w-full" />
+    <div className="flex flex-col gap-2 p-2 w-full">
+      <Skeleton className="h-4 w-3/4 bg-muted-foreground/20" />
+      <Skeleton className="h-3 w-full bg-muted-foreground/20" />
     </div>
   );
 }
@@ -103,7 +103,7 @@ export function SearchCommand() {
       open={open}
       onOpenChange={setOpenSearch}
       showCloseButton={false}
-      className="border py-1 bg-sidebar"
+      className="border py-1 bg-sidebar h-full max-h-[350px]"
     >
       <CommandInput
         placeholder="Type your search query..."
@@ -123,22 +123,38 @@ export function SearchCommand() {
               </CommandItem>
             </CommandGroup>
             <CommandGroup heading="Recent Chats">
-              {chats.results.slice(0, 10).map((chat) => (
-                <CommandItem
-                  key={chat._id}
-                  onSelect={() => handleChatSelect(chat._id)}
-                  className="cursor-pointer"
-                >
-                  <div className="text-sm">{chat.title}</div>
-                </CommandItem>
-              ))}
+              {chats.results.length === 0 ? (
+                <div className="flex items-start gap-3 py-4 px-2">
+                  <div className="bg-muted rounded-full p-2 mt-0.5">
+                    <MessageSquareIcon className="size-4 text-muted-foreground" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm text-muted-foreground mb-1">
+                      No recent chats
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Start a new conversation to see your chat history here.
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                chats.results.slice(0, 10).map((chat) => (
+                  <CommandItem
+                    key={chat._id}
+                    onSelect={() => handleChatSelect(chat._id)}
+                    className="cursor-pointer"
+                  >
+                    <div className="text-sm">{chat.title}</div>
+                  </CommandItem>
+                ))
+              )}
             </CommandGroup>
           </>
         )}
         {debouncedSearchQuery && isLoading && (
           <CommandGroup heading="Search Results">
             {Array.from({ length: 5 }).map((_, index) => (
-              <CommandItem key={index} className="cursor-default">
+              <CommandItem key={index}>
                 <SearchResultSkeleton />
               </CommandItem>
             ))}
@@ -146,7 +162,23 @@ export function SearchCommand() {
         )}
         {debouncedSearchQuery &&
           (searchResults?.length ?? 0) <= 0 &&
-          !isLoading && <CommandEmpty>No results found.</CommandEmpty>}
+          !isLoading && (
+            <CommandGroup heading="Search Results">
+              <div className="flex items-start gap-3 py-4 px-2">
+                <div className="bg-muted rounded-full p-2 mt-0.5">
+                  <SearchIcon className="size-4 text-muted-foreground" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm text-muted-foreground mb-1">
+                    No results found
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Try adjusting your search terms or browse recent chats.
+                  </p>
+                </div>
+              </div>
+            </CommandGroup>
+          )}
         {debouncedSearchQuery &&
           (searchResults?.length ?? 0) > 0 &&
           searchResults && (

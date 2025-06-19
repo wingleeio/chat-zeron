@@ -78,10 +78,10 @@ export function ChatSearchResults({
   }, [done, id, researchTime]);
 
   return (
-    <div className="flex flex-col gap-2 bg-muted/50 rounded-2xl border">
+    <div className="flex flex-col bg-muted/50 rounded-2xl border">
       <button
         onClick={toggleExpanded}
-        className="text-sm text-primary flex items-center justify-between gap-2 px-4 pt-3 pb-1.5 text-left"
+        className="text-sm text-primary flex items-center justify-between gap-2 px-4 pt-3 pb-3 text-left cursor-pointer hover:bg-muted/20 transition-colors"
       >
         <div className="flex items-center gap-2 w-full">
           <span className="text-muted-foreground">{status}</span>
@@ -101,10 +101,10 @@ export function ChatSearchResults({
       </button>
       <div
         className={cn(
-          "flex flex-col gap-2 transition-all duration-300 px-4 border-t",
+          "flex flex-col gap-2 transition-all duration-300 px-4 border-t overflow-hidden",
           isExpanded
-            ? "opacity-100 pt-4 pb-4"
-            : "max-h-0 opacity-0 pointer-events-none"
+            ? "opacity-100 pt-4 pb-4 min-h-[120px]"
+            : "opacity-0 pointer-events-none h-0"
         )}
       >
         {searches.length === 0 ? (

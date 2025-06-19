@@ -15,7 +15,10 @@ export type MessageProps = {
 
 const Message = ({ children, className, ...props }: MessageProps) => (
   <div
-    className={cn("flex gap-3 max-w-full overflow-x-auto", className)}
+    className={cn(
+      "flex gap-3 max-w-full overflow-x-auto overflow-y-hidden",
+      className
+    )}
     {...props}
   >
     {children}

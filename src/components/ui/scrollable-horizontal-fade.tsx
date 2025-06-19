@@ -24,22 +24,51 @@ export const ScrollableHorizontalFade: React.FC<ScrollableFadeProps> = ({
     }
   };
 
-  // Add event listeners for scroll and resize
+  // Add event listeners for scroll, resize, and DOM changes
   useEffect(() => {
     const container = scrollContainerRef.current;
-    if (container) {
-      checkOverflow(); // Initial check
-      container.addEventListener("scroll", checkOverflow);
-      window.addEventListener("resize", checkOverflow);
-    }
+    if (!container) return;
 
+    // Initial check
+    checkOverflow();
+
+    // Scroll and resize listeners
+    container.addEventListener("scroll", checkOverflow);
+    window.addEventListener("resize", checkOverflow);
+
+    // ResizeObserver to detect content size changes
+    const resizeObserver = new ResizeObserver(() => {
+      // Use requestAnimationFrame to ensure DOM has updated
+      requestAnimationFrame(checkOverflow);
+    });
+    resizeObserver.observe(container);
+
+    // MutationObserver to detect when children are added/removed
+    const mutationObserver = new MutationObserver(() => {
+      // Use requestAnimationFrame to ensure DOM has updated
+      requestAnimationFrame(checkOverflow);
+    });
+    mutationObserver.observe(container, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ["class", "style"], // Monitor style changes that might affect layout
+    });
+
+    // Cleanup function
     return () => {
-      if (container) {
-        container.removeEventListener("scroll", checkOverflow);
-      }
+      container.removeEventListener("scroll", checkOverflow);
       window.removeEventListener("resize", checkOverflow);
+      resizeObserver.disconnect();
+      mutationObserver.disconnect();
     };
   }, []);
+
+  // Re-check overflow when children change
+  useEffect(() => {
+    // Use requestAnimationFrame to ensure DOM has updated after children change
+    requestAnimationFrame(checkOverflow);
+  }, [children]);
 
   return (
     <div className={`relative ${className}`}>
