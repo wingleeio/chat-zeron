@@ -17,12 +17,12 @@ import {
 import { Link, useParams } from "@tanstack/react-router";
 import type { Id } from "convex/_generated/dataModel";
 import { PlusIcon } from "lucide-react";
-import { Authenticated, Unauthenticated, useQuery } from "convex/react";
-import { api } from "convex/_generated/api";
+import { Authenticated, Unauthenticated } from "convex/react";
 import { Fragment } from "react/jsx-runtime";
 import { Badge } from "@/components/ui/badge";
 import { CreditsBadge } from "@/components/app/credits-badge";
 import { useChatByParamId } from "@/hooks/use-chat-by-param-id";
+import { useCurrentUser } from "@/hooks/use-current-user";
 
 export function AppHeader() {
   const chat = useChatByParamId();
@@ -99,7 +99,7 @@ function NewChatButton() {
 function ShareChatButton() {
   const params = useParams({ from: "/c/$cid", shouldThrow: false });
   const chat = useChatByParamId();
-  const me = useQuery(api.auth.current);
+  const { data: me } = useCurrentUser();
 
   return (
     params?.cid &&

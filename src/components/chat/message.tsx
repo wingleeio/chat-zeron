@@ -28,7 +28,7 @@ import type { ModelType } from "@/components/chat/model-icon";
 import ModelIcon from "@/components/chat/model-icon";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
-import { Authenticated, useQuery } from "convex/react";
+import { Authenticated } from "convex/react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { X } from "lucide-react";
 import { env } from "@/env.client";
@@ -37,6 +37,7 @@ import { useParseMessage } from "@/hooks/use-parse-message";
 import type { MessageWithUIMessages } from "convex/messages";
 import { motion } from "framer-motion";
 import { useChatByParamId } from "@/hooks/use-chat-by-param-id";
+import { useCurrentUser } from "@/hooks/use-current-user";
 
 type CompletedServerMessageProps = {
   message: MessageWithUIMessages;
@@ -52,7 +53,7 @@ function CompletedServerMessage({ message }: CompletedServerMessageProps) {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
-  const me = useQuery(api.auth.current);
+  const { data: me } = useCurrentUser();
   const tool = useTool();
 
   const regenerate = useMutation({
@@ -183,7 +184,7 @@ function UserMessage({ message }: { message: MessageWithUIMessages }) {
     id: params.cid as Id<"chats">,
   });
   const chat = useChatByParamId();
-  const me = useQuery(api.auth.current);
+  const { data: me } = useCurrentUser();
 
   const isLoading = useMemo(() => {
     return chat?.status === "streaming" || chat?.status === "submitted";

@@ -15,7 +15,7 @@ import {
 import { BrainIcon, ChevronsUpDownIcon, WrenchIcon } from "lucide-react";
 import { IconDiamondsFilled, IconPhoto } from "@tabler/icons-react";
 import { useState } from "react";
-import { useMutation, useQuery } from "convex/react";
+import { useMutation } from "convex/react";
 import { api } from "convex/_generated/api";
 import ModelIcon, { type ModelType } from "@/components/chat/model-icon";
 import type { Doc } from "convex/_generated/dataModel";
@@ -27,11 +27,12 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useModels } from "@/hooks/use-models";
 
 export function ModelSelector() {
   const [open, setOpen] = useState(false);
   const [hoveredModel, setHoveredModel] = useState<Doc<"models"> | null>(null);
-  const models = useQuery(api.models.list);
+  const { data: models } = useModels();
   const { data: user } = useCurrentUser();
   const selectModel = useMutation(api.models.select).withOptimisticUpdate(
     (store, args) => {

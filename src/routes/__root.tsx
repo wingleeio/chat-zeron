@@ -11,11 +11,7 @@ import {
   Unauthenticated,
 } from "convex/react";
 import { ConvexQueryClient, convexQuery } from "@convex-dev/react-query";
-import {
-  QueryClient,
-  QueryClientProvider,
-  useQuery,
-} from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import { Toaster } from "@/components/ui/sonner";
 import { SidebarProvider } from "@/components/ui/sidebar";
@@ -26,6 +22,7 @@ import { ClerkProvider, useAuth } from "@clerk/tanstack-start";
 import { api } from "convex/_generated/api";
 import { cn } from "@/lib/utils";
 import { SearchCommand } from "@/components/chat/search-command";
+import { useCurrentUser } from "@/hooks/use-current-user";
 
 export type RouterContext = {
   queryClient: QueryClient;
@@ -115,7 +112,7 @@ function AppProvider({ children }: { children: React.ReactNode }) {
 }
 
 function RootDocument({ children }: { children: React.ReactNode }) {
-  const { data: user } = useQuery(convexQuery(api.users.getCurrent, {}));
+  const { data: user } = useCurrentUser();
   const mode = user?.appearance?.mode ?? "dark";
   const theme = user?.appearance?.theme ?? "default";
   return (

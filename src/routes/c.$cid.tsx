@@ -13,10 +13,9 @@ import { PromptInputWithActions } from "@/components/chat/prompt-input";
 import { ScrollButton } from "@/components/chat/scroll-button";
 import { convexQuery } from "@convex-dev/react-query";
 
-import { createFileRoute, Navigate } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { api } from "convex/_generated/api";
 import type { Id } from "convex/_generated/dataModel";
-import { useQuery } from "convex/react";
 import { ChevronDownIcon } from "lucide-react";
 import { Fragment } from "react/jsx-runtime";
 import { match, P } from "ts-pattern";
@@ -24,6 +23,7 @@ import {
   useChatByParamId,
   useMessageByParamId,
 } from "@/hooks/use-chat-by-param-id";
+import { useCurrentUser } from "@/hooks/use-current-user";
 
 export const Route = createFileRoute("/c/$cid")({
   component: RouteComponent,
@@ -71,14 +71,11 @@ export const Route = createFileRoute("/c/$cid")({
 });
 
 function RouteComponent() {
+  const loaderData = Route.useLoaderData();
   const { cid } = Route.useParams();
-  const chat = useChatByParamId();
-  const me = useQuery(api.auth.current);
+  const chat = useChatByParamId() || loaderData?.chat;
   const messages = useMessageByParamId();
-
-  if (!chat) {
-    return <Navigate to="/" />;
-  }
+  const { data: me } = useCurrentUser();
 
   return (
     <Fragment key={cid}>

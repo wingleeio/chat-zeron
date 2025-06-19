@@ -50,6 +50,7 @@ import { IconPhoto } from "@tabler/icons-react";
 import { CreditsBadge } from "@/components/app/credits-badge";
 import { useMutation as useMutationReactQuery } from "@tanstack/react-query";
 import { useConvexMutation } from "@convex-dev/react-query";
+import { ChatPreloader } from "@/components/chat/chat-preloader";
 
 export function AppSidebar() {
   const { data: user } = useCurrentUser();
@@ -304,6 +305,9 @@ function SidebarChats() {
 
   return (
     <Fragment>
+      {chats.results.slice(0, 10).map((chat) => (
+        <ChatPreloader key={chat._id} id={chat._id} />
+      ))}
       {renderChatGroup(todayChats, "Today")}
       {renderChatGroup(yesterdayChats, "Yesterday")}
       {renderChatGroup(lastThirtyDaysChats, "Last 30 Days")}
