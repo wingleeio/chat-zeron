@@ -226,7 +226,7 @@ function ReasoningPart({
         <span className="text-sm">
           Reasoning
           <span className="text-muted-foreground">
-            {thinkingTime > 0 ? ` (${thinkingTime.toFixed(1)}s)` : ""}
+            {thinkingTime > 0.1 ? ` (${thinkingTime.toFixed(1)}s)` : ""}
           </span>
         </span>
       </ReasoningTrigger>
