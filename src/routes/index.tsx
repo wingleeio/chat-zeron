@@ -10,6 +10,7 @@ import { AppHeader } from "@/components/app/header";
 import { CodeIcon } from "lucide-react";
 import { IconBrandGithub, IconBrandLine, IconTools } from "@tabler/icons-react";
 import { ZeronIcon } from "@/components/icons/zeron";
+import { PaginatedChatsPreloader } from "@/hooks/use-paginated-chats";
 
 export const Route = createFileRoute("/")({
   component: App,
@@ -19,6 +20,7 @@ function App() {
   return (
     <Fragment>
       <Authenticated>
+        <PaginatedChatsPreloader />
         <AppHeader />
         <div className="flex flex-col gap-6 items-center justify-center h-full pb-64 px-4">
           <h2 className="text-2xl">What's on your mind</h2>

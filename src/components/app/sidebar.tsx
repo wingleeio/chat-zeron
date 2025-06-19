@@ -12,7 +12,7 @@ import {
 
 import { Link } from "@tanstack/react-router";
 import { api } from "convex/_generated/api";
-import { useMutation, usePaginatedQuery } from "convex/react";
+import { useMutation } from "convex/react";
 import {
   EditIcon,
   GitBranchIcon,
@@ -51,6 +51,7 @@ import { CreditsBadge } from "@/components/app/credits-badge";
 import { useMutation as useMutationReactQuery } from "@tanstack/react-query";
 import { useConvexMutation } from "@convex-dev/react-query";
 import { ChatPreloader } from "@/components/chat/chat-preloader";
+import { usePaginatedChats } from "@/hooks/use-paginated-chats";
 
 export function AppSidebar() {
   const { data: user } = useCurrentUser();
@@ -157,11 +158,7 @@ function SidebarChats() {
   const [deleteChat, setDeleteChat] = React.useState<Doc<"chats"> | null>(null);
   const loadMoreRef = React.useRef<HTMLDivElement>(null);
 
-  const chats = usePaginatedQuery(
-    api.chats.getPaginated,
-    {},
-    { initialNumItems: 20 }
-  );
+  const chats = usePaginatedChats();
 
   React.useEffect(() => {
     const observer = new IntersectionObserver(
