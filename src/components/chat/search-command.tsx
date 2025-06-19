@@ -6,7 +6,8 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
-import { Link } from "@tanstack/react-router";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useNavigate } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { useQuery } from "convex/react";
 import { api } from "convex/_generated/api";
@@ -14,6 +15,8 @@ import type { Id } from "convex/_generated/dataModel";
 import { useDebounce } from "@uidotdev/usehooks";
 import { useOpenSearch } from "@/stores/chat";
 import { setOpenSearch } from "@/stores/chat";
+import { usePaginatedChats } from "@/hooks/use-paginated-chats";
+import { PlusIcon } from "lucide-react";
 
 type SearchResult = {
   id: Id<"messages">;
@@ -48,8 +51,19 @@ function getSnippet(
   return snippet;
 }
 
+function SearchResultSkeleton() {
+  return (
+    <div className="flex flex-col gap-1 p-2">
+      <Skeleton className="h-4 w-3/4" />
+      <Skeleton className="h-3 w-full" />
+    </div>
+  );
+}
+
 export function SearchCommand() {
+  const chats = usePaginatedChats();
   const open = useOpenSearch();
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
   const searchResults = useQuery(api.messages.search, {
@@ -69,6 +83,21 @@ export function SearchCommand() {
     return () => document.removeEventListener("keydown", down);
   }, []);
 
+  const handleNewChat = () => {
+    setOpenSearch(false);
+    navigate({ to: "/" });
+  };
+
+  const handleChatSelect = (chatId: Id<"chats">) => {
+    setOpenSearch(false);
+    navigate({ to: "/c/$cid", params: { cid: chatId } });
+  };
+
+  const handleSearchResultSelect = (chatId: Id<"chats">) => {
+    setOpenSearch(false);
+    navigate({ to: "/c/$cid", params: { cid: chatId } });
+  };
+
   return (
     <CommandDialog
       open={open}
@@ -82,6 +111,39 @@ export function SearchCommand() {
         onValueChange={setSearchQuery}
       />
       <CommandList>
+        {!debouncedSearchQuery && (
+          <>
+            <CommandGroup heading="Actions">
+              <CommandItem onSelect={handleNewChat} className="cursor-pointer">
+                <PlusIcon className="h-4 w-4 mr-2" />
+                <span className="flex-1">New Chat</span>
+                <span className="text-xs text-muted-foreground bg-muted/50 border border-border/70 px-2 py-0.5 rounded-sm">
+                  ⇧⌘O
+                </span>
+              </CommandItem>
+            </CommandGroup>
+            <CommandGroup heading="Recent Chats">
+              {chats.results.slice(0, 10).map((chat) => (
+                <CommandItem
+                  key={chat._id}
+                  onSelect={() => handleChatSelect(chat._id)}
+                  className="cursor-pointer"
+                >
+                  <div className="text-sm">{chat.title}</div>
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </>
+        )}
+        {debouncedSearchQuery && isLoading && (
+          <CommandGroup heading="Search Results">
+            {Array.from({ length: 5 }).map((_, index) => (
+              <CommandItem key={index} className="cursor-default">
+                <SearchResultSkeleton />
+              </CommandItem>
+            ))}
+          </CommandGroup>
+        )}
         {debouncedSearchQuery &&
           (searchResults?.length ?? 0) <= 0 &&
           !isLoading && <CommandEmpty>No results found.</CommandEmpty>}
@@ -92,38 +154,27 @@ export function SearchCommand() {
               {searchResults?.map((result: SearchResult) => (
                 <CommandItem
                   key={result.id}
-                  asChild
+                  onSelect={() => handleSearchResultSelect(result.chatId)}
                   className="cursor-pointer flex-col items-start gap-1"
                 >
-                  <Link
-                    to="/c/$cid"
-                    params={{ cid: result.chatId }}
-                    onClick={() => {
-                      setOpenSearch(false);
+                  <div
+                    className="text-sm"
+                    dangerouslySetInnerHTML={{
+                      __html: highlightMatch(
+                        result.title,
+                        debouncedSearchQuery
+                      ),
                     }}
-                  >
-                    <div
-                      className="text-sm"
-                      dangerouslySetInnerHTML={{
-                        __html: highlightMatch(
-                          result.title,
-                          debouncedSearchQuery
-                        ),
-                      }}
-                    />
-                    <div
-                      className="text-xs text-muted-foreground"
-                      dangerouslySetInnerHTML={{
-                        __html: highlightMatch(
-                          getSnippet(
-                            result.content ?? "",
-                            debouncedSearchQuery
-                          ),
-                          debouncedSearchQuery
-                        ),
-                      }}
-                    />
-                  </Link>
+                  />
+                  <div
+                    className="text-xs text-muted-foreground"
+                    dangerouslySetInnerHTML={{
+                      __html: highlightMatch(
+                        getSnippet(result.content ?? "", debouncedSearchQuery),
+                        debouncedSearchQuery
+                      ),
+                    }}
+                  />
                 </CommandItem>
               ))}
             </CommandGroup>
