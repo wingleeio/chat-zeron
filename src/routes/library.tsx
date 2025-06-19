@@ -155,7 +155,7 @@ function RouteComponent() {
             </div>
 
             {images.status === "CanLoadMore" && (
-              <div ref={loadMoreRef} className="h-4 w-full" />
+              <div ref={loadMoreRef} className="min-h-12 w-full" />
             )}
 
             {images.status === "LoadingMore" && (
