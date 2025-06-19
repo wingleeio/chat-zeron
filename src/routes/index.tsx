@@ -12,19 +12,28 @@ import { IconBrandGithub, IconBrandLine, IconTools } from "@tabler/icons-react";
 import { ZeronIcon } from "@/components/icons/zeron";
 import { PaginatedChatsPreloader } from "@/hooks/use-paginated-chats";
 import { Suggestions } from "@/components/chat/suggestions";
+import { useInput } from "@/stores/chat";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/")({
   component: App,
 });
 
 function App() {
+  const [input] = useInput();
   return (
     <Fragment>
       <Authenticated>
         <PaginatedChatsPreloader />
         <AppHeader />
-        <div className="flex flex-col gap-6 items-center justify-center h-full pb-64 px-4">
-          <h2 className="text-2xl">What&rsquo;s on your mind?</h2>
+        <div
+          className={cn(
+            "transition-all duration-300",
+            input && "max-sm:pt-24 pt-48",
+            "flex flex-col gap-6 h-full px-4 max-xs:pt-8 max-sm:pt-16 pt-32"
+          )}
+        >
+          <h2 className="text-2xl text-center">What&rsquo;s on your mind?</h2>
           <motion.div
             className="w-full flex flex-col items-center"
             initial={{ opacity: 0, y: 10 }}

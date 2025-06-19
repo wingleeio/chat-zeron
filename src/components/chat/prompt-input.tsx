@@ -9,13 +9,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
-import {
-  setDrivenIds,
-  setTool,
-  useTool,
-  useChatStore,
-  setSuggestion,
-} from "@/stores/chat";
+import { setDrivenIds, setTool, useTool, useInput } from "@/stores/chat";
 import { convexQuery, useConvexMutation } from "@convex-dev/react-query";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams, useNavigate } from "@tanstack/react-router";
@@ -273,15 +267,7 @@ function FilePreview({ files, fileUrls, onRemoveFile }: FilePreviewProps) {
 }
 
 function PromptInputWithActions() {
-  const [input, setInput] = useState("");
-  const { suggestion } = useChatStore();
-
-  useEffect(() => {
-    if (suggestion) {
-      setInput(suggestion);
-      setSuggestion(null);
-    }
-  }, [suggestion]);
+  const [input, setInput] = useInput();
 
   const [files, setFiles] = useState<R2File[]>([]);
   const tool = useTool();
