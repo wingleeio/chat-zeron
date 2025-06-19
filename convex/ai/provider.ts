@@ -188,6 +188,32 @@ export const models = [
     isDisabled: false,
     cost: 1,
   },
+  {
+    name: "Grok 3 Beta",
+    model: "x-ai/grok-3-beta",
+    provider: "openrouter",
+    icon: "xai",
+    capabilities: ["thinking", "vision", "tools"] as Infer<
+      typeof vCapabilities
+    >[],
+    description: "Grok 3 Beta model by xAI.",
+    isPremium: true,
+    isDisabled: false,
+    cost: 5,
+  },
+  {
+    name: "Grok 3 Mini Beta",
+    model: "x-ai/grok-3-mini-beta",
+    provider: "openrouter",
+    icon: "xai",
+    capabilities: ["thinking", "vision", "tools"] as Infer<
+      typeof vCapabilities
+    >[],
+    description: "Grok 3 Mini Beta model by xAI.",
+    isPremium: true,
+    isDisabled: false,
+    cost: 0,
+  },
 ] as const;
 
 export const vModel = v.union(...models.map((m) => v.literal(m.model)));

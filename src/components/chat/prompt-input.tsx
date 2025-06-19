@@ -109,7 +109,7 @@ function PromptInput({
       >
         <div
           className={cn(
-            "border-input bg-background rounded-3xl border p-2 shadow-xs",
+            "border-input bg-background rounded-3xl p-2 shadow-xs border-0 md:border-1",
             className
           )}
         >
