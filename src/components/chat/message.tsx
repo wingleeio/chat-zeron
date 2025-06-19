@@ -11,11 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Loader, CircularLoader } from "@/components/chat/loaders";
 import { setDrivenIds, useDrivenIds, useTool } from "@/stores/chat";
-import {
-  useMutation,
-  useQueryClient,
-  useSuspenseQuery,
-} from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { convexQuery, useConvexMutation } from "@convex-dev/react-query";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import { toast } from "sonner";
@@ -40,6 +36,7 @@ import { useStream } from "@convex-dev/persistent-text-streaming/react";
 import { useParseMessage } from "@/hooks/use-parse-message";
 import type { MessageWithUIMessages } from "convex/messages";
 import { motion } from "framer-motion";
+import { useChatByParamId } from "@/hooks/use-chat-by-param-id";
 
 type CompletedServerMessageProps = {
   message: MessageWithUIMessages;
@@ -47,10 +44,11 @@ type CompletedServerMessageProps = {
 
 function CompletedServerMessage({ message }: CompletedServerMessageProps) {
   const params = useParams({ from: "/c/$cid" });
-  const chatQuery = convexQuery(api.chats.getById, {
-    id: params.cid as Id<"chats">,
-  });
-  const { data: chat } = useSuspenseQuery(chatQuery);
+  const chatQuery = convexQuery(
+    api.chats.getById,
+    params.cid.startsWith("tmp-") ? "skip" : { id: params.cid as Id<"chats"> }
+  );
+  const chat = useChatByParamId();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
@@ -184,7 +182,7 @@ function UserMessage({ message }: { message: MessageWithUIMessages }) {
   const chatQuery = convexQuery(api.chats.getById, {
     id: params.cid as Id<"chats">,
   });
-  const { data: chat } = useSuspenseQuery(chatQuery);
+  const chat = useChatByParamId();
   const me = useQuery(api.auth.current);
 
   const isLoading = useMemo(() => {

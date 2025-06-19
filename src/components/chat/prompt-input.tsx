@@ -11,11 +11,7 @@ import {
 import { cn } from "@/lib/utils";
 import { setDrivenIds, setTool, useTool } from "@/stores/chat";
 import { convexQuery, useConvexMutation } from "@convex-dev/react-query";
-import {
-  useMutation,
-  useQueryClient,
-  useSuspenseQuery,
-} from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams, useNavigate } from "@tanstack/react-router";
 import { api } from "convex/_generated/api";
 import type { Doc, Id } from "convex/_generated/dataModel";
@@ -45,6 +41,8 @@ import { useCanUseModel } from "@/hooks/use-can-use-model";
 import { match } from "ts-pattern";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { useCanAffordModel } from "@/hooks/use-can-afford-model";
+import { v4 } from "uuid";
+import { useChatByParamId } from "@/hooks/use-chat-by-param-id";
 
 type PromptInputContextType = {
   isLoading: boolean;
@@ -290,12 +288,53 @@ function PromptInputWithActions() {
     keys: files.map((file) => file.key),
   });
 
-  const { data } = useSuspenseQuery(chatQuery);
-
-  const chat = params?.cid ? data : null;
+  const chat = useChatByParamId();
 
   const sendMessage = useMutation({
     mutationFn: useConvexMutation(api.messages.send),
+    onMutate: async () => {
+      const tmpId = `tmp-${v4()}`;
+      const actualChatId = chat?._id ?? (tmpId as Id<"chats">);
+      queryClient.setQueryData(
+        convexQuery(api.messages.list, {
+          chatId: actualChatId,
+        }).queryKey,
+        (old: Doc<"messages">[]) => {
+          const prev = old ?? [];
+          return [
+            ...prev,
+            {
+              _id: "temp-message",
+              prompt: input,
+            },
+          ];
+        }
+      );
+      queryClient.setQueryData(
+        convexQuery(api.chats.getById, {
+          id: actualChatId,
+        }).queryKey,
+        (old: Doc<"chats">) => {
+          const prev = old ?? {
+            _id: tmpId as Id<"chats">,
+            userId: user?._id,
+          };
+          return {
+            ...prev,
+            status: "submitted",
+          };
+        }
+      );
+      setInput("");
+      setFiles([]);
+      if (!params?.cid) {
+        await navigate({
+          to: "/c/$cid",
+          params: { cid: tmpId },
+          replace: true,
+        });
+      }
+    },
     onSuccess: async (message: Doc<"messages">) => {
       setDrivenIds((prev) => [...prev, message._id]);
       await navigate({
@@ -348,31 +387,6 @@ function PromptInputWithActions() {
         tool: supportsTools ? tool : undefined,
         files: files.map((file) => file.key),
       });
-      if (chat?._id) {
-        queryClient.setQueryData(
-          convexQuery(api.messages.list, {
-            chatId: chat?._id,
-          }).queryKey,
-          (old: Doc<"messages">[]) => {
-            return [
-              ...old,
-              {
-                id: "temp-message",
-                prompt: input,
-              },
-            ];
-          }
-        );
-      }
-
-      queryClient.setQueryData(chatQuery.queryKey, (old: Doc<"chats">) => {
-        return {
-          ...old,
-          status: "submitted",
-        };
-      });
-      setInput("");
-      setFiles([]);
     }
   };
 

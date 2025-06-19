@@ -12,7 +12,7 @@ import {
 import { PromptInputWithActions } from "@/components/chat/prompt-input";
 import { ScrollButton } from "@/components/chat/scroll-button";
 import { convexQuery } from "@convex-dev/react-query";
-import { useSuspenseQuery } from "@tanstack/react-query";
+
 import { createFileRoute, Navigate } from "@tanstack/react-router";
 import { api } from "convex/_generated/api";
 import type { Id } from "convex/_generated/dataModel";
@@ -20,10 +20,17 @@ import { useQuery } from "convex/react";
 import { ChevronDownIcon } from "lucide-react";
 import { Fragment } from "react/jsx-runtime";
 import { match, P } from "ts-pattern";
+import {
+  useChatByParamId,
+  useMessageByParamId,
+} from "@/hooks/use-chat-by-param-id";
 
 export const Route = createFileRoute("/c/$cid")({
   component: RouteComponent,
   loader: async ({ context, params }) => {
+    if (params.cid.startsWith("tmp-") || !params.cid) {
+      return { chat: null };
+    }
     const chat = await context.queryClient.fetchQuery(
       convexQuery(api.chats.getById, {
         id: params.cid as Id<"chats">,
@@ -65,17 +72,9 @@ export const Route = createFileRoute("/c/$cid")({
 
 function RouteComponent() {
   const { cid } = Route.useParams();
-  const { data: chat } = useSuspenseQuery(
-    convexQuery(api.chats.getById, {
-      id: cid as Id<"chats">,
-    })
-  );
+  const chat = useChatByParamId();
   const me = useQuery(api.auth.current);
-  const { data: messages } = useSuspenseQuery(
-    convexQuery(api.messages.list, {
-      chatId: cid as Id<"chats">,
-    })
-  );
+  const messages = useMessageByParamId();
 
   if (!chat) {
     return <Navigate to="/" />;

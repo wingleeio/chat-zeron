@@ -22,17 +22,11 @@ import { api } from "convex/_generated/api";
 import { Fragment } from "react/jsx-runtime";
 import { Badge } from "@/components/ui/badge";
 import { CreditsBadge } from "@/components/app/credits-badge";
+import { useChatByParamId } from "@/hooks/use-chat-by-param-id";
 
 export function AppHeader() {
-  const params = useParams({ from: "/c/$cid", shouldThrow: false });
-  const chat = useQuery(
-    api.chats.getById,
-    params
-      ? {
-          id: params?.cid as Id<"chats">,
-        }
-      : "skip"
-  );
+  const chat = useChatByParamId();
+
   return (
     <header className="p-3 grid grid-cols-5">
       <div className="flex items-center gap-2 col-span-2">
@@ -104,14 +98,7 @@ function NewChatButton() {
 
 function ShareChatButton() {
   const params = useParams({ from: "/c/$cid", shouldThrow: false });
-  const chat = useQuery(
-    api.chats.getById,
-    params
-      ? {
-          id: params?.cid as Id<"chats">,
-        }
-      : "skip"
-  );
+  const chat = useChatByParamId();
   const me = useQuery(api.auth.current);
 
   return (
