@@ -178,6 +178,10 @@ function ReasoningPart({
   }, [part.details]);
 
   useEffect(() => {
+    if (done && thinkingTime > 0) {
+      return;
+    }
+
     if (!startTimeRef.current) {
       startTimeRef.current = Date.now();
     }
@@ -200,14 +204,13 @@ function ReasoningPart({
       }
     }
 
-    // Cleanup interval on unmount
     return () => {
       if (timerRef.current) {
         clearInterval(timerRef.current);
         timerRef.current = null;
       }
     };
-  }, [done, id]);
+  }, [done, id, thinkingTime]);
 
   const handleOpenChange = (newOpen: boolean) => {
     if (newOpen) {

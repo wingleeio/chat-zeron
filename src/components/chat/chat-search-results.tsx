@@ -43,7 +43,6 @@ export function ChatSearchResults({
   }, [_isExpanded, done]);
 
   useEffect(() => {
-    // Don't start timer if already done and we have a stored duration
     if (done && researchTime > 0) {
       return;
     }
