@@ -2,12 +2,15 @@ import { Store, useStore } from "@tanstack/react-store";
 import type { Tool } from "convex/ai/schema";
 
 const store = new Store({
+  suggestion: null as string | null,
   drivenIds: [] as string[],
   openReasoningIds: [] as string[],
   reasoningDurations: {} as Record<string, number>,
   tool: undefined as Tool | undefined,
   openSearch: false as boolean,
 });
+
+export const useChatStore = () => useStore(store);
 
 export function useOpenSearch() {
   return useStore(store, (state) => state.openSearch);
@@ -69,4 +72,8 @@ export function setReasoningDuration(id: string, duration: number) {
     ...prev,
     reasoningDurations: { ...prev.reasoningDurations, [id]: duration },
   }));
+}
+
+export function setSuggestion(suggestion: string | null) {
+  store.setState((prev) => ({ ...prev, suggestion }));
 }

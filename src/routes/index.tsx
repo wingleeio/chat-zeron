@@ -11,6 +11,7 @@ import { CodeIcon } from "lucide-react";
 import { IconBrandGithub, IconBrandLine, IconTools } from "@tabler/icons-react";
 import { ZeronIcon } from "@/components/icons/zeron";
 import { PaginatedChatsPreloader } from "@/hooks/use-paginated-chats";
+import { Suggestions } from "@/components/chat/suggestions";
 
 export const Route = createFileRoute("/")({
   component: App,
@@ -23,14 +24,17 @@ function App() {
         <PaginatedChatsPreloader />
         <AppHeader />
         <div className="flex flex-col gap-6 items-center justify-center h-full pb-64 px-4">
-          <h2 className="text-2xl">What's on your mind</h2>
+          <h2 className="text-2xl">What&rsquo;s on your mind?</h2>
           <motion.div
-            className="w-full"
+            className="w-full flex flex-col items-center"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <PromptInputWithActions />
+            <div className="w-full">
+              <PromptInputWithActions />
+            </div>
+            <Suggestions />
           </motion.div>
         </div>
       </Authenticated>
