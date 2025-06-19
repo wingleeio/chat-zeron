@@ -111,7 +111,7 @@ export function AppSidebar() {
                   <Link to="/">
                     <PlusIcon />
                     <span className="flex-1">New Chat</span>
-                    <span className="text-xs text-muted-foreground hidden md:inline bg-muted px-2 py-0.5 rounded-sm">
+                    <span className="text-xs text-muted-foreground hidden md:inline bg-muted/50 border border-border/70 px-2 py-0.5 rounded-sm">
                       ⇧⌘O
                     </span>
                   </Link>
@@ -124,7 +124,7 @@ export function AppSidebar() {
                 >
                   <SearchIcon />
                   <span className="flex-1">Search</span>
-                  <span className="text-xs text-muted-foreground hidden md:inline bg-muted px-2 py-0.5 rounded-sm">
+                  <span className="text-xs text-muted-foreground hidden md:inline bg-muted/50 border border-border/70 px-2 py-0.5 rounded-sm">
                     ⌘K
                   </span>
                 </SidebarMenuButton>
@@ -309,7 +309,7 @@ function SidebarChats() {
       {renderChatGroup(lastThirtyDaysChats, "Last 30 Days")}
       {renderChatGroup(historyChats, "History")}
       {chats.status === "CanLoadMore" && (
-        <div ref={loadMoreRef} className="h-4 w-full" />
+        <div ref={loadMoreRef} className="min-h-12 w-full" />
       )}
       {chats.status === "LoadingMore" && (
         <div className="flex justify-center py-2">

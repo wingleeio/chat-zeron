@@ -51,20 +51,23 @@ const sendResearchAnnotation = (
 };
 
 const planSchema = z.object({
-  plan: z.array(
-    z.object({
-      title: z
-        .string()
-        .min(10)
-        .max(70)
-        .describe("A title for the research topic"),
-      todos: z
-        .array(z.string())
-        .min(3)
-        .max(5)
-        .describe("A list of what to research for the given title"),
-    })
-  ),
+  plan: z
+    .array(
+      z.object({
+        title: z
+          .string()
+          .min(10)
+          .max(70)
+          .describe("A title for the research topic"),
+        todos: z
+          .array(z.string())
+          .min(3)
+          .max(5)
+          .describe("A list of what to research for the given title"),
+      })
+    )
+    .min(1)
+    .max(5),
 });
 
 type Plan = z.infer<typeof planSchema>["plan"];
@@ -81,6 +84,14 @@ async function createResearchPlan(opts: GetToolsOpts, prompt: string) {
   opts.state.totalTokens += usage.totalTokens;
 
   return object.plan;
+}
+
+enum SearchCategory {
+  NEWS = "news",
+  COMPANY = "company",
+  RESEARCH_PAPER = "research paper",
+  GITHUB = "github",
+  FINANCIAL_REPORT = "financial report",
 }
 
 const performResearch = async (
@@ -115,8 +126,15 @@ const performResearch = async (
             .string()
             .describe("The search query to achieve the todo")
             .max(100),
+          category: z
+            .nativeEnum(SearchCategory)
+            .optional()
+            .describe("The category of the search if relevant"),
         }),
-        execute: async ({ query }, { toolCallId: innerToolCallId }) => {
+        execute: async (
+          { query, category },
+          { toolCallId: innerToolCallId }
+        ) => {
           sendResearchAnnotation(opts, {
             type: "status",
             message: "Searching the web for " + query,
@@ -132,7 +150,10 @@ const performResearch = async (
           });
 
           const { results } = await exa
-            .search(query, { numResults: 5 })
+            .search(query, {
+              numResults: 5,
+              ...(category ? { category } : {}),
+            })
             .catch(() => ({ results: [] }));
 
           const formattedResults = results.map((result) => ({

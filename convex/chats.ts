@@ -18,6 +18,7 @@ import { mutation, internalMutation } from "convex/functions";
 import schema from "convex/schema";
 import { paginationOptsValidator, type PaginationResult } from "convex/server";
 import { streamingComponent } from "convex/streaming";
+import type { UserWithMetadata } from "convex/users";
 import { v } from "convex/values";
 
 export type ChatState = {
@@ -41,36 +42,17 @@ export const streamChat = httpAction(async (ctx, request) => {
       const streamId = args[2];
       const append = args[3];
 
-      const message = await ctx.runQuery(api.messages.getByStreamId, {
-        streamId,
-      });
-
-      if (!message) {
-        throw new Error("Message not found");
-      }
-
-      const user = await ctx.runQuery(internal.users.readWithMetadata, {
-        id: message.userId,
-      });
-
-      if (!user) {
-        throw new Error("User not found");
-      }
-
-      const messages: any = await ctx.runQuery(internal.messages.history, {
-        chatId: message.chatId,
-      });
-
-      const model = await ctx.runQuery(internal.models.read, {
-        id: message.modelId,
-      });
-
-      if (!model) {
-        throw new Error("Model not found");
-      }
+      const { user, messages, model, message } = await ctx.runMutation(
+        internal.chats.prepareStream,
+        {
+          streamId,
+        }
+      );
 
       const abortController = new AbortController();
+
       const activeTools: Tool[] = [];
+
       if (message.tool) {
         activeTools.push(message.tool);
       } else {
@@ -123,13 +105,6 @@ export const streamChat = httpAction(async (ctx, request) => {
           result.mergeIntoDataStream(writer, {
             sendReasoning: true,
           });
-        },
-      });
-
-      await ctx.runMutation(internal.chats.update, {
-        id: message.chatId,
-        patch: {
-          status: "streaming",
         },
       });
 
@@ -189,6 +164,63 @@ export const streamChat = httpAction(async (ctx, request) => {
   response.headers.set("Vary", "Origin");
 
   return response;
+});
+
+export const prepareStream = internalMutation({
+  args: {
+    streamId: v.string(),
+  },
+  handler: async (
+    ctx,
+    args
+  ): Promise<{
+    user: UserWithMetadata;
+    messages: any[];
+    model: Doc<"models">;
+    message: Doc<"messages">;
+  }> => {
+    const message = await ctx.runQuery(api.messages.getByStreamId, {
+      streamId: args.streamId,
+    });
+
+    if (!message) {
+      throw new Error("Message not found");
+    }
+
+    const user = await ctx.runQuery(internal.users.readWithMetadata, {
+      id: message.userId,
+    });
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    const messages = await ctx.runQuery(internal.messages.history, {
+      chatId: message.chatId,
+    });
+
+    const model = await ctx.runQuery(internal.models.read, {
+      id: message.modelId,
+    });
+
+    if (!model) {
+      throw new Error("Model not found");
+    }
+
+    await ctx.runMutation(internal.chats.update, {
+      id: message.chatId,
+      patch: {
+        status: "streaming",
+      },
+    });
+
+    return {
+      user,
+      messages,
+      model,
+      message,
+    };
+  },
 });
 
 export const generateTitle = internalAction({

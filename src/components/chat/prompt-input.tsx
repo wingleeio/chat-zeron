@@ -451,7 +451,7 @@ function PromptInputWithActions() {
       isLoading={isLoading}
       onSubmit={handleSubmit}
       className={cn(
-        "w-full max-w-(--breakpoint-md) mx-auto p-3 md:rounded-3xl",
+        "w-full max-w-(--breakpoint-md) mx-auto p-3 md:rounded-3xl bg-muted/50",
         params?.cid && "rounded-none rounded-t-3xl "
       )}
     >
