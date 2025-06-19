@@ -1,6 +1,5 @@
 import {
   CommandDialog,
-  CommandEmpty,
   CommandGroup,
   CommandInput,
   CommandItem,
@@ -53,7 +52,7 @@ function getSnippet(
 
 function SearchResultSkeleton() {
   return (
-    <div className="flex flex-col gap-2 p-2 w-full">
+    <div className="flex flex-col gap-2 w-full">
       <Skeleton className="h-4 w-3/4 bg-muted-foreground/20" />
       <Skeleton className="h-3 w-full bg-muted-foreground/20" />
     </div>
