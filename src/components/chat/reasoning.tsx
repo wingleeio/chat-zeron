@@ -2,13 +2,7 @@
 
 import { Markdown } from "@/components/chat/markdown";
 import { cn } from "@/lib/utils";
-import {
-  closeReasoning,
-  openReasoning,
-  setReasoningDuration,
-  useIsOpenReasoning,
-  useReasoningDuration,
-} from "@/stores/chat";
+import { setReasoningDuration, useReasoningDuration } from "@/stores/chat";
 import type { ReasoningUIPart } from "@ai-sdk/ui-utils";
 import { ChevronDownIcon } from "lucide-react";
 import React, {
@@ -164,7 +158,7 @@ function ReasoningPart({
   part: ReasoningUIPart;
   done: boolean;
 }) {
-  const _isOpen = useIsOpenReasoning(id);
+  const [_isOpen, setIsOpen] = useState<boolean | undefined>(undefined);
   const isOpen = _isOpen === undefined ? !done : _isOpen;
   const thinkingTime = useReasoningDuration(id);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -213,11 +207,7 @@ function ReasoningPart({
   }, [done, id, thinkingTime]);
 
   const handleOpenChange = (newOpen: boolean) => {
-    if (newOpen) {
-      openReasoning(id);
-    } else {
-      closeReasoning(id);
-    }
+    setIsOpen(newOpen);
   };
 
   return (

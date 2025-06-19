@@ -58,20 +58,6 @@ export function useIsOpenReasoning(id: string) {
   );
 }
 
-export function openReasoning(id: string) {
-  store.setState((prev) => ({
-    ...prev,
-    openReasoningIds: [...new Set([...prev.openReasoningIds, id])],
-  }));
-}
-
-export function closeReasoning(id: string) {
-  store.setState((prev) => ({
-    ...prev,
-    openReasoningIds: prev.openReasoningIds.filter((x) => x !== id),
-  }));
-}
-
 export function useReasoningDuration(id: string) {
   return useStore(store, (state) => state.reasoningDurations[id]);
 }
