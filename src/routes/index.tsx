@@ -4,7 +4,7 @@ import { PromptInputWithActions } from "@/components/chat/prompt-input";
 import { Authenticated, Unauthenticated } from "convex/react";
 import { Fragment } from "react/jsx-runtime";
 import { Button } from "@/components/ui/button";
-import { SignInButton } from "@clerk/tanstack-start";
+import { SignInButton } from "@clerk/tanstack-react-start";
 import { motion } from "framer-motion";
 import { AppHeader } from "@/components/app/header";
 import { CodeIcon } from "lucide-react";
