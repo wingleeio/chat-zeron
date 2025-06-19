@@ -51,23 +51,20 @@ const sendResearchAnnotation = (
 };
 
 const planSchema = z.object({
-  plan: z
-    .array(
-      z.object({
-        title: z
-          .string()
-          .min(10)
-          .max(70)
-          .describe("A title for the research topic"),
-        todos: z
-          .array(z.string())
-          .min(3)
-          .max(5)
-          .describe("A list of what to research for the given title"),
-      })
-    )
-    .min(1)
-    .max(5),
+  plan: z.array(
+    z.object({
+      title: z
+        .string()
+        .min(10)
+        .max(70)
+        .describe("A title for the research topic"),
+      todos: z
+        .array(z.string())
+        .min(3)
+        .max(5)
+        .describe("A list of what to research for the given title"),
+    })
+  ),
 });
 
 type Plan = z.infer<typeof planSchema>["plan"];
