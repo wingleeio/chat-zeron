@@ -103,7 +103,7 @@ export function ChatSearchResults({
         className={cn(
           "flex flex-col gap-2 transition-all duration-300 px-4 border-t",
           isExpanded
-            ? "max-h-screen opacity-100 pt-4 pb-4"
+            ? "opacity-100 pt-4 pb-4"
             : "max-h-0 opacity-0 pointer-events-none"
         )}
       >
