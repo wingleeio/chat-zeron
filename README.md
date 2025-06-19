@@ -1,34 +1,89 @@
-This is my entry project for the T3 Chat Cloneathon
+<div align="center">
+  <a href="https://github.com/wingleeio/chat-zeron">
+    <img src="public/bg.png" alt="Logo">
+  </a>
 
-# Zeron Chat
 
-A unified ai chat app with models from Claude, OpenAI, and Gemini.
 
-# Features
+  <h3 align="center">Zeron Chat</h3>
 
-- Resumable Streams
-- Fast navigation between chats
-- Search Tool
-- Research Tool
-- Image Generation
-- Image Upload support
-- Chat Branching
-- Chat Sharing
-- Multiple Themes (Thanks to tweakcn)
+  <p align="center">
+    A unified AI chat app with models from Claude, OpenAI, Gemini, and more.
+    <br />
+    <a href="https://github.com/wingleeio/chat-zeron/issues">Report Bug</a>
+    ·
+    <a href="https://github.com/wingleeio/chat-zeron/issues">Request Feature</a>
+  </p>
+</div>
 
-# Built With
+[![MIT License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/wingleeio/chat-zeron/blob/main/LICENSE)
 
-- TanStack Start
-- Convex
-- Exa
-- Vercel AI SDK
-- Shadcn/UI
+---
 
-# License
+## About The Project
 
-This project is licensed under the MIT License
+Zeron Chat is a sleek, modern, and unified AI chat application. It allows you to interact with large language models from Anthropic (Claude), OpenAI (GPT), and Google (Gemini) all in one place. This project was created for the T3 Chat Cloneathon.
 
-# Notes
+<div align="center">
+  <img src="public/screenshot.png" alt="Screenshot" width="100%">
+</div>
+
+## Key Features
+
+- **Resumable Streams**: Continue generating responses even after a page refresh.
+- **Fast Navigation**: Quickly switch between different chat sessions.
+- **Search Tool**: Integrated search functionality. Using [Exa](https://www.exa.ai/)
+- **Research Tool**: Perform research within the chat interface.
+- **Image Generation**: Create images with AI. Using [Together AI](https://together.ai/)
+- **Image Uploads**: Upload and use images in your conversations.
+- **Chat Branching**: Explore different conversation paths.
+- **Chat Sharing**: Share your conversations with others.
+- **Theming**: Multiple themes to customize the look and feel.
+
+## Built With
+
+This project is built with:
+
+*   [TanStack Start](https://tanstack.com/start/latest)
+*   [Convex](https://www.convex.dev/)
+*   [Vercel AI SDK](https://sdk.vercel.ai/)
+*   [React](https://react.dev/)
+*   [TypeScript](https://www.typescriptlang.org/)
+*   [Shadcn/UI](https://ui.shadcn.com/)
+
+## Getting Started
+
+To get a local copy up and running, follow these simple steps.
+
+### Prerequisites
+
+You need to have `pnpm` installed.
+
+### Installation
+
+1.  Clone the repo
+    ```sh
+    git clone https://github.com/wingleeio/chat-zeron.git
+    ```
+2.  Install PNPM packages
+    ```sh
+    pnpm install
+    ```
+3.  Start the development server
+    ```sh
+    pnpm dev
+    ```
+4. Run convex locally
+    ```sh
+    npx convex dev
+    ```
+
+## License
+
+Distributed under the MIT License. See `LICENSE` for more information.
+<!-- 
+
+Development Notes
 
 Some of the goals I wanted to achieve while building this are:
 
@@ -67,4 +122,5 @@ Ended up removing the Clerk authentication check on the backend as that was slow
 side, but now that I think about it more, it's not necessary for an application like this. We can still provide og metadata for public chats, so overall it's
 not much of a loss and performance in routing between chats has improved drastically.
 
-The past few days we have added image generation tool, search tool, research tool, themes, subscriptions, and user preferences.
+The past few days we have added image generation tool, search tool, research tool, themes, subscriptions, and user preferences. -->
+
