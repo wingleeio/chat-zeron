@@ -31,7 +31,7 @@ function ImageCard({
 
   return (
     <div
-      className="aspect-square rounded overflow-hidden cursor-pointer hover:opacity-90 transition-opacity relative"
+      className="aspect-square rounded-none overflow-hidden cursor-pointer hover:opacity-90 transition-opacity relative"
       onClick={onClick}
     >
       {isLoading && (
@@ -52,8 +52,8 @@ function ImageCard({
 
 function ImageSkeleton() {
   return (
-    <div className="aspect-square rounded overflow-hidden">
-      <Skeleton className="w-full h-full" />
+    <div className="aspect-square rounded-none overflow-hidden">
+      <Skeleton className="w-full h-full rounded-none" />
     </div>
   );
 }
