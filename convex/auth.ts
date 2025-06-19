@@ -5,6 +5,7 @@ import { match } from "ts-pattern";
 import { Webhook } from "svix";
 import type { WebhookEvent } from "@clerk/tanstack-start/server";
 import { polar } from "convex/polar";
+import { env } from "@/env.server";
 
 export const clerkWebhook = httpAction(async (ctx, request) => {
   const bodyText = await request.text();
@@ -12,7 +13,7 @@ export const clerkWebhook = httpAction(async (ctx, request) => {
   const svixTimestamp = String(request.headers.get("svix-timestamp"));
   const svixSignature = String(request.headers.get("svix-signature"));
 
-  const wh = new Webhook(process.env.CLERK_WEBHOOK_SECRET_KEY!);
+  const wh = new Webhook(env.CLERK_WEBHOOK_SECRET_KEY!);
   const msg = wh.verify(bodyText, {
     "svix-id": svixId,
     "svix-timestamp": svixTimestamp,

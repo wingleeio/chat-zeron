@@ -3,8 +3,6 @@
     <img src="public/bg.png" alt="Logo">
   </a>
 
-
-
   <h3 align="center">Zeron Chat</h3>
 
   <p align="center">
@@ -44,12 +42,12 @@ Zeron Chat is a sleek, modern, and unified AI chat application. It allows you to
 
 This project is built with:
 
-*   [TanStack Start](https://tanstack.com/start/latest)
-*   [Convex](https://www.convex.dev/)
-*   [Vercel AI SDK](https://sdk.vercel.ai/)
-*   [React](https://react.dev/)
-*   [TypeScript](https://www.typescriptlang.org/)
-*   [Shadcn/UI](https://ui.shadcn.com/)
+- [TanStack Start](https://tanstack.com/start/latest)
+- [Convex](https://www.convex.dev/)
+- [Vercel AI SDK](https://sdk.vercel.ai/)
+- [React](https://react.dev/)
+- [TypeScript](https://www.typescriptlang.org/)
+- [Shadcn/UI](https://ui.shadcn.com/)
 
 ## Getting Started
 
@@ -73,15 +71,18 @@ You need to have `pnpm` installed.
     ```sh
     pnpm dev
     ```
-4. Run convex locally
+4.  Run convex locally
     ```sh
     npx convex dev
     ```
 
+Note: Ensure environment variables setup in `env.client` and `env.server` are provided.
+
 ## License
 
 Distributed under the MIT License. See `LICENSE` for more information.
-<!-- 
+
+<!--
 
 Development Notes
 
@@ -123,4 +124,3 @@ side, but now that I think about it more, it's not necessary for an application 
 not much of a loss and performance in routing between chats has improved drastically.
 
 The past few days we have added image generation tool, search tool, research tool, themes, subscriptions, and user preferences. -->
-

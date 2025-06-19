@@ -3,9 +3,10 @@ import { v } from "convex/values";
 import Together from "together-ai";
 import { r2 } from "./r2";
 import { internal } from "./_generated/api";
+import { env } from "@/env.server";
 
 const together = new Together({
-  apiKey: process.env.TOGETHER_API_KEY,
+  apiKey: env.TOGETHER_API_KEY,
 });
 
 export const generate = internalAction({

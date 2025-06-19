@@ -6,8 +6,9 @@ import { getResearchPlanPrompt, getResearchPrompt } from "./prompt";
 import Exa from "exa-js";
 import { RESEARCH_COST } from "@/lib/constants";
 import { checkUserCredits } from "convex/users";
+import { env } from "@/env.server";
 
-const exa = new Exa(process.env.EXA_API_KEY);
+const exa = new Exa(env.EXA_API_KEY);
 
 export type ResearchAnnotation =
   | {

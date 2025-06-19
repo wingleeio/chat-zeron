@@ -8,6 +8,7 @@ import type { Tool } from "convex/ai/schema";
 import { IMAGE_GENERATION_COST, SEARCH_COST } from "@/lib/constants";
 import { checkUserCredits, type UserWithMetadata } from "convex/users";
 import type { ChatState } from "convex/chats";
+import { env } from "@/env.server";
 
 export type GetToolsOpts = {
   ctx: GenericActionCtx<any>;
@@ -49,7 +50,7 @@ export function getTools(opts: GetToolsOpts, activeTools: Tool[]) {
           );
           const parameters = {
             q: query,
-            apiKey: process.env.SERPER_API_KEY!,
+            apiKey: env.SERPER_API_KEY!,
           };
           const queryString = new URLSearchParams(parameters).toString();
           const response = await fetch(
