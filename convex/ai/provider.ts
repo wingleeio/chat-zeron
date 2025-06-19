@@ -165,7 +165,7 @@ export const models = [
     cost: 2,
   },
   {
-    name: "GPT 4.1-mini",
+    name: "GPT 4.1 Nano",
     model: "gpt-4.1-mini",
     provider: "azure",
     icon: "openai",
