@@ -110,7 +110,7 @@ const performResearch = async (
   };
 
   const { text, usage } = await generateText({
-    model: getModel("azure", "gpt-4o"),
+    model: getModel("openrouter", "x-ai/grok-3-mini-beta"),
     system: getResearchPrompt(plan, maxSteps),
     prompt,
     maxSteps,
