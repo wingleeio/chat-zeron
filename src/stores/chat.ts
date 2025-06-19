@@ -7,7 +7,19 @@ const store = new Store({
   reasoningDurations: {} as Record<string, number>,
   tool: undefined as Tool | undefined,
   openSearch: false as boolean,
+  input: "" as string,
 });
+
+export function useInput() {
+  const value = useStore(store, (state) => state.input);
+  return [value, setInput] as const;
+}
+
+export function setInput(input: string) {
+  store.setState((prev) => ({ ...prev, input }));
+}
+
+export const useChatStore = () => useStore(store);
 
 export function useOpenSearch() {
   return useStore(store, (state) => state.openSearch);
