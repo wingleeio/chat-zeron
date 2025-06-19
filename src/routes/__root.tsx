@@ -18,7 +18,7 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app/sidebar";
 
 import { ConvexProviderWithClerk } from "convex/react-clerk";
-import { ClerkProvider, useAuth } from "@clerk/tanstack-react-start";
+import { ClerkProvider, useAuth } from "@clerk/tanstack-start";
 import { api } from "convex/_generated/api";
 import { cn } from "@/lib/utils";
 import { SearchCommand } from "@/components/chat/search-command";
