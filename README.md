@@ -76,7 +76,7 @@ You need to have `pnpm` installed.
     npx convex dev
     ```
 
-Note: Ensure environment variables setup in `env.client` and `env.server` are provided.
+Note: Ensure environment variables setup in `env.client` and `env.server` are provided. `env.server` variables must be defined within [Convex](https://www.convex.dev/).
 
 ## License
 
