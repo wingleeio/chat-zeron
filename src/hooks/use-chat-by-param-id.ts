@@ -15,6 +15,7 @@ import type {
   StreamId,
 } from "@convex-dev/persistent-text-streaming";
 import { v4 } from "uuid";
+import { useCurrentUser } from "./use-current-user";
 
 export function useChatByParamId(): Doc<"chats"> | null {
   const params = useParams({ from: "/c/$cid", shouldThrow: false });
@@ -44,6 +45,7 @@ export function useMessageByParamId(): MessageWithUIMessages[] {
 
 export function useSendMessageByParamId() {
   const auth = useAuth();
+  const { data: me } = useCurrentUser();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const chat = useChatByParamId();
@@ -170,6 +172,7 @@ export function useSendMessageByParamId() {
           const prev = old ?? {
             _id: actualChatId,
             clientId: chatId,
+            userId: me?._id,
           };
           return {
             ...prev,

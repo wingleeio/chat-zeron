@@ -390,9 +390,9 @@ function ServerMessage({ message }: { message: MessageWithUIMessages }) {
     .with(
       {
         uiMessages: [
-          P.not({
-            content: P.nullish,
-          }),
+          {
+            parts: [P.not(P.nullish), ...P.array(P.not(P.nullish))],
+          },
         ],
       },
       () => <CompletedServerMessage message={serverMessage} />
