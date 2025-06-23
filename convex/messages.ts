@@ -7,7 +7,7 @@ import { crud } from "convex-helpers/server/crud";
 import { internal } from "convex/_generated/api";
 import type { Doc } from "convex/_generated/dataModel";
 import { internalQuery, query } from "convex/_generated/server";
-import { internalMutation, mutation } from "convex/functions";
+import { internalMutation } from "convex/functions";
 import { streamingComponent } from "convex/streaming";
 import { v } from "convex/values";
 import { match, P } from "ts-pattern";
@@ -16,7 +16,7 @@ import { r2 } from "convex/r2";
 import type { UIMessage } from "ai";
 import { convertToCoreMessages } from "ai";
 import { vTool } from "convex/ai/schema";
-import { checkUserCredits } from "convex/users";
+import { checkUserCredits, type UserWithMetadata } from "convex/users";
 
 export const { create, read, update } = crud(
   schema,
@@ -25,14 +25,24 @@ export const { create, read, update } = crud(
   internalMutation as any
 );
 
-export const send = mutation({
+export const prepare = internalMutation({
   args: {
+    messageClientId: v.string(),
+    chatClientId: v.string(),
     prompt: v.string(),
-    chatId: v.optional(v.id("chats")),
     tool: v.optional(vTool),
     files: v.optional(v.array(v.string())),
   },
-  handler: async (ctx, args): Promise<Doc<"messages">> => {
+  handler: async (
+    ctx,
+    args
+  ): Promise<{
+    user: UserWithMetadata;
+    chat: Doc<"chats">;
+    message: Doc<"messages">;
+    messages: any[];
+    model: Doc<"models">;
+  }> => {
     const user = await ctx.runQuery(internal.auth.authenticate, {});
 
     if (!user) {
@@ -68,7 +78,12 @@ export const send = mutation({
       throw new Error("Not enough credits");
     }
 
-    const chatId = await match(args.chatId)
+    const maybeChat = await ctx.db
+      .query("chats")
+      .withIndex("by_client_id", (q) => q.eq("clientId", args.chatClientId))
+      .first();
+
+    const chat = await match(maybeChat)
       .with(P.nullish, async () => {
         const newChat = await ctx.runMutation(internal.chats.create, {
           userId: user._id,
@@ -76,35 +91,68 @@ export const send = mutation({
           isPublic: false,
           status: "submitted",
           lastMessageTimestamp: Date.now(),
+          clientId: args.chatClientId,
         });
         await ctx.scheduler.runAfter(0, internal.chats.generateTitle, {
           chatId: newChat._id,
           prompt: args.prompt,
         });
-        return newChat._id;
+        return newChat;
       })
-      .with(P.nonNullable, async (chatId) => {
-        const chat = await ctx.runQuery(internal.chats.read, {
-          id: chatId,
+      .with(P.nonNullable, async (chat) => {
+        await ctx.runMutation(internal.chats.update, {
+          id: chat._id,
+          patch: {
+            status: "submitted",
+          },
         });
-
-        if (!chat) {
-          throw new Error("Chat not found");
-        }
-
-        return chat._id;
+        return chat;
       })
       .exhaustive();
 
     const streamId = await streamingComponent.createStream(ctx);
 
-    const message = await ctx.runMutation(internal.messages.create, {
-      prompt: args.prompt,
-      userId: user._id,
-      chatId: chatId,
-      responseStreamId: streamId,
-      modelId: model._id,
-      tool: args.tool,
+    const existingMessage = await ctx.db
+      .query("messages")
+      .withIndex("by_client_id", (q) => q.eq("clientId", args.messageClientId))
+      .first();
+
+    const message = await match(existingMessage)
+      .with(P.nullish, async () => {
+        return await ctx.runMutation(internal.messages.create, {
+          prompt: args.prompt,
+          userId: user._id,
+          chatId: chat._id,
+          responseStreamId: streamId,
+          modelId: model._id,
+          tool: args.tool,
+          clientId: args.messageClientId,
+        });
+      })
+      .with(P.nonNullable, async (message) => {
+        await ctx.runMutation(internal.messages.update, {
+          id: message._id,
+          patch: {
+            responseStreamId: streamId,
+            prompt: args.prompt,
+            tool: args.tool,
+            modelId: model._id,
+            uiMessages: "[]",
+          },
+        });
+        return (await ctx.runQuery(internal.messages.read, {
+          id: message._id,
+        }))!;
+      })
+      .exhaustive();
+
+    await ctx.runMutation(internal.messages.deleteMessagesAfterCreationTime, {
+      chatId: chat._id,
+      creationTime: message._creationTime,
+    });
+
+    const messages = await ctx.runQuery(internal.messages.history, {
+      chatId: chat._id,
     });
 
     if (args.files) {
@@ -126,96 +174,13 @@ export const send = mutation({
       }
     }
 
-    return message;
-  },
-});
-
-export const regenerate = mutation({
-  args: {
-    messageId: v.id("messages"),
-    prompt: v.optional(v.string()),
-    tool: v.optional(vTool),
-  },
-  handler: async (ctx, args) => {
-    const user = await ctx.runQuery(internal.auth.authenticate, {});
-
-    if (!user) {
-      throw new Error("Unauthorized");
-    }
-
-    if (!user.model) {
-      throw new Error("Model not selected");
-    }
-    const model = await ctx.runQuery(internal.models.read, {
-      id: user.model,
-    });
-
-    const messageToRegenerate = await ctx.runQuery(internal.messages.read, {
-      id: args.messageId,
-    });
-
-    if (model?.isPremium && !user.isPremium) {
-      throw new Error("Model is premium and user is not premium");
-    }
-
-    if (args.tool === "research" && !user.isPremium) {
-      throw new Error("Research is only available to pro users");
-    }
-
-    if (!model) {
-      throw new Error("Model not found");
-    }
-
-    const hasEnoughCredits = checkUserCredits(ctx, user, model.cost ?? 0);
-
-    if (!hasEnoughCredits) {
-      throw new Error("Not enough credits");
-    }
-
-    if (!messageToRegenerate) {
-      throw new Error("Message not found");
-    }
-
-    if (
-      messageToRegenerate.tool === "research" &&
-      !args.tool &&
-      !user.isPremium
-    ) {
-      throw new Error("Research is only available to pro users");
-    }
-
-    if (messageToRegenerate.userId !== user._id) {
-      throw new Error("Unauthorized");
-    }
-
-    const chat = await ctx.runQuery(internal.chats.read, {
-      id: messageToRegenerate.chatId,
-    });
-
-    if (!chat) {
-      throw new Error("Chat not found");
-    }
-
-    if (chat.status !== "ready") {
-      throw new Error("Chat is not ready");
-    }
-
-    const streamId = await streamingComponent.createStream(ctx);
-
-    await ctx.runMutation(internal.messages.update, {
-      id: args.messageId,
-      patch: {
-        responseStreamId: streamId,
-        modelId: user.model,
-        uiMessages: "[]",
-        prompt: args.prompt || messageToRegenerate.prompt,
-        tool: args.tool,
-      },
-    });
-    await ctx.runMutation(internal.messages.deleteMessagesAfterCreationTime, {
-      chatId: messageToRegenerate.chatId,
-      creationTime: messageToRegenerate._creationTime,
-    });
+    return {
+      user,
+      chat,
+      message,
+      messages,
+      model,
+    };
   },
 });
 
@@ -363,17 +328,18 @@ export type MessageWithUIMessages = Omit<Doc<"messages">, "uiMessages"> & {
 
 export const list = query({
   args: {
-    chatId: v.id("chats"),
+    clientId: v.string(),
   },
   handler: async (ctx, args): Promise<MessageWithUIMessages[] | null> => {
     const user = await ctx.runQuery(internal.auth.authenticate, {});
 
-    const chat = await ctx.runQuery(internal.chats.read, {
-      id: args.chatId,
-    });
+    const chat = await ctx.db
+      .query("chats")
+      .withIndex("by_client_id", (q) => q.eq("clientId", args.clientId))
+      .first();
 
     if (!chat) {
-      return null;
+      throw new Error("Chat not found");
     }
 
     if (chat.userId !== user?._id && !chat.isPublic) {
@@ -382,7 +348,7 @@ export const list = query({
 
     return await ctx.db
       .query("messages")
-      .withIndex("by_chat", (q) => q.eq("chatId", args.chatId))
+      .withIndex("by_chat", (q) => q.eq("chatId", chat._id))
       .collect()
       .then(async (messages) => {
         return await Promise.all(

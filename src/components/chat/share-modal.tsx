@@ -30,7 +30,7 @@ function NonMemoizedChatShareModal({
   children?: React.ReactNode;
 }) {
   const chatQuery = convexQuery(api.chats.getById, {
-    id: id as Id<"chats">,
+    clientId: id,
   });
   const { data: chat } = useSuspenseQuery(chatQuery);
 
