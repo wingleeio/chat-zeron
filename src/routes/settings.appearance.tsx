@@ -75,35 +75,21 @@ function RouteComponent() {
         theme?: string | undefined;
       };
     }) => {
-      queryClient.setQueryData(userQuery.queryKey, (old: any) => {
-        return {
-          ...old,
-          appearance: {
-            ...old.appearance,
-            ...data.appearance,
-          },
-        };
-      });
+      console.log("onMutate", data);
     },
   });
 
   const debouncedUpdateAppearance = useCallback(
     debounce(
       (data: {
-        appearance: {
-          mode?: "light" | "dark" | undefined;
-          theme?: string | undefined;
-        };
+        mode?: "light" | "dark" | undefined;
+        theme?: string | undefined;
       }) => {
-        console.log("debouncedUpdateAppearance", data);
         updateAppearance.mutate({
-          appearance: {
-            mode: data.appearance.mode,
-            theme: data.appearance.theme,
-          },
+          appearance: data,
         });
       },
-      1000
+      3000
     ),
     []
   );

@@ -37,6 +37,7 @@ export default defineSchema({
     .index("by_user_role", ["userId", "role"]),
   chats: defineTable({
     title: v.string(),
+    clientId: v.string(),
     userId: v.id("users"),
     isPublic: v.boolean(),
     status: vStatus,
@@ -44,9 +45,11 @@ export default defineSchema({
     branchId: v.optional(v.id("chats")),
   })
     .index("by_user", ["userId"])
+    .index("by_client_id", ["clientId"])
     .index("by_user_lastMessageTimestamp", ["userId", "lastMessageTimestamp"]),
   messages: defineTable({
     prompt: v.string(),
+    clientId: v.string(),
     userId: v.id("users"),
     chatId: v.id("chats"),
     modelId: v.id("models"),
@@ -64,6 +67,7 @@ export default defineSchema({
     .index("by_chat", ["chatId"])
     .index("by_stream", ["responseStreamId"])
     .index("by_search", ["searchContent"])
+    .index("by_client_id", ["clientId"])
     .searchIndex("searchableMessage", {
       searchField: "searchContent",
       filterFields: ["userId"],

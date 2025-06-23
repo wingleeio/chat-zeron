@@ -223,7 +223,7 @@ function SidebarChats() {
                 <SidebarMenuButton className="w-full" asChild>
                   <Link
                     to="/c/$cid"
-                    params={{ cid: chat._id }}
+                    params={{ cid: chat.clientId }}
                     className="w-full flex"
                     activeProps={{
                       className: "bg-muted",
@@ -240,7 +240,7 @@ function SidebarChats() {
                           >
                             <Link
                               to="/c/$cid"
-                              params={{ cid: chat.branch._id }}
+                              params={{ cid: chat.branch.clientId }}
                             >
                               <GitBranchIcon className="size-4" />
                             </Link>
@@ -303,7 +303,7 @@ function SidebarChats() {
   return (
     <Fragment>
       {chats.results.slice(0, 10).map((chat) => (
-        <ChatPreloader key={chat._id} id={chat._id} />
+        <ChatPreloader key={chat._id} clientId={chat.clientId} />
       ))}
       {renderChatGroup(todayChats, "Today")}
       {renderChatGroup(yesterdayChats, "Yesterday")}
@@ -437,7 +437,7 @@ function DeleteChatDialog({
   const deleteChat = useMutationReactQuery({
     mutationFn: useConvexMutation(api.chats.deleteChat),
     onMutate: () => {
-      if (params?.cid === chat?._id) {
+      if (params?.cid === chat?.clientId) {
         navigate({ to: "/" });
       }
     },

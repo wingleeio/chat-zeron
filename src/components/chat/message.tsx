@@ -1,5 +1,5 @@
 import type { StreamId } from "@convex-dev/persistent-text-streaming";
-import type { Doc, Id } from "convex/_generated/dataModel";
+import type { Id } from "convex/_generated/dataModel";
 import { api } from "convex/_generated/api";
 import {
   CopyIcon,
@@ -10,13 +10,13 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Loader, CircularLoader } from "@/components/chat/loaders";
-import { setDrivenIds, useDrivenIds, useTool } from "@/stores/chat";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTool } from "@/stores/chat";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { convexQuery, useConvexMutation } from "@convex-dev/react-query";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import { toast } from "sonner";
 
-import { Fragment, useMemo, useState } from "react";
+import { Fragment, useMemo, useRef, useState } from "react";
 import {
   MessageAction,
   MessageActions,
@@ -31,13 +31,16 @@ import { cn } from "@/lib/utils";
 import { Authenticated } from "convex/react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { X } from "lucide-react";
-import { env } from "@/env.client";
-import { useStream } from "@convex-dev/persistent-text-streaming/react";
+
 import { useParseMessage } from "@/hooks/use-parse-message";
 import type { MessageWithUIMessages } from "convex/messages";
 import { motion } from "framer-motion";
-import { useChatByParamId } from "@/hooks/use-chat-by-param-id";
+import {
+  useChatByParamId,
+  useSendMessageByParamId,
+} from "@/hooks/use-chat-by-param-id";
 import { useCurrentUser } from "@/hooks/use-current-user";
+import { match, P } from "ts-pattern";
 
 type CompletedServerMessageProps = {
   message: MessageWithUIMessages;
@@ -45,29 +48,12 @@ type CompletedServerMessageProps = {
 
 function CompletedServerMessage({ message }: CompletedServerMessageProps) {
   const params = useParams({ from: "/c/$cid" });
-  const chatQuery = convexQuery(
-    api.chats.getById,
-    params.cid.startsWith("tmp-") ? "skip" : { id: params.cid as Id<"chats"> }
-  );
   const chat = useChatByParamId();
-  const queryClient = useQueryClient();
   const navigate = useNavigate();
-
   const { data: me } = useCurrentUser();
   const tool = useTool();
 
-  const regenerate = useMutation({
-    mutationFn: useConvexMutation(api.messages.regenerate),
-    onMutate: () => {
-      setDrivenIds((prev) => [...prev, message._id]);
-      queryClient.setQueryData(chatQuery.queryKey, (old: Doc<"chats">) => {
-        return {
-          ...old,
-          status: "submitted",
-        };
-      });
-    },
-  });
+  const sendMessage = useSendMessageByParamId();
 
   const branch = useMutation({
     mutationFn: useConvexMutation(api.chats.branch),
@@ -89,12 +75,23 @@ function CompletedServerMessage({ message }: CompletedServerMessageProps) {
       {uiMessages.map((message) => (
         <UIMessage key={message.id} message={message} />
       ))}
+
       <MessageActions>
         <motion.div
           initial={{ opacity: 0, x: 10 }}
-          animate={{ opacity: 1, x: 0 }}
+          animate={
+            message.responseStreamStatus === "done" ||
+            message.responseStreamStatus === "error"
+              ? { opacity: 1, x: 0 }
+              : { opacity: 0, x: 10 }
+          }
           transition={{ duration: 0.5 }}
-          className="flex items-center gap-1"
+          className={cn(
+            "flex items-center gap-1",
+            message.responseStreamStatus !== "done" &&
+              message.responseStreamStatus !== "error" &&
+              "pointer-events-none"
+          )}
         >
           <MessageAction tooltip="Copy" side="bottom">
             <Button
@@ -127,11 +124,16 @@ function CompletedServerMessage({ message }: CompletedServerMessageProps) {
                 variant="ghost"
                 size="icon"
                 onClick={() =>
-                  regenerate.mutate({ messageId: message._id, tool })
+                  sendMessage.mutate({
+                    chatId: params.cid,
+                    messageId: message.clientId,
+                    prompt: message.prompt,
+                    tool,
+                  })
                 }
-                disabled={regenerate.isPending}
+                disabled={sendMessage.isPending}
               >
-                {regenerate.isPending ? (
+                {sendMessage.isPending ? (
                   <Loader2Icon className="size-3 animate-spin" />
                 ) : (
                   <RefreshCcwIcon className="size-3" />
@@ -155,21 +157,23 @@ function CompletedServerMessage({ message }: CompletedServerMessageProps) {
               </Button>
             </MessageAction>
           </Authenticated>
-          <Button
-            variant="ghost"
-            className="hover:bg-transparent! cursor-default"
-            asChild
-          >
-            <div>
-              <ModelIcon
-                className="fill-primary"
-                model={message.model.icon as ModelType}
-              />
-              <span className="text-xs text-muted-foreground font-normal">
-                {message.model.name}
-              </span>
-            </div>
-          </Button>
+          {message?.model && (
+            <Button
+              variant="ghost"
+              className="hover:bg-transparent! cursor-default"
+              asChild
+            >
+              <div>
+                <ModelIcon
+                  className="fill-primary"
+                  model={message?.model?.icon as ModelType}
+                />
+                <span className="text-xs text-muted-foreground font-normal">
+                  {message?.model?.name}
+                </span>
+              </div>
+            </Button>
+          )}
         </motion.div>
       </MessageActions>
     </Message>
@@ -180,9 +184,7 @@ function UserMessage({ message }: { message: MessageWithUIMessages }) {
   const [isEditing, setIsEditing] = useState(false);
   const [prompt, setPrompt] = useState(message.prompt);
   const params = useParams({ from: "/c/$cid" });
-  const chatQuery = convexQuery(api.chats.getById, {
-    id: params.cid as Id<"chats">,
-  });
+
   const chat = useChatByParamId();
   const { data: me } = useCurrentUser();
 
@@ -190,20 +192,7 @@ function UserMessage({ message }: { message: MessageWithUIMessages }) {
     return chat?.status === "streaming" || chat?.status === "submitted";
   }, [chat?.status]);
 
-  const queryClient = useQueryClient();
-
-  const regenerate = useMutation({
-    mutationFn: useConvexMutation(api.messages.regenerate),
-    onMutate: () => {
-      setDrivenIds((prev) => [...prev, message._id]);
-      queryClient.setQueryData(chatQuery.queryKey, (old: Doc<"chats">) => {
-        return {
-          ...old,
-          status: "submitted",
-        };
-      });
-    },
-  });
+  const sendMessage = useSendMessageByParamId();
 
   return (
     <Message className="flex-col items-end group/user-message">
@@ -251,16 +240,11 @@ function UserMessage({ message }: { message: MessageWithUIMessages }) {
               disabled={isLoading}
               onClick={() => {
                 setIsEditing(false);
-                regenerate.mutate({ messageId: message._id, prompt });
-                queryClient.setQueryData(
-                  chatQuery.queryKey,
-                  (old: Doc<"chats">) => {
-                    return {
-                      ...old,
-                      status: "submitted",
-                    };
-                  }
-                );
+                sendMessage.mutate({
+                  chatId: params.cid,
+                  messageId: message.clientId,
+                  prompt,
+                });
               }}
             >
               Save
@@ -369,40 +353,56 @@ function UploadedFile({
   );
 }
 
-type StreamingServerMessageProps = {
-  message: MessageWithUIMessages;
-};
+function ServerMessage({ message }: { message: MessageWithUIMessages }) {
+  const ref = useRef<MessageWithUIMessages["uiMessages"]>([]);
+  const serverMessage = { ...message };
 
-function StreamingServerMessage({ message }: StreamingServerMessageProps) {
-  const drivenIds = useDrivenIds();
-  const isDriven = drivenIds.includes(message._id);
-  const { text, status } = useStream(
+  if (serverMessage?.uiMessages?.length > 0) {
+    ref.current = serverMessage.uiMessages;
+  }
+
+  if (!serverMessage.uiMessages) {
+    serverMessage.uiMessages = ref.current;
+  }
+
+  serverMessage.uiMessages = ref.current;
+  const resumeStream =
+    serverMessage.uiMessages.length === 0 &&
+    serverMessage.responseStreamStatus === "streaming";
+
+  const streamingQuery = convexQuery(
     api.streaming.getStreamBody,
-    new URL(`${env.VITE_CONVEX_SITE_URL}/stream`),
-    message.responseStreamStatus === "pending" || isDriven,
-    message.responseStreamId as StreamId
+    resumeStream
+      ? {
+          streamId: serverMessage.responseStreamId as StreamId,
+        }
+      : "skip"
   );
+  const persistentBody = useQuery(streamingQuery);
+  const persistentText = persistentBody?.data?.text ?? "";
+  const uiMessages = useParseMessage(persistentText);
 
-  const uiMessages = useParseMessage(text);
+  if (uiMessages.length > 0) {
+    serverMessage.uiMessages = uiMessages;
+  }
 
-  return (
-    <Message className="flex-col w-full">
-      {status === "pending" && <Loader variant="typing" />}
-      {uiMessages.map((message) => (
-        <UIMessage key={message.id} message={message} />
-      ))}
-      <MessageActions className="opacity-0">
-        <Button variant="ghost" size="icon">
-          <CopyIcon className="size-3" />
-        </Button>
-      </MessageActions>
-    </Message>
-  );
+  return match(serverMessage)
+    .with(
+      {
+        uiMessages: [
+          P.not({
+            content: P.nullish,
+          }),
+        ],
+      },
+      () => <CompletedServerMessage message={serverMessage} />
+    )
+    .otherwise(() => <PendingServerMessage />);
 }
 
 export {
   PendingServerMessage,
-  StreamingServerMessage,
   CompletedServerMessage,
+  ServerMessage,
   UserMessage,
 };

@@ -11,11 +11,7 @@ import {
   Unauthenticated,
 } from "convex/react";
 import { ConvexQueryClient, convexQuery } from "@convex-dev/react-query";
-import { QueryClient } from "@tanstack/react-query";
-import {
-  PersistQueryClientProvider,
-  type Persister,
-} from "@tanstack/react-query-persist-client";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import { Toaster } from "@/components/ui/sonner";
 import { SidebarProvider } from "@/components/ui/sidebar";
@@ -32,7 +28,6 @@ export type RouterContext = {
   queryClient: QueryClient;
   convexQueryClient: ConvexQueryClient;
   convexClient: ConvexReactClient;
-  persister: Persister;
 };
 
 export const Route = createRootRouteWithContext<RouterContext>()({
@@ -104,17 +99,14 @@ function AppProvider({ children }: { children: React.ReactNode }) {
   const context = Route.useRouteContext();
   return (
     <ClerkProvider>
-      <PersistQueryClientProvider
-        client={context.queryClient}
-        persistOptions={{ persister: context.persister }}
-      >
+      <QueryClientProvider client={context.queryClient}>
         <ConvexProviderWithClerk
           client={context.convexClient}
           useAuth={useAuth}
         >
           {children}
         </ConvexProviderWithClerk>
-      </PersistQueryClientProvider>
+      </QueryClientProvider>
     </ClerkProvider>
   );
 }
