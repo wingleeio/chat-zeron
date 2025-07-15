@@ -218,7 +218,7 @@ export const models = [
     name: "Kimi K2",
     model: "moonshotai/kimi-k2",
     provider: "openrouter",
-    icon: "openrouter",
+    icon: "moonshot",
     capabilities: ["vision", "tools"] as Infer<typeof vCapabilities>[],
     description:
       "Kimi K2 is a large-scale Mixture-of-Experts (MoE) language model developed by Moonshot AI",

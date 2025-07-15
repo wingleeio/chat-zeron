@@ -7,6 +7,7 @@ import GeminiIcon from "../icons/gemini";
 import GoogleIcon from "../icons/google";
 import GrokIcon from "../icons/grok";
 import MetaIcon from "../icons/meta";
+import MoonshotIcon from "../icons/moonshot";
 import MistralIcon from "../icons/mistral";
 import OllamaIcon from "../icons/ollama";
 import OpenAIIcon from "../icons/openai";
@@ -22,6 +23,7 @@ export type ModelType =
   | "google"
   | "grok"
   | "meta"
+  | "moonshot"
   | "mistral"
   | "ollama"
   | "openai"
@@ -45,6 +47,7 @@ const ModelIcon = ({ model, ...props }: ModelIconProps) => {
     google: GoogleIcon,
     grok: GrokIcon,
     meta: MetaIcon,
+    moonshot: MoonshotIcon,
     mistral: MistralIcon,
     ollama: OllamaIcon,
     openai: OpenAIIcon,
