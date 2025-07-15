@@ -20,9 +20,11 @@ export const createRouter = () => {
       queries: {
         queryKeyHashFn: convexQueryClient.hashFn(),
         queryFn: convexQueryClient.queryFn(),
+        gcTime: 1000 * 60 * 60 * 24, // 24 hours
       },
     },
   });
+
   convexQueryClient.connect(queryClient);
 
   const router = createTanstackRouter({

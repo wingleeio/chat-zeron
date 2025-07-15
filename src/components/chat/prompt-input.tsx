@@ -9,12 +9,12 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
-import { setDrivenIds, setTool, useTool, useInput } from "@/stores/chat";
+import { setTool, useTool, useInput, useFiles } from "@/stores/chat";
 import { convexQuery, useConvexMutation } from "@convex-dev/react-query";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useParams, useNavigate } from "@tanstack/react-router";
+import { useParams } from "@tanstack/react-router";
 import { api } from "convex/_generated/api";
-import type { Doc, Id } from "convex/_generated/dataModel";
+import type { Doc } from "convex/_generated/dataModel";
 import {
   ArrowUp,
   GlobeIcon,
@@ -42,7 +42,10 @@ import { match } from "ts-pattern";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { useCanAffordModel } from "@/hooks/use-can-afford-model";
 import { v4 } from "uuid";
-import { useChatByParamId } from "@/hooks/use-chat-by-param-id";
+import {
+  useChatByParamId,
+  useSendMessageByParamId,
+} from "@/hooks/use-chat-by-param-id";
 
 type PromptInputContextType = {
   isLoading: boolean;
@@ -268,21 +271,18 @@ function FilePreview({ files, fileUrls, onRemoveFile }: FilePreviewProps) {
 
 function PromptInputWithActions() {
   const [input, setInput] = useInput();
-
-  const [files, setFiles] = useState<R2File[]>([]);
+  const [files, setFiles] = useFiles();
   const tool = useTool();
   const supportsVision = useModelSupports("vision");
   const supportsTools = useModelSupports("tools");
   const canUseModel = useCanUseModel();
   const canAffordModel = useCanAffordModel();
   const { data: user } = useCurrentUser();
-  const navigate = useNavigate();
   const uploadFile = useUploadFile(api.files);
   const params = useParams({ from: "/c/$cid", shouldThrow: false });
   const queryClient = useQueryClient();
-
   const chatQuery = convexQuery(api.chats.getById, {
-    id: params?.cid as Id<"chats">,
+    clientId: params?.cid,
   });
 
   const fileUrls = useQuery(api.files.getFileUrls, {
@@ -291,60 +291,7 @@ function PromptInputWithActions() {
 
   const chat = useChatByParamId();
 
-  const sendMessage = useMutation({
-    mutationFn: useConvexMutation(api.messages.send),
-    onMutate: async () => {
-      const tmpId = `tmp-${v4()}`;
-      const actualChatId = chat?._id ?? (tmpId as Id<"chats">);
-      queryClient.setQueryData(
-        convexQuery(api.messages.list, {
-          chatId: actualChatId,
-        }).queryKey,
-        (old: Doc<"messages">[]) => {
-          const prev = old ?? [];
-          return [
-            ...prev,
-            {
-              _id: "temp-message",
-              prompt: input,
-            },
-          ];
-        }
-      );
-      queryClient.setQueryData(
-        convexQuery(api.chats.getById, {
-          id: actualChatId,
-        }).queryKey,
-        (old: Doc<"chats">) => {
-          const prev = old ?? {
-            _id: tmpId as Id<"chats">,
-            userId: user?._id,
-          };
-          return {
-            ...prev,
-            status: "submitted",
-          };
-        }
-      );
-      setInput("");
-      setFiles([]);
-      if (!params?.cid) {
-        await navigate({
-          to: "/c/$cid",
-          params: { cid: tmpId },
-          replace: true,
-        });
-      }
-    },
-    onSuccess: async (message: Doc<"messages">) => {
-      setDrivenIds((prev) => [...prev, message._id]);
-      await navigate({
-        to: "/c/$cid",
-        params: { cid: message.chatId },
-        replace: true,
-      });
-    },
-  });
+  const sendMessage = useSendMessageByParamId();
 
   const deleteFile = useMutation({
     mutationFn: useConvexMutation(api.files.deleteFile),
@@ -383,7 +330,8 @@ function PromptInputWithActions() {
     if (!canAffordModel) return;
     if (input.trim() || files.length > 0) {
       sendMessage.mutate({
-        chatId: chat?._id,
+        chatId: chat?.clientId || v4(),
+        messageId: v4(),
         prompt: input,
         tool: supportsTools ? tool : undefined,
         files: files.map((file) => file.key),

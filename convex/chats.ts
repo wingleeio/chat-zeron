@@ -20,6 +20,7 @@ import { paginationOptsValidator, type PaginationResult } from "convex/server";
 import { streamingComponent } from "convex/streaming";
 import type { UserWithMetadata } from "convex/users";
 import { v } from "convex/values";
+import { v4 } from "uuid";
 
 export type ChatState = {
   toolCost: number;
@@ -30,24 +31,31 @@ export type ChatState = {
 
 export const streamChat = httpAction(async (ctx, request) => {
   const body: {
-    streamId: StreamId;
+    tool?: Tool;
+    chatClientId: string;
+    messageClientId: string;
+    prompt: string;
+    files?: string[];
   } = await request.json();
+
+  const { user, messages, model, message } = await ctx.runMutation(
+    internal.messages.prepare,
+    {
+      messageClientId: body.messageClientId,
+      chatClientId: body.chatClientId,
+      prompt: body.prompt,
+      tool: body.tool,
+      files: body.files,
+    }
+  );
 
   const response = await streamingComponent.stream(
     ctx,
     request,
-    body.streamId,
+    message.responseStreamId as StreamId,
     async (...args) => {
       const ctx = args[0];
-      const streamId = args[2];
       const append = args[3];
-
-      const { user, messages, model, message } = await ctx.runMutation(
-        internal.chats.prepareStream,
-        {
-          streamId,
-        }
-      );
 
       const abortController = new AbortController();
 
@@ -258,21 +266,22 @@ export const { create, read, update } = crud(
 
 export const getById = query({
   args: {
-    id: v.optional(v.id("chats")),
+    clientId: v.optional(v.string()),
   },
   handler: async (ctx, args): Promise<Doc<"chats"> | null> => {
     const user = await ctx.runQuery(internal.auth.authenticate, {});
 
-    if (!args.id) {
+    if (!args.clientId) {
       return null;
     }
 
-    const chat = await ctx.runQuery(internal.chats.read, {
-      id: args.id,
-    });
+    const chat = await ctx.db
+      .query("chats")
+      .withIndex("by_client_id", (q) => q.eq("clientId", args.clientId!))
+      .first();
 
     if (!chat) {
-      return null;
+      throw new Error("Chat not found");
     }
 
     if (!chat.isPublic && chat.userId !== user?._id) {
@@ -482,6 +491,7 @@ export const branch = mutation({
       branchId: args.chatId,
       status: "ready",
       lastMessageTimestamp: Date.now(),
+      clientId: v4(),
     });
 
     const messages = await ctx.db
@@ -503,6 +513,7 @@ export const branch = mutation({
         uiMessages: message.uiMessages,
         tool: message.tool,
         error: message.error,
+        clientId: v4(),
       });
     }
 

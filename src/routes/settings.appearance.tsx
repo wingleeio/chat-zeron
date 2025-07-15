@@ -20,6 +20,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useCallback } from "react";
+import { debounce } from "lodash";
 
 const userQuery = convexQuery(api.users.getCurrent, {});
 export const Route = createFileRoute("/settings/appearance")({
@@ -73,17 +75,43 @@ function RouteComponent() {
         theme?: string | undefined;
       };
     }) => {
-      queryClient.setQueryData(userQuery.queryKey, (old: any) => {
-        return {
-          ...old,
-          appearance: {
-            ...old.appearance,
-            ...data.appearance,
-          },
-        };
-      });
+      console.log("onMutate", data);
     },
   });
+
+  const debouncedUpdateAppearance = useCallback(
+    debounce(
+      (data: {
+        mode?: "light" | "dark" | undefined;
+        theme?: string | undefined;
+      }) => {
+        updateAppearance.mutate({
+          appearance: data,
+        });
+      },
+      3000
+    ),
+    []
+  );
+
+  const onUpdateAppearance = (data: {
+    appearance: {
+      mode?: "light" | "dark" | undefined;
+      theme?: string | undefined;
+    };
+  }) => {
+    queryClient.setQueryData(userQuery.queryKey, (old: any) => {
+      const newData = {
+        ...old.appearance,
+        ...data.appearance,
+      };
+      debouncedUpdateAppearance(newData);
+      return {
+        ...old,
+        appearance: newData,
+      };
+    });
+  };
 
   const mode = user?.appearance?.mode ?? "dark";
   const theme = user?.appearance?.theme ?? "default";
@@ -94,12 +122,10 @@ function RouteComponent() {
         <RadioGroup
           className="grid grid-cols-2 gap-4"
           value={mode}
-          disabled={updateAppearance.isPending}
           onValueChange={(value) => {
-            updateAppearance.mutate({
+            onUpdateAppearance({
               appearance: {
                 mode: value as any,
-                theme: theme,
               },
             });
           }}
@@ -118,12 +144,10 @@ function RouteComponent() {
       <FormSection title="Theme" description="Select your theme.">
         <Select
           value={theme}
-          disabled={updateAppearance.isPending}
           onValueChange={(value) => {
-            updateAppearance.mutate({
+            onUpdateAppearance({
               appearance: {
                 theme: value,
-                mode: mode,
               },
             });
           }}

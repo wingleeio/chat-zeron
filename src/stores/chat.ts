@@ -1,6 +1,11 @@
 import { Store, useStore } from "@tanstack/react-store";
 import type { Tool } from "convex/ai/schema";
 
+type R2File = {
+  key: string;
+  name: string;
+};
+
 const store = new Store({
   drivenIds: [] as string[],
   openReasoningIds: [] as string[],
@@ -8,7 +13,20 @@ const store = new Store({
   tool: undefined as Tool | undefined,
   openSearch: false as boolean,
   input: "" as string,
+  files: [] as R2File[],
 });
+
+export function useFiles() {
+  const value = useStore(store, (state) => state.files);
+  return [value, setFiles] as const;
+}
+
+function setFiles(files: R2File[] | ((prev: R2File[]) => R2File[])) {
+  store.setState((prev) => ({
+    ...prev,
+    files: typeof files === "function" ? files(prev.files) : files,
+  }));
+}
 
 export function useInput() {
   const value = useStore(store, (state) => state.input);
