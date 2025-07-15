@@ -111,7 +111,7 @@ const performResearch = async (
   };
 
   const { text, usage } = await generateText({
-    model: getModel("openrouter", "moonshotai/kimi-k2-instruct"),
+    model: getModel("openrouter", "moonshotai/kimi-k2"),
     system: getResearchPrompt(plan, maxSteps),
     prompt,
     maxSteps,
