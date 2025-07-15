@@ -214,6 +214,18 @@ export const models = [
     isDisabled: false,
     cost: 0,
   },
+  {
+    name: "Kimi K2",
+    model: "moonshotai/kimi-k2-instruct",
+    provider: "openrouter",
+    icon: "openrouter",
+    capabilities: ["vision", "tools"] as Infer<typeof vCapabilities>[],
+    description:
+      "Kimi K2 is a large-scale Mixture-of-Experts (MoE) language model developed by Moonshot AI",
+    isPremium: true,
+    isDisabled: false,
+    cost: 0,
+  },
 ] as const;
 
 export const vModel = v.union(...models.map((m) => v.literal(m.model)));
@@ -246,6 +258,16 @@ export function getModel(
             extraBody: {
               reasoning: {
                 enabled: true,
+              },
+            },
+          });
+        })
+        .with("moonshotai/kimi-k2-instruct", () => {
+          return openrouter(model, {
+            parallelToolCalls: false,
+            extraBody: {
+              provider: {
+                only: ["groq"],
               },
             },
           });
