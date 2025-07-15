@@ -35,16 +35,4 @@ export default internalMutation(async (ctx) => {
       });
     }
   }
-
-  for (const message of await ctx.db.query("messages").collect()) {
-    await ctx.db.patch(message._id, {
-      clientId: message._id,
-    });
-  }
-
-  for (const chat of await ctx.db.query("chats").collect()) {
-    await ctx.db.patch(chat._id, {
-      clientId: chat._id,
-    });
-  }
 });
