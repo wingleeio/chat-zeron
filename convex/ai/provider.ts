@@ -216,7 +216,7 @@ export const models = [
   },
   {
     name: "Kimi K2",
-    model: "moonshotai/kimi-k2-instruct",
+    model: "moonshotai/kimi-k2",
     provider: "openrouter",
     icon: "openrouter",
     capabilities: ["vision", "tools"] as Infer<typeof vCapabilities>[],
@@ -262,7 +262,7 @@ export function getModel(
             },
           });
         })
-        .with("moonshotai/kimi-k2-instruct", () => {
+        .with("moonshotai/kimi-k2", () => {
           return openrouter(model, {
             parallelToolCalls: false,
             extraBody: {

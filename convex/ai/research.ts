@@ -111,7 +111,7 @@ const performResearch = async (
   };
 
   const { text, usage } = await generateText({
-    model: getModel("openrouter", "x-ai/grok-3-mini-beta"),
+    model: getModel("openrouter", "moonshotai/kimi-k2-instruct"),
     system: getResearchPrompt(plan, maxSteps),
     prompt,
     maxSteps,
